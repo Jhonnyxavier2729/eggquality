@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Egg</title>
+    <style>
+      .logo {
+        background-color: white;
+        width: 350px; /* Ajusta el tamaño del logo */
+        height: auto; /* Mantén la proporción */
+        display: block;
+        margin: 20px auto; /* Centra la imagen horizontalmente */
+        border-radius: 50%; /* Hace que la imagen sea circular */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra suave */
+        transition: transform 0.3s, box-shadow 0.3s; /* Transición suave */
+      }
+
+      .logo:hover {
+        transform: scale(1.1); /* Efecto de zoom al pasar el mouse */
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Sombra más intensa */
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <img src="/logo1.png" alt="Logo" class="logo">
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

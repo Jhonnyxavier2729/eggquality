@@ -1,0 +1,13 @@
+# Normaliza los finales de línea a LF
+* text=auto
+
+# Fuerza LF para archivos específicos
+*.js text eol=lf
+*.vue text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+
+# Archivos binarios (sin conversión)
+*.png binary
+*.jpg binary
+*.ico binary
