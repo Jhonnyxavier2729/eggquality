@@ -6,7 +6,8 @@ import {
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword,
   signOut,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  onAuthStateChanged
 } from 'firebase/auth';
 import { auth } from '@/firebase/config'; 
 
@@ -16,15 +17,21 @@ export const useAuthStore = defineStore('auth', () => {
   const loading = ref(false);
   const toast = useToast(); // Inicializa las notificaciones
 
+  onAuthStateChanged(auth, (currentUser) => {
+    user.value = currentUser; // Sincroniza el estado del usuario con Firebase
+  });
+
   const register = async (email, password) => {
     loading.value = true;
     error.value = null;
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      user.value = userCredential.user;
+      user.value = userCredential.user; // Actualiza el estado del usuario
       toast.success('Registro exitoso'); // Notificación de éxito
     } catch (err) {
+      error.value = err.message;
       toast.error('Error al registrarse: ' + err.message); // Notificación de error
+      throw err; // Lanza el error para que el componente lo maneje
     } finally {
       loading.value = false;
     }
@@ -38,11 +45,7 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = userCredential.user;
       toast.success('Inicio de sesión exitoso'); // Notificación de éxito
     } catch (err) {
-      // Manejo de errores de Firebase
       switch (err.code) {
-        case 'auth/invalid-credential':
-          toast.error('Credenciales inválidas. Por favor, verifica tu correo y contraseña.');
-          break;
         case 'auth/user-not-found':
           toast.error('El usuario no existe.');
           break;
@@ -55,6 +58,7 @@ export const useAuthStore = defineStore('auth', () => {
         default:
           toast.error('Error al iniciar sesión. Inténtalo de nuevo.');
       }
+      throw err; // Lanza el error para que el componente lo maneje
     } finally {
       loading.value = false;
     }
