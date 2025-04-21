@@ -78,7 +78,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['toggle-auth-mode']);
+const emit = defineEmits(['toggle-auth-mode', 'submit']);
 
 const email = ref('');
 const password = ref('');
@@ -90,7 +90,7 @@ const error = computed(() => authStore.error);
 const loading = computed(() => authStore.loading);
 
 const toggleAuthMode = () => {
-  emit('toggle-auth-mode');
+  emit('toggle-auth-mode'); // Emite el evento al componente padre
 };
 
 const submit = async () => {
@@ -99,11 +99,10 @@ const submit = async () => {
     return;
   }
 
-  if (props.isLogin) {
-    await authStore.login(email.value, password.value);
-  } else {
-    await authStore.register(email.value, password.value);
-  }
+  emit('submit', {
+    email: email.value,
+    password: password.value,
+  });
 };
 
 const openPasswordRecoveryModal = () => {

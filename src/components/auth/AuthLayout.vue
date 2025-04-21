@@ -11,6 +11,9 @@
   </template>
   
   <script setup>
+  const props = defineProps({
+    isLoading: Boolean, // Define la prop isLoading
+  });
   </script>
   
   <style scoped>
