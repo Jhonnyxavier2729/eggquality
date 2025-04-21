@@ -24,6 +24,7 @@ const login = async (formData) => {
     router.push('/dashboard'); // Redirige al dashboard solo si el inicio de sesión es exitoso
   } catch (error) {
     console.error('Error al iniciar sesión:', error.message);
+    
   }
 };
 </script>

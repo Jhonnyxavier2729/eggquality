@@ -17,9 +17,14 @@ export const useAuthStore = defineStore('auth', () => {
   const loading = ref(false);
   const toast = useToast(); // Inicializa las notificaciones
 
+  // ===> AÑADE LA DECLARACIÓN DE isAuthInitialized AQUÍ <===
+  const isAuthInitialized = ref(false); // <--- ¡Faltaba esta línea!
+
   onAuthStateChanged(auth, (currentUser) => {
+    console.log('Estado de autenticación cambiado:', currentUser);
     user.value = currentUser; // Sincroniza el estado del usuario con Firebase
   });
+  
 
   const register = async (email, password) => {
     loading.value = true;
@@ -84,5 +89,5 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
-  return { user, error, loading, register, login, logout, recoverPassword };
+  return {  user, error, loading, isAuthInitialized, register, login, logout, recoverPassword };
 });
