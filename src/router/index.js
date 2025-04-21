@@ -31,12 +31,7 @@ const routes = [
     component: () => import('@/views/RegisterView.vue'),
     meta: { requiresAuth: false },
   },
-  {
-    path: '/registro-panal',
-    name: 'RegistroPanal',
-    component: () => import('@/views/RegistroPanal.vue'),
-    meta: { requiresAuth: false },
-  },
+  
   {
     path: '/configuracion',
     name: 'Configuracion',

@@ -6,6 +6,7 @@
 
     <h3>Actividad Reciente</h3>
     <RecentActivity />
+
   </div>
 </template>
 
