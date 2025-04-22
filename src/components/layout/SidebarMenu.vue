@@ -3,7 +3,7 @@
 <template>
   <aside class="sidebar">
     <div >
-      <h1>EggQuality</h1>
+      <img src="@/assets/logo1.png" alt="EggQuality Logo" class="logo-img" />
     </div>
 
     <nav class="menu">
@@ -11,18 +11,20 @@
         <li
           v-for="item in menuItems"
           :key="item.name"
-          :class="{ active: isActive(item.name) }" 
-          @click="navigate(item.route)" 
+          :class="{ active: isActive(item.name) }"
+          @click="navigate(item.route)"
         >
           <span class="icon">{{ item.icon }}</span>
           <span class="text">{{ item.text }}</span>
-          <span v-if="item.completed" class="check">✓</span>
+          
         </li>
       </ul>
     </nav>
 
     <button class="logout-btn" @click="handleLogout">
-      <span class="icon">🔒</span>
+      <span class="icon">
+        <i class="fas fa-power-off"></i>
+      </span>
       <span class="text">Cerrar Sesión</span>
     </button>
   </aside>
@@ -40,10 +42,10 @@ const toast = useToast();
 const authStore = useAuthStore(); // <-- Usa tu store
 
 const menuItems = ref([
-  { text: 'Dashboard', name: 'dashboard', route: { name: 'dashboard' }, icon: '📊', completed: false },
-  { text: 'Análisis de Huevos', name: 'egg-analysis', route: { name: 'egg-analysis' }, icon: '🥚', completed: false },
-  { text: 'Panales', name: 'honeycomb', route: { name: 'honeycomb' }, icon: '🍯', completed: true },
-  { text: 'Lista de Panales', name: 'honeycomb-list', route: { name: 'honeycomb-list' }, icon: '📋', completed: false },
+  { text: 'Dashboard', name: 'dashboard', route: { name: 'dashboard' }, completed: false },
+  { text: 'Análisis de Huevos', name: 'egg-analysis', route: { name: 'egg-analysis' }, completed: false },
+  { text: 'Panales', name: 'honeycomb', route: { name: 'honeycomb' }, completed: true },
+  { text: 'Lista de Panales', name: 'honeycomb-list', route: { name: 'honeycomb-list' }, completed: false },
   { text: 'Configuración', name: 'settings', route: { name: 'settings' }, icon: '⚙️', completed: true }
 ]);
 
@@ -67,20 +69,27 @@ const handleLogout = async () => {
 };
 </script>
 
-// src/components/layout/SidebarMenu.vue - Sección 
+// src/components/layout/SidebarMenu.vue - Sección
 
 <style scoped>
+
+.logo-img {
+  max-width: 100%; /* Asegura que la imagen no exceda el ancho del contenedor */
+  height: auto; /* Mantiene la proporción de la imagen */
+  display: block; /* Centra la imagen dentro del contenedor */
+  margin: 0 auto; /* Centra horizontalmente */
+}
+
 .sidebar {
   width: 250px; /* Ancho base para pantallas grandes */
   /* --- Aplicación de la Paleta de Colores --- */
-  background-color: #efccff; /* Fondo principal (lila/rosa claro) */
+  background-color: #7f7575; /* Fondo principal (lila/rosa claro) */
   color: #000000; /* Color del texto por defecto (negro) */
   /* Puedes usar #fff (blanco) para el texto si prefieres un fondo más oscuro o contrastante */
   /* color: #fff; */
 
   padding: 1.5rem;
   position: fixed; /* Fija la barra lateral */
-  top: 0; /* Fija desde arriba */
   left: 0; /* Fija desde la izquierda */
   height: 100vh; /* <-- Ocupa el alto completo de la ventana */
   display: flex;
@@ -89,15 +98,6 @@ const handleLogout = async () => {
   box-shadow: 2px 0 5px rgba(0,0,0,0.1); /* Sombra ligera a la derecha */
 }
 
-/* --- Estilos para el Título (Logo) --- */
-.logo h1 {
-  /* color: inherit; /* Heredaría el color del texto del .sidebar (#000000 o #fff) */
-  color: #ff753a; /* Usar el color naranja para el título */
-  margin: 0;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(0,0,0,0.1); /* Color del borde inferior (negro semi-transparente) */
-  font-size: 1.8rem; /* Tamaño de fuente del título */
-}
 
 .menu {
   flex: 1; /* Permite que el menú crezca y ocupe el espacio disponible */
@@ -133,7 +133,7 @@ const handleLogout = async () => {
 
 /* Estilos para el estado ACTIVO (la página actual) */
 .menu li.active {
-  background-color: rgba(255, 209, 71, 0.5); /* Usar el amarillo (#ffd147) con más opacidad */
+  background-color: rgba(255, 209, 71, 1);
   font-weight: bold; /* Texto en negrita */
   /* color: inherit; */ /* Mantener el color del texto */
   /* Opcional: usar otro color para el texto en el elemento activo */
@@ -147,11 +147,6 @@ const handleLogout = async () => {
 
 .text {
   flex: 1; /* Permite que el texto ocupe el espacio restante */
-}
-
-.check {
-  color: #4CAF50; /* Mantendremos el color verde para el check de completado */
-  margin-left: 5px;
 }
 
 .logout-btn {
