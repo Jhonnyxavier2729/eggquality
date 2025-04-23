@@ -14,9 +14,11 @@
           :class="{ active: isActive(item.name) }"
           @click="navigate(item.route)"
         >
-          <span class="icon">{{ item.icon }}</span>
+          <span class="icon">
+            <font-awesome-icon :icon="item.icon" />
+          </span>
           <span class="text">{{ item.text }}</span>
-          
+
         </li>
       </ul>
     </nav>
@@ -42,11 +44,11 @@ const toast = useToast();
 const authStore = useAuthStore(); // <-- Usa tu store
 
 const menuItems = ref([
-  { text: 'Dashboard', name: 'dashboard', route: { name: 'dashboard' }, completed: false },
-  { text: 'Análisis de Huevos', name: 'egg-analysis', route: { name: 'egg-analysis' }, completed: false },
-  { text: 'Panales', name: 'honeycomb', route: { name: 'honeycomb' }, completed: true },
-  { text: 'Lista de Panales', name: 'honeycomb-list', route: { name: 'honeycomb-list' }, completed: false },
-  { text: 'Configuración', name: 'settings', route: { name: 'settings' }, icon: '⚙️', completed: true }
+  { text: 'Dashboard', name: 'dashboard', route: { name: 'dashboard' }, icon: 'fa-chart-line', completed: false },
+  { text: 'Análisis de Huevos', name: 'egg-analysis', route: { name: 'egg-analysis' }, icon: 'fa-egg', completed: false },
+  { text: 'Panales', name: 'honeycomb', route: { name: 'honeycomb' }, icon: 'fa-cube', completed: true },
+  { text: 'Lista de Panales', name: 'honeycomb-list', route: { name: 'honeycomb-list' }, icon: 'fa-list', completed: false },
+  { text: 'Configuración', name: 'settings', route: { name: 'settings' }, icon: 'fa-cog', completed: true }
 ]);
 
 const isActive = (itemName) => {
@@ -83,7 +85,7 @@ const handleLogout = async () => {
 .sidebar {
   width: 250px; /* Ancho base para pantallas grandes */
   /* --- Aplicación de la Paleta de Colores --- */
-  background-color: #7f7575; /* Fondo principal (lila/rosa claro) */
+  background-color: #faf9f9; /* Fondo principal (lila/rosa claro) */
   color: #000000; /* Color del texto por defecto (negro) */
   /* Puedes usar #fff (blanco) para el texto si prefieres un fondo más oscuro o contrastante */
   /* color: #fff; */
