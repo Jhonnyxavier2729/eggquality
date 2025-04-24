@@ -9,7 +9,7 @@
           v-model="searchQuery"
         >
         <button class="filter-btn" @click="toggleFilters">
-          <span>🔍</span> Filtros
+          <span></span> Buscar
         </button>
       </div>
 
@@ -147,5 +147,28 @@
     cursor: pointer;
     font-size: 1.2rem;
     padding: 0.5rem;
+  }
+
+  /* Responsive */
+    @media (max-width: 480px) {
+
+    .honeycomb-table {
+    display: block; /* Cambia la tabla a un diseño de bloque */
+  }
+    .controls {
+      flex-direction: column; /* Cambia a diseño vertical */
+      gap: 0.5rem; /* Reduce el espacio entre elementos */
+    }
+
+    .honeycomb-table th,
+    .honeycomb-table td {
+      padding: 0.5rem; /* Reduce el relleno en celdas */
+      font-size: 0.9rem; /* Ajusta el tamaño del texto */
+    }
+
+    .honeycomb-table th::after {
+    content: ':';
+    margin-right: 0.5rem;
+  }
   }
   </style>

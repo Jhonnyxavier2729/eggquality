@@ -84,12 +84,8 @@ const handleLogout = async () => {
 
 .sidebar {
   width: 250px; /* Ancho base para pantallas grandes */
-  /* --- Aplicación de la Paleta de Colores --- */
-  background-color: #faf9f9; /* Fondo principal (lila/rosa claro) */
+  background-color: #d1cfcf; /* Fondo principal (lila/rosa claro) */
   color: #000000; /* Color del texto por defecto (negro) */
-  /* Puedes usar #fff (blanco) para el texto si prefieres un fondo más oscuro o contrastante */
-  /* color: #fff; */
-
   padding: 1.5rem;
   position: fixed; /* Fija la barra lateral */
   left: 0; /* Fija desde la izquierda */
@@ -97,7 +93,7 @@ const handleLogout = async () => {
   display: flex;
   flex-direction: column; /* Items en columna */
   z-index: 1000; /* Asegura que esté encima de otros elementos */
-  box-shadow: 2px 0 5px rgba(0,0,0,0.1); /* Sombra ligera a la derecha */
+  box-shadow: 2px 0 5px rgba(139, 55, 55, 0.1); /* Sombra ligera a la derecha */
 }
 
 
@@ -125,6 +121,19 @@ const handleLogout = async () => {
   border: none;
   width: 100%;
   text-align: left;
+
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Línea divisoria entre los items */
+}
+
+.menu li:last-child {
+  border-bottom: none;
+}
+
+/* Estilos para los íconos */
+.icon {
+  font-size: 1.5rem; /* Aumenta el tamaño del ícono */
+  margin-right: 1rem;
+  color: #ff753a; /* Color naranja para los íconos */
 }
 
 /* Estilos para el estado HOVER (pasar el ratón) */
@@ -145,6 +154,11 @@ const handleLogout = async () => {
 .icon {
   margin-right: 10px;
   font-size: 1.1rem;
+}
+
+.logout-btn .icon {
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
 }
 
 .text {
