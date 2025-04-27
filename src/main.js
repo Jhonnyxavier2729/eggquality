@@ -10,6 +10,14 @@ import '@/assets/main.css';
 import { auth } from '@/firebase/config'; // Importa la configuración de Firebase
 import { onAuthStateChanged } from 'firebase/auth';
 
+// Importa font awesome
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { faChartLine, faEgg, faCube, faList, faCog, faPowerOff } from '@fortawesome/free-solid-svg-icons';
+
+library.add(faChartLine, faEgg, faCube, faList, faCog, faPowerOff);
+
+
 const toastOptions = {
   timeout: 5000,
   closeOnClick: true,
@@ -31,6 +39,10 @@ onAuthStateChanged(auth, async (user) => { // Hacemos esta función async
     app.use(createPinia());
     app.use(router); // Instala el router
     app.use(Toast, toastOptions);
+
+
+     // Registra el componente de Font Awesome después de inicializar `app`
+     app.component('font-awesome-icon', FontAwesomeIcon);
 
     // --- Navegación Inicial Explícita Basada en Autenticación ---
 
