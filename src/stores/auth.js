@@ -2,41 +2,40 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { useToast } from 'vue-toastification';
 
-import { 
-  createUserWithEmailAndPassword, 
+import {
+  createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
   onAuthStateChanged
 } from 'firebase/auth';
-import { auth } from '@/firebase/config'; 
+import { auth } from '@/firebase/config';
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null);
   const error = ref(null);
   const loading = ref(false);
-  const toast = useToast(); // Inicializa las notificaciones
+  const toast = useToast();
+  const isAuthInitialized = ref(false); // Variable añadida
 
-  // ===> AÑADE LA DECLARACIÓN DE isAuthInitialized AQUÍ <===
-  const isAuthInitialized = ref(false); // <--- ¡Faltaba esta línea!
-
+  // Observador de autenticación
   onAuthStateChanged(auth, (currentUser) => {
     console.log('Estado de autenticación cambiado:', currentUser);
-    user.value = currentUser; // Sincroniza el estado del usuario con Firebase
+    user.value = currentUser;
+    isAuthInitialized.value = true; // Ahora sí se indica que ya se inicializó
   });
-  
 
   const register = async (email, password) => {
     loading.value = true;
     error.value = null;
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      user.value = userCredential.user; // Actualiza el estado del usuario
-      toast.success('Registro exitoso'); // Notificación de éxito
+      user.value = userCredential.user;
+      toast.success('Registro exitoso');
     } catch (err) {
       error.value = err.message;
-      toast.error('Error al registrarse: ' + err.message); // Notificación de error
-      throw err; // Lanza el error para que el componente lo maneje
+      toast.error('Error al registrarse: ' + err.message);
+      throw err;
     } finally {
       loading.value = false;
     }
@@ -48,7 +47,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       user.value = userCredential.user;
-      toast.success('Inicio de sesión exitoso'); // Notificación de éxito
+      toast.success('Inicio de sesión exitoso');
     } catch (err) {
       switch (err.code) {
         case 'auth/user-not-found':
@@ -63,7 +62,7 @@ export const useAuthStore = defineStore('auth', () => {
         default:
           toast.error('Error al iniciar sesión. Inténtalo de nuevo.');
       }
-      throw err; // Lanza el error para que el componente lo maneje
+      throw err;
     } finally {
       loading.value = false;
     }
@@ -73,9 +72,9 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       await signOut(auth);
       user.value = null;
-      toast.success('Cierre de sesión exitoso'); // Notificación de éxito
-    } catch (err) {
-      toast.error('Error al cerrar sesión'); // Notificación de error
+      toast.success('Cierre de sesión exitoso');
+    }catch{
+      toast.error('Error al cerrar sesión');
     }
   };
 
@@ -84,10 +83,19 @@ export const useAuthStore = defineStore('auth', () => {
       await sendPasswordResetEmail(auth, email);
       toast.success('Se ha enviado un enlace para restablecer tu contraseña a tu correo.');
     } catch (err) {
-      // Lanza el error para que el componente lo maneje
+      toast.error('Error al enviar el enlace de restablecimiento: ' + err.message);
       throw err;
     }
   };
 
-  return {  user, error, loading, isAuthInitialized, register, login, logout, recoverPassword };
+  return {
+    user,
+    error,
+    loading,
+    isAuthInitialized,
+    register,
+    login,
+    logout,
+    recoverPassword
+  };
 });

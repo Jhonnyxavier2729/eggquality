@@ -84,3 +84,28 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Media query para pantallas pequeñas */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px; /* Ajusta el tamaño de fuente */
+  }
+
+  h1, h2, h3 {
+    font-size: 1.2rem; /* Reduce los tamaños de encabezados */
+  }
+
+  .container {
+    padding: 1rem; /* Reduce el padding general */
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 12px; /* Ajusta aún más el tamaño de fuente */
+  }
+
+  .container {
+    padding: 0.5rem; /* Reduce el padding para pantallas muy pequeñas */
+  }
+}

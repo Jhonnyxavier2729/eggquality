@@ -1,4 +1,9 @@
 /* Reset básico */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px; /* Ajusta el tamaño de fuente en pantallas pequeñas */
+  }
+}
 * {
   margin: 0;
   padding: 0;
