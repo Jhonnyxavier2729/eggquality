@@ -64,14 +64,11 @@
         </div>
 
         <div class="form-group">
-          <label for="fechaVencimiento">Fecha de Vencimiento</label>
-           <input id="fechaVencimiento" v-model="formData.fechaVencimiento" type="date" class="form-input" required />
-          <div class="mensaje-recomendacion"> <!--Cambiado a recomendacion para distinguir de error -->
-               <small>Recomendación: La fecha de vencimiento no debe superar los 28 días desde la postura.</small>
-           </div>
-           <div v-if="dateError" class="mensaje-error"> <!--Mostrar error de validación de fecha aquí  -->
-              <small>{{ dateError }}</small>
-           </div>
+          <label>Fecha de Vencimiento</label>
+          <input v-model="panal.fechaVencimiento" type="date" class="form-input" required />
+          <div class="mensaje-error">
+             <small><strong>Recomendación: </strong> La fecha de vencimiento no debe superar los 28 días desde la postura.</small>
+          </div>
         </div>
       </div>
 
@@ -225,7 +222,7 @@ const resetForm = () => {
 <style scoped>
 /* Estilos base */
 .form-container {
-  max-width: 800px;
+  max-width: 1000px;
   margin: 20px auto;
   padding: 25px;
   background-color: white;
@@ -277,13 +274,13 @@ h2 {
 .registro-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 15px;
 }
 
 .form-row {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 25px;
+  gap: 80px;
 }
 
 .form-group {
@@ -385,10 +382,10 @@ select:invalid {
 
 
 /* Responsive */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .form-row {
-    grid-template-columns: 1fr; /* Una columna en pantallas pequeñas */
-    gap: 15px; /* Reducir gap */
+    grid-template-columns: 1fr;
+    gap: 20px;
   }
 
   .form-container {
@@ -400,22 +397,14 @@ select:invalid {
     font-size: 1.3rem;
     padding: 10px;
   }
-    .submit-btn {
-        margin-top: 15px; /* Ajustar margen superior */
-        width: 100%; /* Botón de ancho completo en móvil */
-        padding: 12px 15px; /* Ajustar padding */
-    }
 
-    .form-group.submit-group {
-        justify-content: stretch; /* Estirar el botón a ancho completo */
-        align-items: stretch;
-    }
-
-
+  .registro-form {
+    gap: 25px; /* Ajusta el espacio entre las filas */
+  }
 }
 
-/* El siguiente bloque @media (max-width: 600px) está duplicado, se puede eliminar */
-/* @media (max-width: 600px) {
+/* Responsive: Cambia a vertical en móviles */
+@media (max-width: 600px) {
   .form-row {
     grid-template-columns: 1fr;
   }

@@ -19,7 +19,7 @@ import SidebarMenu from '@/components/layout/SidebarMenu.vue'; // <-- Ajusta la 
 
 // src/layouts/AuthenticatedLayout.vue - Sección
 
-// src/layouts/AuthenticatedLayout.vue - Sección 
+// src/layouts/AuthenticatedLayout.vue - Sección
 
 <style scoped>
 .authenticated-layout {
@@ -33,7 +33,7 @@ import SidebarMenu from '@/components/layout/SidebarMenu.vue'; // <-- Ajusta la 
   padding: 1.5rem;
   /* Margen izquierdo base para pantallas grandes (coincide con ancho de sidebar fijo) */
   margin-left: 250px;
-  width: calc(100% - 250px); /* Ocupa el resto del ancho */
+  width: calc(100% - 200px); /* Ocupa el resto del ancho */
   overflow-y: auto;
   /* overflow-x: hidden; */
 }
