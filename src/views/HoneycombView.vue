@@ -2,7 +2,7 @@
 
 <template>
   <div class="form-container">
-    <h2>Registro de Panal de Huevos</h2>
+    <h2>Registro y Control de Panales de Huevos</h2>
     <form @submit.prevent="handleSubmit" class="registro-form">
       <div class="form-row">
         <div class="form-group">
