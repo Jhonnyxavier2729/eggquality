@@ -65,7 +65,7 @@
 
         <div class="form-group">
           <label>Fecha de Vencimiento</label>
-          <input v-model="panal.fechaVencimiento" type="date" class="form-input" required />
+          <input v-model="formData.fechaVencimiento" type="date" class="form-input" required />
           <div class="mensaje-error">
              <small><strong>Recomendación: </strong> La fecha de vencimiento no debe superar los 28 días desde la postura.</small>
           </div>
@@ -74,10 +74,9 @@
 
       <div class="form-row">
         <div class="form-group">
-          <label for="estado">Estado</label>
-           <select id="estado" v-model="formData.estado" class="form-input" required>
+          <label>Estado</label>
+          <select v-model="formData.estado" class="form-input" required>
             <option value="Activo">Activo</option>
-            <option value="Vencido">Vencido</option> <!--Opciones según tu necesidad -->
           </select>
         </div>
 
@@ -100,11 +99,10 @@
 <script setup>
 import { ref, nextTick} from 'vue'; // Importa ref
 import { usePanalesStore } from '@/stores/panalesStore'; // Importa tu store de panales
-import { useToast } from 'vue-toastification'; // Importa useToast si quieres toasts específicos de la vista
+
 
 
 const panalesStore = usePanalesStore(); // Usa el store
-const toast = useToast(); // Opcional: usar toast en la vista
 const idPanalInput = ref(null);
 
 // Estado reactivo para los datos del formulario (Composition API)
@@ -408,6 +406,15 @@ select:invalid {
   .form-row {
     grid-template-columns: 1fr;
   }
-} */
 
+  .input-group {
+    flex-direction: column; /* Apila el input y el botón */
+    gap: 10px; /* Espacio entre el input y el botón */
+  }
+
+  .generate-btn {
+    width: 100%; /* Botón ocupa todo el ancho */
+  }
+}
 </style>
+

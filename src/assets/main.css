@@ -1,17 +1,22 @@
 /* Reset básico */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px; /* Ajusta el tamaño de fuente en pantallas pequeñas */
+  }
+}
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  /* Animaciones */
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity 0.3s ease;
-  }
-  
-  .fade-enter-from,
-  .fade-leave-to {
-    opacity: 0;
-  }
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Animaciones */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}

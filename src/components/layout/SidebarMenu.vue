@@ -1,47 +1,60 @@
 // src/components/layout/SidebarMenu.vue
-
 <template>
-  <aside class="sidebar">
-    <div >
-      <img src="@/assets/logo1.png" alt="EggQuality Logo" class="logo-img" />
-    </div>
-
-    <nav class="menu">
-      <ul>
-        <li
-          v-for="item in menuItems"
-          :key="item.name"
-          :class="{ active: isActive(item.name) }"
-          @click="navigate(item.route)"
-        >
-          <span class="icon">
-            <font-awesome-icon :icon="item.icon" />
-          </span>
-          <span class="text">{{ item.text }}</span>
-
-        </li>
-      </ul>
-    </nav>
-
-    <button class="logout-btn" @click="handleLogout">
-      <span class="icon">
-        <i class="fas fa-power-off"></i>
-      </span>
-      <span class="text">Cerrar Sesión</span>
+  <div>
+    <!-- Botón hamburguesa -->
+    <button class="hamburger" @click="toggleSidebar">
+      <i class="fas fa-bars"></i>
     </button>
-  </aside>
+
+    <!-- Sidebar con clase condicional -->
+    <aside :class="['sidebar', { open: isSidebarOpen }]">
+      <div>
+        <img src="@/assets/logo1.png" alt="EggQuality Logo" class="logo-img" />
+      </div>
+
+      <nav class="menu">
+        <ul>
+          <li
+            v-for="item in menuItems"
+            :key="item.name"
+            :class="{ active: isActive(item.name) }"
+            @click="navigate(item.route)"
+          >
+            <span class="icon">
+              <font-awesome-icon :icon="item.icon" />
+            </span>
+            <span class="text">{{ item.text }}</span>
+          </li>
+        </ul>
+      </nav>
+
+      <button class="logout-btn" @click="handleLogout">
+        <span class="icon">
+          <i class="fas fa-power-off"></i>
+        </span>
+        <span class="text">Cerrar Sesión</span>
+      </button>
+    </aside>
+  </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useToast } from 'vue-toastification';
-import { useAuthStore } from '@/stores/auth'; // <-- Importa tu store
+import { useAuthStore } from '@/stores/auth';
 
 const router = useRouter();
 const route = useRoute();
 const toast = useToast();
-const authStore = useAuthStore(); // <-- Usa tu store
+const authStore = useAuthStore();
+
+// Sidebar visible u oculto
+const isSidebarOpen = ref(false);
+
+const toggleSidebar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value;
+};
 
 const menuItems = ref([
   { text: 'Dashboard', name: 'dashboard', route: { name: 'dashboard' }, icon: 'fa-chart-line', completed: false },
@@ -57,11 +70,12 @@ const isActive = (itemName) => {
 
 const navigate = (itemRoute) => {
   router.push(itemRoute);
+  isSidebarOpen.value = false; // Oculta el sidebar al navegar en móvil
 };
 
 const handleLogout = async () => {
   try {
-    await authStore.logout(); // <-- Usa la acción de logout de tu store
+    await authStore.logout();
     toast.success('Sesión cerrada correctamente');
     router.push('/login');
   } catch (error) {
@@ -70,6 +84,7 @@ const handleLogout = async () => {
   }
 };
 </script>
+
 
 // src/components/layout/SidebarMenu.vue - Sección
 
@@ -139,7 +154,6 @@ const handleLogout = async () => {
 /* Estilos para el estado HOVER (pasar el ratón) */
 .menu li:hover, .logout-btn:hover {
   background-color: rgba(255, 209, 71, 0.3); /* Usar el amarillo (#ffd147) con transparencia para el fondo */
-  /* color: inherit; */ /* Mantener el color del texto */
 }
 
 /* Estilos para el estado ACTIVO (la página actual) */
@@ -168,86 +182,66 @@ const handleLogout = async () => {
 .logout-btn {
   margin-top: auto; /* Empuja el botón de logout hacia abajo */
   margin-bottom: 1rem;
-  /* Opcional: Estilizar el botón de logout de forma diferente, quizás con el color naranja */
-  /* background-color: #ff753a; */
-  /* color: white; */
-  /* font-weight: bold; */
 }
 
 
 /* --- Ajustes de Responsividad (con Media Queries) --- */
 /* Estos estilos se aplicarán cuando el ancho de la pantalla sea 768px o menor */
+/* BOTÓN HAMBURGUESA - solo se muestra en móviles */
+.hamburger {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1100;
+  font-size: 2rem;
+  background: none;
+  border: none;
+  color: #ff753a;
+  cursor: pointer;
+}
+
+/* Oculta sidebar en móviles si isOpen es false */
+.hide-on-mobile {
+  display: none;
+}
+
+/* Estilos responsivos */
 @media (max-width: 768px) {
   .sidebar {
-    width: 100%; /* Ocupa todo el ancho */
-    height: auto; /* La altura se ajusta al contenido */
-    position: relative; /* Cambia de fijo a relativo (se mueve con el scroll) */
-    padding: 1rem 0.5rem; /* Ajusta el espaciado interno */
-    flex-direction: row; /* Coloca los elementos (logo, menú, logout) en fila */
-    justify-content: space-between; /* Distribuye el espacio entre los elementos */
-    align-items: center; /* Alinea verticalmente los elementos en la fila */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Ajusta la sombra (abajo) */
-    /* background-color: #efccff; */ /* Mantén el fondo o cámbialo si quieres */
+    width: 65%;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background-color: #d1cfcf;
+    z-index: 1000;
+    transition: transform 0.3s ease-in-out;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
   }
 
-  .sidebar .logo h1 {
-    padding-bottom: 0;
-    border-bottom: none;
-    margin-right: 1rem;
-    font-size: 1.5rem; /* Ajusta el tamaño del título en pantallas pequeñas */
-    /* color: #ff753a; */ /* Mantén el color naranja para el título */
+  .sidebar.open {
+    transform: translateX(0);
   }
 
-  .sidebar .menu {
-    flex: none; /* Evita que el menú intente ocupar todo el espacio */
-    margin-top: 0; /* Quita el margen superior */
+  .hamburger {
+    display: block;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1100;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #ff753a;
+    cursor: pointer;
   }
 
-  .sidebar .menu ul {
-      display: flex; /* Coloca los items del menú en fila */
-      flex-direction: row;
-      flex-wrap: wrap; /* Permite que los items salten de línea si no caben */
-      justify-content: center; /* Centra los items en la fila */
+  .main-content {
+    margin-left: 0;
   }
 
-  /* Estilos para los elementos de la lista y el botón de logout en fila */
-  .menu li, .logout-btn {
-      padding: 0.5rem; /* Ajusta el espaciado de los items */
-      margin: 0 0.25rem; /* Ajusta el margen horizontal entre items */
-      width: auto; /* El ancho se ajusta al contenido */
-      flex-direction: column; /* Coloca ícono arriba y texto abajo */
-      text-align: center; /* Centra el texto */
-  }
-
-  .sidebar .icon {
-      margin-right: 0; /* Quita el margen del ícono a la derecha */
-      /* font-size: 1.2rem; */ /* Ajusta el tamaño del ícono si quieres */
-  }
-
-   /* Hace el texto visible en pantallas pequeñas */
-  .sidebar .text {
-      display: block; /* Muestra el texto */
-      font-size: 0.8rem; /* Tamaño de fuente más pequeño para el texto */
-      margin-top: 5px; /* Espacio entre el ícono y el texto */
-      /* color: inherit; */ /* Hereda el color del texto del sidebar */
-  }
-
-  .sidebar .check {
-       margin-left: 0; /* Ajusta margen */
-  }
-
-  /* Estilos para el botón de logout en pantallas pequeñas */
-  .sidebar .logout-btn {
-    margin-top: 0; /* Quita el margen superior */
-    margin-left: 1rem; /* Añade margen a la izquierda para separarlo del menú */
-    padding: 0.75rem; /* Mantén o ajusta el espaciado */
-    /* background-color: #ff753a; */ /* Opcional: color naranja en móvil */
-    /* color: white; */
-  }
-
-  /* IMPORTANTE: Necesitas ajustar el 'margin-left' del .main-content en tu AuthenticatedLayout.vue */
-  /* para que sea 0px en pantallas pequeñas (<= 768px) donde la sidebar ya no es fija ni tiene 250px de ancho */
-  /* @media (max-width: 768px) { .main-content { margin-left: 0; width: 100%; padding-top: ...; } } */
 }
 
 /* Opcional: Ajustes de Responsividad para pantallas AÚN más pequeñas (ej: móviles) */

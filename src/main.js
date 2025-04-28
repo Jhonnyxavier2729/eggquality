@@ -32,6 +32,8 @@ const toastOptions = {
 
 let app;
 
+
+
 // Esperamos a que Firebase Auth determine el estado inicial
 onAuthStateChanged(auth, async (user) => { // Hacemos esta función async
   if (!app) { // Nos aseguramos de crear/montar la app una sola vez
