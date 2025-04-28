@@ -60,7 +60,7 @@ export const useAuthStore = defineStore('auth', () => {
           toast.error('El correo no es válido.');
           break;
         default:
-          toast.error('Error al iniciar sesión. Inténtalo de nuevo.');
+          toast.error('Error al iniciar sesión, inténtalo de nuevo.');
       }
       throw err;
     } finally {
@@ -72,7 +72,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       await signOut(auth);
       user.value = null;
-      toast.success('Cierre de sesión exitoso');
+      //toast.success('Cierre de sesión exitoso');
     }catch{
       toast.error('Error al cerrar sesión');
     }

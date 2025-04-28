@@ -75,7 +75,6 @@
           <label>Estado</label>
           <select v-model="panal.estado" class="form-input" required>
             <option value="Activo">Activo</option>
-            <option value="Vencido">Vencido</option>
           </select>
         </div>
 
@@ -292,6 +291,15 @@ select:invalid {
 @media (max-width: 600px) {
   .form-row {
     grid-template-columns: 1fr;
+  }
+
+  .input-group {
+    flex-direction: column; /* Apila el input y el botón */
+    gap: 10px; /* Espacio entre el input y el botón */
+  }
+
+  .generate-btn {
+    width: 100%; /* Botón ocupa todo el ancho */
   }
 }
 </style>
