@@ -74,7 +74,7 @@
         <div class="form-group">
           <label>Estado</label>
           <select v-model="panal.estado" class="form-input" required>
-            <option value="Activo">Activo</option>
+            <option value="Activo">Activo</option>            git pull origin test
           </select>
         </div>
 
