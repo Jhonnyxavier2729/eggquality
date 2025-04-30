@@ -70,12 +70,20 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   const logout = async () => {
+    error.value = null; // Limpiar errores previos
+    loading.value = true; // Opcional: mostrar estado de carga durante el logout
     try {
       await signOut(auth);
-      user.value = null;
-      toast.success('Cierre de sesión exitoso'); // Notificación de éxito
+      // El listener onAuthStateChanged actualizará user.value a null automáticamente
+      // user.value = null; // Esta línea es opcional si confías en onAuthStateChanged
+      // Ya NO muestres el toast aquí
     } catch (err) {
-      toast.error('Error al cerrar sesión'); // Notificación de error
+      console.error('Error en auth.js al cerrar sesión:', err);
+      error.value = 'Error interno al cerrar sesión'; // Opcional: establecer un error en el store
+      // Ya NO muestres el toast aquí
+      throw err; // <-- IMPORTANTE: Relanza el error para que el componente lo capture
+    } finally {
+        loading.value = false; // Opcional: finalizar estado de carga
     }
   };
 
