@@ -13,9 +13,9 @@ import { onAuthStateChanged } from 'firebase/auth';
 // Importa font awesome
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faChartLine, faEgg, faCube, faList, faCog, faPowerOff } from '@fortawesome/free-solid-svg-icons';
+import { faChartLine, faEgg, faCube, faList, faCog, faPowerOff, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 
-library.add(faChartLine, faEgg, faCube, faList, faCog, faPowerOff);
+library.add(faChartLine, faEgg, faCube, faList, faCog, faPowerOff, faQuestionCircle);
 
 
 const toastOptions = {

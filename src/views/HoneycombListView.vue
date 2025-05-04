@@ -56,6 +56,19 @@
       :panal="selectedPanal"
       @close="showDetailsModal = false"
     />
+    <!--   Añadir el componente ConfirmModal aquí  -->
+    <!--  Se mostrará cuando showDeleteConfirm sea true  -->
+
+    <ConfirmModal
+      v-if="showDeleteConfirm"
+      title="Eliminar"  
+      :message="`¿Estás seguro de que quieres eliminar el panal?`" 
+      confirmButtonText="Sí, Eliminar" 
+      cancelButtonText="Cancelar" 
+      @confirm="executeDelete" 
+      @cancel="cancelDelete"
+    />
+    
     </div>
 </template>
 
@@ -67,9 +80,16 @@ import PanalDetailsModal from '@/components/panal/PanalDetailsModal.vue';
 // Si necesitas el router para navegar a páginas de edición/detalle, impórtalo
 import { useRouter } from 'vue-router';
 
+import ConfirmModal from '@/components/auth/ConfirmModal.vue';
+
 
 const panalesStore = usePanalesStore();
 const router = useRouter();
+
+// === Mover estas declaraciones al principio ===
+const showDeleteConfirm = ref(false);
+const panalToDelete = ref(null);
+// ===
 
 
 const searchQuery = ref('');
@@ -151,13 +171,31 @@ const editPanal = (panalId) => {
 };
 
 
-// --- Lógica para Eliminar Panal (Se mantiene igual) ---
+// --- Lógica para Eliminar Panal (MODIFICADA para usar ConfirmModal) ---
 const confirmDelete = (panalId) => {
-    // panalId es el ID del documento de Firestore
-    if (confirm('¿Estás seguro de que quieres eliminar este panal? Esta acción no se puede deshacer.')) {
-        panalesStore.deletePanal(panalId); // Llama a la acción del store para eliminar
-    }
+    // En lugar de usar el confirm nativo, mostramos nuestro modal personalizado
+    console.log('Mostrando modal de confirmación para eliminar panal con ID:', panalId);
+    panalToDelete.value = panalId; // Guardamos el ID del panal a eliminar
+    showDeleteConfirm.value = true; // Mostramos el modal
 };
+
+const cancelDelete = () => {
+    // Función llamada cuando el usuario cancela en el modal
+    console.log('Eliminación cancelada.');
+    showDeleteConfirm.value = false; // Ocultamos el modal
+    panalToDelete.value = null; // Limpiamos el ID
+};
+
+const executeDelete = async () => {
+    // Función llamada cuando el usuario confirma en el modal
+    if (panalToDelete.value) {
+        console.log('Ejecutando eliminación del panal con ID:', panalToDelete.value);
+        await panalesStore.deletePanal(panalToDelete.value); // Llamamos a la acción del store
+        showDeleteConfirm.value = false; // Ocultamos el modal
+        panalToDelete.value = null; // Limpiamos el ID después de eliminar
+    }
+};
+// --- Fin Lógica Eliminar Panal ---
 
 
 // Exportar variables/funciones si necesitas acceder a ellas desde fuera (generalmente no en vistas)
