@@ -62,7 +62,7 @@ const routes = [
         meta: { requiresAuth: true },
       },
       {
-        path: 'honeycomb',
+        path: 'honeycomb/:id?', // <-- Añadir :id? para parámetro opcional
         name: 'honeycomb',
         component: () => import('@/views/HoneycombView.vue'),
         meta: { requiresAuth: true },
