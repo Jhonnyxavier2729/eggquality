@@ -1,125 +1,299 @@
 <template>
-  <div class="settings-view">
-    <h2>Configuración</h2>
-    
-    <div class="settings-grid">
-      <div class="settings-card">
-        <h3>Perfil</h3>
-        <div class="form-group">
-          <label>Nombre</label>
-          <input type="text" v-model="user.name" />
-        </div>
-        <div class="form-group">
-          <label>Correo Electrónico</label>
-          <input type="email" v-model="user.email" disabled />
-        </div>
-        <button class="save-btn">Guardar Cambios</button>
-      </div>
-      
-      <div class="settings-card">
-        <h3>Seguridad</h3>
-        <button class="change-password-btn" @click="changePassword">
-          Cambiar Contraseña
+  <div class="config-container">
+    <h2>Configuración de Usuario</h2>
+    <div class="form-wrapper">
+
+      <section class="form-section user-data-section">
+        <h3>Datos de Usuario</h3>
+        <!-- Este formulario estaba vacío, se eliminó -->
+        <label>
+          Correo Electrónico:
+          <input type="email" :value="emailUsuario" disabled class="form-input" />
+        </label>
+      </section>
+
+      <section class="form-section password-section">
+        <h3>Cambiar Contraseña</h3>
+        <form @submit.prevent="cambiarContrasena">
+          <label>
+            Contraseña Actual:
+            <input v-model="contrasenaActual" type="password" required class="form-input" />
+          </label>
+          <label>
+            Nueva Contraseña:
+            <input v-model="nuevaContrasena" type="password" required class="form-input" />
+          </label>
+          <label>
+            Confirmar Nueva Contraseña:
+            <input v-model="confirmarContrasena" type="password" required class="form-input" />
+          </label>
+          <button type="submit" class="centered-button" :disabled="authStore.loading">
+            {{ textoBotonGuardarContrasena }}
+          </button>
+        </form>
+      </section>
+
+      <section class="form-section notificaciones-section">
+        <h3>Preferencias de Notificación</h3>
+        <label class="notificacion-label">
+          Quiero recibir notificaciones por correo sobre vencimiento de panales.
+          <input type="checkbox" v-model="recibirNotificaciones" />
+        </label>
+        <button class="notificacion-btn" @click="guardarPreferencias" :disabled="authStore.loading">
+          Guardar Preferencias
         </button>
-        <button class="logout-btn" @click="logout">
-          Cerrar Sesión
-        </button>
-      </div>
-      
-      <div class="settings-card">
-        <h3>Preferencias</h3>
-        <div class="form-group">
-          <label>Tema</label>
-          <select v-model="theme">
-            <option value="light">Claro</option>
-            <option value="dark">Oscuro</option>
-          </select>
-        </div>
-      </div>
+      </section>
+
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed /* onMounted */ } from 'vue';
+import { useToast } from 'vue-toastification';
 import { useAuthStore } from '@/stores/auth';
-import { useRouter } from 'vue-router';
 
+const toast = useToast();
 const authStore = useAuthStore();
-const router = useRouter();
 
-const user = ref({
-  name: 'Usuario Ejemplo',
-  email: authStore.user?.email || 'user@example.com'
-});
+const contrasenaActual = ref('');
+const nuevaContrasena = ref('');
+const confirmarContrasena = ref('');
 
-const theme = ref('light');
+const recibirNotificaciones = ref(false);
 
-const changePassword = () => {
-  console.log('Función para cambiar contraseña no implementada.');
+const emailUsuario = computed(() => authStore.user?.email || '');
+
+const cambiarContrasena = async () => {
+  authStore.error = null;
+
+  if (!authStore.user) {
+    toast.error('No hay usuario autenticado.');
+    return;
+  }
+
+  if (!contrasenaActual.value || !nuevaContrasena.value || !confirmarContrasena.value) {
+    toast.warning('Por favor, completa todos los campos de contraseña.');
+    return;
+  }
+
+  if (nuevaContrasena.value !== confirmarContrasena.value) {
+    toast.error('Las nuevas contraseñas no coinciden.');
+    return;
+  }
+
+  try {
+    // await authStore.reauthenticateUser(contrasenaActual.value); // Implementar en tu store si es necesario
+    await authStore.updateUserPassword(nuevaContrasena.value);
+    toast.success('Contraseña actualizada con éxito.');
+    contrasenaActual.value = '';
+    nuevaContrasena.value = '';
+    confirmarContrasena.value = '';
+  } catch (error) {
+    console.error('Error al cambiar contraseña:', error);
+    const errorMessage = authStore.error || error.message || 'Error desconocido al cambiar contraseña.';
+    toast.error(`Error al cambiar contraseña: ${errorMessage}`);
+  }
 };
 
-const logout = () => {
-  authStore.logout();
-  router.push('/login');
+const textoBotonGuardarContrasena = computed(() =>
+  authStore.loading ? 'Guardando Contraseña...' : 'Guardar Cambios'
+);
+
+const guardarPreferencias = async () => {
+  authStore.error = null;
+
+  if (!authStore.user) {
+    toast.error('No hay usuario autenticado para guardar preferencias.');
+    return;
+  }
+
+  try {
+    // await authStore.updateUserPreferences({ recibirNotificaciones: recibirNotificaciones.value });
+    console.log('Simulando guardado:', recibirNotificaciones.value);
+    await new Promise(resolve => setTimeout(resolve, 500)); // Quitar en producción
+    toast.success('Preferencias guardadas correctamente.');
+  } catch (error) {
+    console.error('Error al guardar preferencias:', error);
+    const errorMessage = authStore.error || error.message || 'Error desconocido al guardar preferencias.';
+    toast.error(`Error al guardar preferencias: ${errorMessage}`);
+  }
 };
+
+// onMounted(() => {
+//   recibirNotificaciones.value = authStore.user?.preferences?.recibirNotificaciones || false;
+// });
 </script>
 
 <style scoped>
-.settings-view {
-  max-width: 1200px;
-  margin: 0 auto;
+.config-container {
+  max-width: 1000px;
+  margin: auto;
+  padding: 20px;
 }
 
 h2 {
-  color: #2c3e50;
-  margin-bottom: 1.5rem;
+  text-align: center;
+  margin-bottom: 30px;
+  color: #ff753a;
 }
 
-.settings-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
+h3 {
+  margin-bottom: 15px;
+  color: #333333;
 }
 
-.settings-card {
-  background: white;
+.form-wrapper {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: nowrap;
+}
+
+.form-section {
+  flex: 1;
+  min-width: 300px;
+  padding: 20px;
   border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 8px rgba(232, 7, 7, 0.1);
+  box-sizing: border-box;
 }
 
-.form-group {
-  margin-bottom: 1rem;
+.user-data-section {
+  background-color: #f9f9f9;
+  border: 2px solid #ff753a;
 }
 
-.form-group label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
+.password-section {
+  background-color: #ffffff;
+  border: 2px solid #ff753a;
+}
+.notificaciones-section {
+  background-color: #ffffff;
+  border: 2px solid #ff753a;
 }
 
-.form-group input,
-.form-group select {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+.notificacion-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+  color: #333;
+  flex-wrap: wrap;
 }
 
-.save-btn,
-.change-password-btn,
-.logout-btn {
-  background-color: #42b983;
+input[type='checkbox'] {
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+}
+
+.notificacion-btn {
+  margin-top: 15px;
+  padding: 10px 16px;
+  background-color: #ff753a;
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
-  margin-top: 1rem;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  max-width: 250px;
 }
 
-.logout-btn {
-  background-color: #f44336;
+.notificacion-btn:hover {
+  background-color: #e44d0e;
+}
+
+.notificacion-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+input[type='email'],
+input[type='password'] {
+  margin-top: 5px;
+  padding: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 4px;
+  border: 1px solid #ff753a;
+}
+
+input:disabled {
+  background-color: #e9e9e9;
+  color: #555;
+  cursor: not-allowed;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+form input[type='password'],
+form input[type='email'] {
+  margin-bottom: 15px;
+}
+
+.centered-button {
+  margin-top: 10px;
+  padding: 10px 15px;
+  background-color: #ff753a;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  align-self: center;
+}
+
+.centered-button:hover {
+  background-color: #e44d0e;
+}
+
+@media (max-width: 768px) {
+  .form-wrapper {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .form-section {
+    flex: 1 0 100%;
+    min-width: auto;
+  }
+
+  .notificacion-label {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .notificacion-btn {
+    width: 100%;
+    max-width: none;
+  }
+
+  form {
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  form input[type='password'],
+  form input[type='email'] {
+    margin-bottom: 10px;
+  }
+
+  .centered-button {
+    align-self: stretch;
+  }
 }
 </style>
