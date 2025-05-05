@@ -143,6 +143,20 @@
       <p v-if="panalesStore.error" class="general-error-message">{{ panalesStore.error }}</p>
 
     </form>
+
+
+    <!-- {/* === Añadir el componente ConfirmModal para Guardar Cambios (en edición) === */} -->
+    <!-- {/* Se mostrará cuando showSaveConfirm sea true */} -->
+    <ConfirmModal
+      v-if="showSaveConfirm" 
+      title="Confirmar Guardar Cambios"
+      message="¿Estás seguro de que quieres guardar los cambios realizados en este panal?"
+      confirmButtonText="Sí, Guardar"
+      cancelButtonText="Cancelar"
+      @confirm="executeSave" 
+      @cancel="cancelSave" 
+    />
+    
   </div>
 </template>
 
@@ -151,8 +165,11 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { usePanalesStore } from '@/stores/panalesStore';
 import { useRoute, useRouter } from 'vue-router'; // Importa useRoute y useRouter
 import { useAuthStore } from '@/stores/auth';
+// === Importa el componente ConfirmModal ===
+import ConfirmModal from '@/components/auth/ConfirmModal.vue'; // Asegúrate de la ruta correcta
+// =======================================
 
-
+const showSaveConfirm = ref(false);
 const panalesStore = usePanalesStore();
 const route = useRoute();
 const router = useRouter(); // Usar el router para navegar
@@ -273,45 +290,71 @@ const generarIdAutomatico = () => {
 };
 
 
-// --- Función para manejar el envío del formulario (ACTUALIZADA para Edición) ---
+// --- Función para manejar el envío del formulario (MODIFICADA para usar Modal en Edición) ---
 const handleSubmit = async () => {
-    // Limpiar errores previos
-    panalesStore.error = null;
-    dateError.value = null;
-    formErrors.value = {};
+    // Limpiar errores previos
+    panalesStore.error = null;
+    dateError.value = null;
+    formErrors.value = {};
 
-    // Validar el formulario localmente
-    if (!validateForm()) {
-        console.log('Validación del formulario fallida.');
-        return;
-    }
+    // Validar el formulario localmente
+    if (!validateForm()) {
+        console.log('Validación del formulario fallida.');
+        return; // Detiene el proceso si la validación falla
+    }
 
-    console.log('Formulario validado. Intentando guardar/actualizar panal con datos:', formData.value);
+    console.log('Formulario validado. Intentando guardar/actualizar panal con datos:', formData.value);
 
-    try {
-        if (isEditing.value) {
-            console.log('Modo edición: Llamando a updatePanal con ID:', currentPanalId.value);
-            const updatedData = { ...formData.value };
-            await panalesStore.updatePanal(currentPanalId.value, updatedData);
-            console.log('Panal actualizado con ID:', currentPanalId.value);
-            // Redirigir a la lista después de actualizar
-            router.push({ name: 'honeycomb-list' }); // <-- Redirige después de guardar
-        } else {
-            console.log('Modo registro: Llamando a savePanal.');
-            const docId = await panalesStore.savePanal(formData.value);
-            console.log('Panal guardado con ID:', docId);
-            // Resetear el formulario después de guardar
-            resetForm();
-            // Opcional: Redirigir a la lista después de guardar un nuevo
-            // router.push({ name: 'honeycomb-list' });
-        }
-
-    } catch (error) {
-       console.error('Error al guardar/actualizar panal desde la vista:', error);
-       // El error se muestra desde el store
-    }
+    // === Si estamos en modo EDICIÓN, mostramos el modal de confirmación ===
+    if (isEditing.value) {
+        console.log('Modo edición: Mostrando modal de confirmación para guardar cambios.');
+        showSaveConfirm.value = true; // Muestra el modal de guardar cambios
+    } else {
+        // === Si estamos en modo REGISTRO, guarda directamente ===
+        console.log('Modo registro: Llamando a savePanal directamente.');
+        try {
+            const docId = await panalesStore.savePanal(formData.value);
+            console.log('Panal guardado con ID:', docId);
+            resetForm(); // Resetear el formulario después de guardar un nuevo panal
+            // Opcional: Redirigir a la lista después de guardar un nuevo
+            // router.push({ name: 'honeycomb-list' });
+        } catch (error) {
+            console.error('Error al guardar panal desde la vista:', error);
+            // El error se muestra desde el store
+        }
+    }
 };
 
+// --- Funciones para manejar el Modal de Guardar Cambios ---
+
+// Función llamada cuando el usuario confirma en el modal de guardar cambios
+const executeSave = async () => {
+  console.log('Confirmado guardar cambios. Ejecutando updatePanal.');
+   // Limpiamos el error del store antes de la operación (si quieres)
+   panalesStore.error = null;
+
+  try {
+    const updatedData = { ...formData.value };
+    await panalesStore.updatePanal(currentPanalId.value, updatedData);
+    console.log('Panal actualizado con ID:', currentPanalId.value);
+    showSaveConfirm.value = false; // Oculta el modal después de guardar
+    // Redirigir a la lista después de actualizar
+    router.push({ name: 'honeycomb-list' });
+
+  } catch (error) {
+    console.error('Error al actualizar panal desde la vista:', error);
+    // El error ya se muestra desde el store (toast)
+    showSaveConfirm.value = false; // Oculta el modal incluso si hay error
+  }
+};
+
+// Función llamada cuando el usuario cancela en el modal de guardar cambios
+const cancelSave = () => {
+  console.log('Guardar cambios cancelado por el usuario.');
+  showSaveConfirm.value = false; // Oculta el modal
+};
+
+// --- Fin Funciones Modal Guardar Cambios ---
 // --- Función para resetear el formulario ---
 const resetForm = () => {
     formData.value = {

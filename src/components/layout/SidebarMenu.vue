@@ -23,12 +23,25 @@
       </ul>
     </nav>
 
-    <button class="logout-btn" @click="handleLogout">
+    <button class="logout-btn" @click="confirmLogout">
       <span class="icon">
-        <i class="fas fa-power-off"></i>
+        <font-awesome-icon :icon="['fas', 'power-off']" />
       </span>
       <span class="text">Cerrar Sesión</span>
     </button>
+
+    <!-- {/* === Añadir el componente ConfirmModal aquí === */} -->
+    <!-- {/* Se mostrará cuando showLogoutConfirm sea true */} -->
+    <ConfirmModal
+      v-if="showLogoutConfirm"   
+      title="Confirmar Cierre de Sesión"
+      message="¿Estás seguro de que quieres cerrar tu sesión actual? "
+      confirmButtonText="Sí, cerrar sesión"
+      cancelButtonText="Cancelar"
+      @confirm="executeLogout" 
+      @cancel="cancelLogout" 
+    />
+    
   </aside>
 </template>
 
@@ -37,11 +50,15 @@ import { ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useToast } from 'vue-toastification';
 import { useAuthStore } from '@/stores/auth'; // <-- Importa tu store
+import ConfirmModal from '@/components/auth/ConfirmModal.vue';
 
 const router = useRouter();
 const route = useRoute();
 const toast = useToast();
 const authStore = useAuthStore(); // <-- Usa tu store
+// --- Estado para controlar la visibilidad del modal de Cerrar Sesión ---
+const showLogoutConfirm = ref(false);
+// --- Fin Estado Modal Cerrar Sesión ---
 
 const menuItems = ref([
   { text: 'Dashboard', name: 'dashboard', route: { name: 'dashboard' }, icon: 'fa-chart-line', completed: false },
@@ -59,16 +76,41 @@ const navigate = (itemRoute) => {
   router.push(itemRoute);
 };
 
-const handleLogout = async () => {
+// --- Lógica para el modal de Cerrar Sesión ---
+
+// Función que se llama al hacer clic en el botón "Cerrar Sesión" en el template
+const confirmLogout = () => {
+  console.log('Clic en Cerrar Sesión, mostrando modal de confirmación.');
+  showLogoutConfirm.value = true; // Muestra el modal
+};
+
+// Función que se llama cuando el usuario cancela en el modal
+const cancelLogout = () => {
+  console.log('Cierre de sesión cancelado.');
+  showLogoutConfirm.value = false; // Oculta el modal
+};
+
+// Función que se llama cuando el usuario confirma en el modal
+// Renombramos la anterior handleLogout a executeLogout
+const executeLogout = async () => {
+  console.log('Confirmada cierre de sesión, ejecutando logout.');
   try {
-    await authStore.logout(); // <-- Usa la acción de logout de tu store
+    // Llama a la acción de cerrar sesión de tu store de autenticación
+    await authStore.logout();
+    console.log('Sesión cerrada con éxito.');
     toast.success('Sesión cerrada correctamente');
-    router.push('/login');
+    showLogoutConfirm.value = false; // Oculta el modal después de cerrar sesión
+
+    // Redirigir a la página de login o a una página pública
+    router.push({ name: 'login' }); // Asegúrate de que 'login' sea el nombre correcto de tu ruta de login
+
   } catch (error) {
     console.error('Error al cerrar sesión:', error);
-    toast.error('Error al cerrar sesión');
+    toast.error('Error al cerrar sesión'); // Usa el toast si está disponible aquí
+    showLogoutConfirm.value = false; // Ocultar el modal incluso si hay error
   }
 };
+// --- Fin Lógica Modal Cerrar Sesión ---
 </script>
 
 // src/components/layout/SidebarMenu.vue - Sección

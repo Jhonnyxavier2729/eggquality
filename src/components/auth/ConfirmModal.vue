@@ -113,6 +113,29 @@
     align-items: center;
     padding: 10px;
 }
+
+
+/* === Define la animación de volteo horizontal === */
+@keyframes flip-horizontal {
+  0% { transform: rotateY(0deg); }     /* Inicio: Orientación normal */
+  50% { transform: rotateY(180deg); }  /* Mitad: Volteado horizontalmente */
+  100% { transform: rotateY(360deg); } /* Fin: Vuelve a la orientación normal (360deg es lo mismo que 0deg) */
+}
+/* Puedes simplificar el 100% a rotateY(0deg) si quieres, pero 360deg es más explícito del ciclo completo */
+/* =============================================== */
+
+
+/* === Aplica la animación de volteo al icono dentro del contenedor === */
+.modal-icon svg {
+  animation: flip-horizontal 2s ease-in-out ; /* Nombre, duración, tipo de aceleración, repetición */
+  /*
+    flip-horizontal: Nombre de la nueva animación
+    2s: Duración de cada ciclo de animación (2 segundos para ir y volver)
+    ease-in-out: La animación inicia y termina suavemente, más rápida en el medio
+    infinite: La animación se repite indefinidamente
+  */
+}
+/* ================================================================== */
   
   
   /* Estilos para el Título */
