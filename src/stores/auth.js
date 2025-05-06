@@ -7,7 +7,10 @@ import {
   signInWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
-  onAuthStateChanged
+  onAuthStateChanged,
+  updatePassword, // <--- Importa updatePassword
+  reauthenticateWithCredential, // <--- Importa reauthenticateWithCredential
+  EmailAuthProvider // <--- Importa EmailAuthProvider
 } from 'firebase/auth';
 import { auth } from '@/firebase/config';
 
@@ -96,14 +99,41 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
-  return {
-    user,
-    error,
-    loading,
-    isAuthInitialized,
-    register,
-    login,
-    logout,
-    recoverPassword
+  // ===> Actualizar contraseña con reautenticación <===
+  const updateUserPasswordWithReauth = async (currentPassword, newPassword) => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const currentUser = auth.currentUser;
+
+      if (!currentUser) {
+        throw new Error('No hay usuario autenticado para cambiar la contraseña.');
+      }
+
+      // 1. Crear credenciales para reautenticación con la contraseña actual
+      const credential = EmailAuthProvider.credential(currentUser.email, currentPassword);
+      console.log('Intentando reautenticar al usuario...');
+
+      // 2. Reautenticar al usuario
+      await reauthenticateWithCredential(currentUser, credential);
+      console.log('Reautenticación exitosa. Procediendo a cambiar contraseña.');
+
+      // 3. Si la reautenticación fue exitosa, actualizar la contraseña
+      await updatePassword(currentUser, newPassword);
+      console.log('Contraseña actualizada exitosamente en Firebase.');
+
+      // No necesitas actualizar user.value aquí, solo se cambió la contraseña
+
+    } catch (err) {
+      console.error('Error en authStore al cambiar contraseña:', err);
+      error.value = err.message; // Establecer el error en el store
+      // Relanzar el error para que el componente que llamó a esta acción pueda manejarlo
+      throw err;
+    } finally {
+      loading.value = false; // Asegurar que el loading se desactive
+    }
   };
+  // ==============================================================
+
+  return {  user, error, loading, isAuthInitialized, register, login, logout, recoverPassword, updateUserPasswordWithReauth };
 });
