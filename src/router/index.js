@@ -31,13 +31,6 @@ const routes = [
     component: () => import('@/views/RegisterView.vue'),
     meta: { requiresAuth: false },
   },
-
-  {
-    path: '/configuracion',
-    name: 'Configuracion',
-    component: () => import('@/views/ConfiguracionView.vue'),
-    meta: { requiresAuth: false },
-  },
   {
     path: '/not-found',
     name: 'not-found',
