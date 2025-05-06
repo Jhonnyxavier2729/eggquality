@@ -100,8 +100,6 @@
 import { ref, nextTick} from 'vue'; // Importa ref
 import { usePanalesStore } from '@/stores/panalesStore'; // Importa tu store de panales
 
-
-
 const panalesStore = usePanalesStore(); // Usa el store
 const idPanalInput = ref(null);
 
@@ -208,13 +206,6 @@ const resetForm = () => {
   });
 
 };
-
-// Opcional: Llamar a resetForm al inicio si quieres que el formulario esté limpio al cargar
-// import { onMounted } from 'vue';
-// onMounted(() => {
-//   resetForm();
-// });
-
 </script>
 
 <style scoped>
@@ -247,7 +238,7 @@ const resetForm = () => {
   /* Estilos para mensajes de error de validación locales */
   height: 1.2em; /* espacio reservado */
   margin-top: 4px;
-  color: red; /* Color rojo para errores */
+  color:red; /* Color rojo para errores */
   font-size: 12px;
 }
 

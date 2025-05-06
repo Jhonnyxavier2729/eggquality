@@ -3,6 +3,10 @@
   body {
     font-size: 14px; /* Ajusta el tamaño de fuente en pantallas pequeñas */
   }
+
+  .main-content {
+    margin-left: 0 !important; /* Asegúrate de que el contenido ocupe todo el ancho */
+  }
 }
 * {
   margin: 0;

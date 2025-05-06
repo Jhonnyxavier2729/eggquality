@@ -1,21 +1,24 @@
 <template>
   <div class="app-container">
-    <NavSidebar @navigate="handleNavigation" />
-    <main class="main-content">
+    <SidebarMenu ref="sidebarRef" />
+    <main :class="['main-content', { 'sidebar-open': isSidebarOpen }]">
+
       <router-view />
     </main>
   </div>
 </template>
 
 <script setup>
-import NavSidebar from './NavSidebar.vue'
-import { useRouter } from 'vue-router'
+import SidebarMenu from './SidebarMenu.vue' // Asegúrate de que la ruta sea correcta
+import { ref, computed } from 'vue'
 
-const router = useRouter()
 
-const handleNavigation = (routeName) => {
-  router.push({ name: routeName })
-}
+
+
+const sidebarRef = ref(null)
+
+// Computa el estado del sidebar desde SidebarMenu
+const isSidebarOpen = computed(() => sidebarRef.value?.isSidebarOpen)
 </script>
 
 <style scoped>
@@ -28,6 +31,11 @@ const handleNavigation = (routeName) => {
 .main-content {
   flex: 1;
   padding: 2rem;
-  margin-left: 250px; /* Ancho del sidebar */
+  margin-left: 250px;
+  transition: margin-left 0.3s ease-in-out;
 }
+
+
+.main-content.collapsed {
+  margin-left: 0;}
 </style>
