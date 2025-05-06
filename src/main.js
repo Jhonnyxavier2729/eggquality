@@ -15,6 +15,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faChartLine, faEgg, faCube, faList, faCog, faPowerOff } from '@fortawesome/free-solid-svg-icons';
 
+
 library.add(faChartLine, faEgg, faCube, faList, faCog, faPowerOff);
 
 

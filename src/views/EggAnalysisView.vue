@@ -1,5 +1,5 @@
 <template>
-  <div class="analysis-view">
+  <div :class="['analysis-view', { 'shifted-left': !isSidebarOpen }]">
     <h2>Análisis de Huevos</h2>
 
     <div class="action-bar">
@@ -35,7 +35,11 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, inject } from 'vue'
+
+// Inyecta el estado del sidebar proporcionado por SidebarMenu.vue
+const isSidebarOpen = inject('isSidebarOpen', ref(true)) // Valor predeterminado: true
+
 
 const showForm = ref(false)
 const analysisType = ref('interno')
@@ -54,6 +58,11 @@ const submitAnalysis = () => {
 .analysis-view {
   max-width: 1200px;
   margin: 0 auto;
+  transition: margin-left 0.3s ease-in-out; /* Transición suave */
+}
+
+.analysis-view.shifted-left {
+  margin-left: -250px; /* Ajusta según el ancho del sidebar */
 }
 
 h2 {
