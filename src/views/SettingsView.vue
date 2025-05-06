@@ -49,28 +49,27 @@
 </template>
 
 <script setup>
-import { ref, computed /* onMounted */ } from 'vue';
+import { ref, computed } from 'vue';
 import { useToast } from 'vue-toastification';
 import { useAuthStore } from '@/stores/auth';
 
 const toast = useToast();
 const authStore = useAuthStore();
 
+// --- Estados para el formulario de Cambio de Contraseña ---
 const contrasenaActual = ref('');
 const nuevaContrasena = ref('');
 const confirmarContrasena = ref('');
 
+// --- Estados para el formulario de Preferencias ---
 const recibirNotificaciones = ref(false);
 
+// --- Computed para mostrar el correo del usuario ---
 const emailUsuario = computed(() => authStore.user?.email || '');
 
+// ===> Lógica para Cambio de Contraseña <===
 const cambiarContrasena = async () => {
   authStore.error = null;
-
-  if (!authStore.user) {
-    toast.error('No hay usuario autenticado.');
-    return;
-  }
 
   if (!contrasenaActual.value || !nuevaContrasena.value || !confirmarContrasena.value) {
     toast.warning('Por favor, completa todos los campos de contraseña.');
@@ -78,28 +77,48 @@ const cambiarContrasena = async () => {
   }
 
   if (nuevaContrasena.value !== confirmarContrasena.value) {
-    toast.error('Las nuevas contraseñas no coinciden.');
+    toast.error('La nueva contraseña y su confirmación no coinciden.');
+    return;
+  }
+
+  const minLength = 8;
+  const hasUpperCase = /[A-Z]/.test(nuevaContrasena.value);
+  const hasLowerCase = /[a-z]/.test(nuevaContrasena.value);
+  const hasNumbers = /[0-9]/.test(nuevaContrasena.value);
+
+  if (nuevaContrasena.value.length < minLength || !hasUpperCase || !hasLowerCase || !hasNumbers) {
+    let message = `La nueva contraseña debe tener al menos ${minLength} caracteres, incluyendo mayúsculas, minúsculas y números.`;
+    if (nuevaContrasena.value.length < 12) {
+      message += ' Recomendado: al menos 12 caracteres para mayor seguridad.';
+    }
+    toast.warning(message);
+    return;
+  }
+
+  if (!authStore.user) {
+    toast.error('No hay usuario autenticado.');
     return;
   }
 
   try {
-    // await authStore.reauthenticateUser(contrasenaActual.value); // Implementar en tu store si es necesario
-    await authStore.updateUserPassword(nuevaContrasena.value);
+    await authStore.updateUserPasswordWithReauth(contrasenaActual.value, nuevaContrasena.value);
     toast.success('Contraseña actualizada con éxito.');
     contrasenaActual.value = '';
     nuevaContrasena.value = '';
     confirmarContrasena.value = '';
   } catch (error) {
     console.error('Error al cambiar contraseña:', error);
-    const errorMessage = authStore.error || error.message || 'Error desconocido al cambiar contraseña.';
-    toast.error(`Error al cambiar contraseña: ${errorMessage}`);
+    const errorMessage = authStore.error || error.message || 'Ocurrió un error desconocido al cambiar la contraseña.';
+    toast.error(`Error: ${errorMessage}`);
   }
 };
 
+// --- Computed para el texto dinámico del botón ---
 const textoBotonGuardarContrasena = computed(() =>
   authStore.loading ? 'Guardando Contraseña...' : 'Guardar Cambios'
 );
 
+// --- Lógica para Guardar Preferencias ---
 const guardarPreferencias = async () => {
   authStore.error = null;
 
@@ -109,9 +128,8 @@ const guardarPreferencias = async () => {
   }
 
   try {
-    // await authStore.updateUserPreferences({ recibirNotificaciones: recibirNotificaciones.value });
-    console.log('Simulando guardado:', recibirNotificaciones.value);
-    await new Promise(resolve => setTimeout(resolve, 500)); // Quitar en producción
+    console.log('Simulando guardado de preferencia "recibirNotificaciones":', recibirNotificaciones.value);
+    await new Promise(resolve => setTimeout(resolve, 500));
     toast.success('Preferencias guardadas correctamente.');
   } catch (error) {
     console.error('Error al guardar preferencias:', error);
@@ -119,10 +137,6 @@ const guardarPreferencias = async () => {
     toast.error(`Error al guardar preferencias: ${errorMessage}`);
   }
 };
-
-// onMounted(() => {
-//   recibirNotificaciones.value = authStore.user?.preferences?.recibirNotificaciones || false;
-// });
 </script>
 
 <style scoped>
@@ -147,7 +161,7 @@ h3 {
   display: flex;
   justify-content: space-between;
   gap: 20px;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
 }
 
 .form-section {
@@ -155,22 +169,19 @@ h3 {
   min-width: 300px;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 0 8px rgba(232, 7, 7, 0.1);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
+}
+
+.user-data-section,
+.password-section,
+.notificaciones-section {
+  background-color: #ffffff;
+  border: 2px solid #ff753a;
 }
 
 .user-data-section {
   background-color: #f9f9f9;
-  border: 2px solid #ff753a;
-}
-
-.password-section {
-  background-color: #ffffff;
-  border: 2px solid #ff753a;
-}
-.notificaciones-section {
-  background-color: #ffffff;
-  border: 2px solid #ff753a;
 }
 
 .notificacion-label {
