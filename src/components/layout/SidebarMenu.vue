@@ -37,15 +37,15 @@
     <!-- {/* === Añadir el componente ConfirmModal aquí === */} -->
     <!-- {/* Se mostrará cuando showLogoutConfirm sea true */} -->
     <ConfirmModal
-      v-if="showLogoutConfirm"   
+      v-if="showLogoutConfirm"
       title="Confirmar Cierre de Sesión"
       message="¿Estás seguro de que quieres cerrar tu sesión actual? "
       confirmButtonText="Sí, cerrar sesión"
       cancelButtonText="Cancelar"
-      @confirm="executeLogout" 
-      @cancel="cancelLogout" 
+      @confirm="executeLogout"
+      @cancel="cancelLogout"
     />
-    
+
     </aside>
 
     <!-- Contenido principal con desplazamiento condicional -->
@@ -56,6 +56,7 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import { useAuthStore } from '@/stores/auth'
