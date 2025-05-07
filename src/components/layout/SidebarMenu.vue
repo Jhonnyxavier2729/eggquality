@@ -34,6 +34,9 @@
         <span class="text">Cerrar Sesión</span>
       </button>
 
+    
+    </aside>
+
     <!-- {/* === Añadir el componente ConfirmModal aquí === */} -->
     <!-- {/* Se mostrará cuando showLogoutConfirm sea true */} -->
     <ConfirmModal
@@ -45,8 +48,6 @@
       @confirm="executeLogout" 
       @cancel="cancelLogout" 
     />
-    
-    </aside>
 
     <!-- Contenido principal con desplazamiento condicional -->
     <div :class="['main-content', { 'shifted-left': !props.isSidebarOpen }]">
@@ -56,6 +57,7 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import { useAuthStore } from '@/stores/auth'
