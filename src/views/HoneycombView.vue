@@ -164,7 +164,6 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { usePanalesStore } from '@/stores/panalesStore';
 import { useRoute, useRouter } from 'vue-router'; // Importa useRoute y useRouter
-import { useAuthStore } from '@/stores/auth';
 // === Importa el componente ConfirmModal ===
 import ConfirmModal from '@/components/auth/ConfirmModal.vue'; // Asegúrate de la ruta correcta
 // =======================================
@@ -173,7 +172,7 @@ const showSaveConfirm = ref(false);
 const panalesStore = usePanalesStore();
 const route = useRoute();
 const router = useRouter(); // Usar el router para navegar
-const authStore = useAuthStore();
+
 
 
 // Estado reactivo para los datos del formulario
@@ -381,11 +380,7 @@ watch(() => route.params.id, (newId, oldId) => {
 });
 
 
-// --- Función para navegar de regreso a la lista ---
-const goToList = () => {
-    console.log('Navegando de regreso a la lista de panales.');
-    router.push({ name: 'honeycomb-list' }); // Navega a la ruta de la lista
-};
+
 
 
 // Exportar variables/funciones si necesitas acceder a ellas desde fuera
@@ -402,8 +397,9 @@ const goToList = () => {
 
 .form-container {
   max-width: 1000px;
-  margin: 20px auto; /* Centrar y dar margen vertical */
-  padding: 25px;
+  margin: 0 auto; /* Centrar y dar margen vertical */
+  padding: 2rem;
+  width: 100%;
   background-color: white;
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -634,6 +630,19 @@ label {
 
 
 /* Responsive */
+@media (min-width: 1024px) {
+  .form-row {
+    grid-template-columns: repeat(2, 1fr); /* Dos columnas en escritorio */
+    gap: 30px;
+  }
+
+  .form-container {
+    padding: 2rem 3rem;
+  }
+}
+
+
+
 @media (max-width: 768px) {
   .form-row {
     grid-template-columns: 1fr; /* Una columna en pantallas pequeñas */
