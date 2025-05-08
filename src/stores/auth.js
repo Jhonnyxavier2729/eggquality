@@ -28,48 +28,97 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthInitialized.value = true; // Ahora sí se indica que ya se inicializó
   });
 
-  const register = async (email, password) => {
-    loading.value = true;
-    error.value = null;
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      user.value = userCredential.user;
-      toast.success('Registro exitoso');
-    } catch (err) {
-      error.value = err.message;
-      toast.error('Error al registrarse: ' + err.message);
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
+  // / ===> Acción de REGISTRO (Corregida: no muestra Toast de error, mapea errores) <===
+  const register = async (email, password) => {
+    loading.value = true;
+    error.value = null; // Limpiar error al inicio
+    try {
+      console.log('Intentando registrar usuario con correo:', email);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      user.value = userCredential.user; // Actualiza el estado del usuario
 
-  const login = async (email, password) => {
-    loading.value = true;
-    error.value = null;
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      user.value = userCredential.user;
-      toast.success('Inicio de sesión exitoso');
-    } catch (err) {
-      switch (err.code) {
-        case 'auth/user-not-found':
-          toast.error('El usuario no existe.');
-          break;
-        case 'auth/wrong-password':
-          toast.error('Contraseña incorrecta.');
-          break;
-        case 'auth/invalid-email':
-          toast.error('El correo no es válido.');
-          break;
-        default:
-          toast.error('Error al iniciar sesión, inténtalo de nuevo.');
-      }
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
+      // Opcional: Mostrar toast de ÉXITO desde el store, O la vista puede mostrarlo.
+      // Si la vista llama a la acción y redirige, quizás la vista debería mostrar el de éxito después de la redirección.
+      // Para consistencia con la gestión de errores, dejemos que la vista también maneje el éxito (toast y redirección).
+      // toast.success('Registro exitoso'); // <--- Considera mover este a la vista que llama a 'register'
+
+    } catch (err) {
+      console.error('Error en authStore al registrar:', err);
+      // ===> Manejamos los errores específicos de REGISTRO y establecemos error.value <===
+      if (err.code === 'auth/email-already-in-use') {
+        error.value = 'El correo electrónico ya está registrado.'; // Mensaje amigable en español
+      } else if (err.code === 'auth/invalid-email') {
+        error.value = 'El formato del correo electrónico no es válido.';
+      } else if (err.code === 'auth/weak-password') {
+        // Aunque validamos en front, Firebase puede tener otras reglas o validarlo de nuevo
+        error.value = 'La contraseña es demasiado débil.';
+      }
+      // Puedes añadir otros casos si encuentras otros códigos de error relevantes
+      else {
+        // Para otros errores desconocidos de Firebase Auth o de red durante el registro
+        error.value = err.message || 'Ocurrió un error al intentar registrarse.'; // Mensaje genérico
+      }
+      // =========================================================
+
+      // ===> IMPORTANTE: NO mostramos toast.error AQUÍ. Solo establecemos error.value <===
+      // toast.error('Error al registrarse: ' + err.message); // <--- ELIMINA O COMENTA ESTA LÍNEA
+
+      // Relanzamos el error para que el componente que llamó a esta acción lo capture y muestre el Toast.
+      throw err;
+
+    } finally {
+      loading.value = false; // Asegurar que el loading se desactive
+    }
+  };
+  // === Fin Acción de REGISTRO ===
+
+  // Fragmento corregido de la función 'login' en src/stores/authStore.js
+
+const login = async (email, password) => {
+      loading.value = true;
+      error.value = null; // Limpiar error al inicio
+      try {
+        console.log('Intentando iniciar sesión con correo:', email);
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        user.value = userCredential.user;
+  
+        // Considera mover este toast de ÉXITO a la vista que llama a 'login'
+        // toast.success('Inicio de sesión exitoso'); // <-- ELIMINA O COMENTA
+  
+      } catch (err) {
+        console.error('Error en authStore al iniciar sesión:', err);
+        // ===> Manejamos los errores específicos de LOGIN y establecemos error.value <===
+        switch (err.code) {
+          case 'auth/invalid-credential':
+           error.value = 'Credenciales inválidas. Por favor verifica tu correo y contraseña.'; // <--- ¡Asigna a error.value!
+           break;
+          case 'auth/user-not-found':
+            error.value = 'El usuario no existe.'; // <--- ¡Asigna a error.value!
+            break;
+          case 'auth/wrong-password':
+            error.value = 'Contraseña incorrecta.'; // <--- ¡Asigna a error.value!
+            break;
+          case 'auth/invalid-email':
+            error.value = 'El formato del correo electrónico no es válido.'; // <--- ¡Asigna a error.value!
+            break;
+          case 'auth/user-disabled': // Otro error común
+              error.value = 'Tu cuenta ha sido deshabilitada.'; // <--- ¡Asigna a error.value!
+              break;
+          default:
+            error.value = err.message || 'Error al iniciar sesión, inténtalo de nuevo.'; // <--- ¡Asigna a error.value!
+        }
+        // =======================================================
+  
+        // ===> IMPORTANTE: NO mostramos toast.error AQUÍ <===
+        // toast.error('Error al iniciar sesión: ...'); // <-- ELIMINA O COMENTA ESTA LÍNEA
+  
+        // Relanzamos el error para que el componente que llamó a esta acción lo capture
+        throw err;
+  
+      } finally {
+        loading.value = false; // Asegurar que el loading se desactive
+      }
+    };
 
   const logout = async () => {
     error.value = null; // Limpiar errores previos

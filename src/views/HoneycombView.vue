@@ -173,6 +173,8 @@ const panalesStore = usePanalesStore();
 const route = useRoute();
 const router = useRouter(); // Usar el router para navegar
 
+
+
 // Estado reactivo para los datos del formulario
 const formData = ref({
   idPanal: '',
@@ -376,6 +378,7 @@ watch(() => route.params.id, (newId, oldId) => {
 
 
 
+
 // Exportar variables/funciones si necesitas acceder a ellas desde fuera
 // export { formData, generarIdAutomatico, handleSubmit, resetForm, isEditing, currentPanalId, formErrors, dateError, goToList };
 
@@ -389,9 +392,10 @@ watch(() => route.params.id, (newId, oldId) => {
 }
 
 .form-container {
-
+  max-width: 1000px;
   margin: 0 auto; /* Centrar y dar margen vertical */
   padding: 2rem;
+  width: 100%;
   background-color: white;
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -623,6 +627,19 @@ label {
 
 
 /* Responsive */
+@media (min-width: 1024px) {
+  .form-row {
+    grid-template-columns: repeat(2, 1fr); /* Dos columnas en escritorio */
+    gap: 30px;
+  }
+
+  .form-container {
+    padding: 2rem 3rem;
+  }
+}
+
+
+
 @media (max-width: 768px) {
   .form-row {
     grid-template-columns: 1fr; /* Una columna en pantallas pequeñas */

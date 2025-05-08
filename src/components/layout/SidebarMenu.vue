@@ -34,6 +34,9 @@
         <span class="text">Cerrar Sesión</span>
       </button>
 
+
+    </aside>
+
     <!-- {/* === Añadir el componente ConfirmModal aquí === */} -->
     <!-- {/* Se mostrará cuando showLogoutConfirm sea true */} -->
     <ConfirmModal
@@ -56,7 +59,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import { useAuthStore } from '@/stores/auth'

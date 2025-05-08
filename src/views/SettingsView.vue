@@ -88,9 +88,6 @@ const cambiarContrasena = async () => {
 
   if (nuevaContrasena.value.length < minLength || !hasUpperCase || !hasLowerCase || !hasNumbers) {
     let message = `La nueva contraseña debe tener al menos ${minLength} caracteres, incluyendo mayúsculas, minúsculas y números.`;
-    if (nuevaContrasena.value.length < 12) {
-      message += ' Recomendado: al menos 12 caracteres para mayor seguridad.';
-    }
     toast.warning(message);
     return;
   }
@@ -109,7 +106,7 @@ const cambiarContrasena = async () => {
   } catch (error) {
     console.error('Error al cambiar contraseña:', error);
     const errorMessage = authStore.error || error.message || 'Ocurrió un error desconocido al cambiar la contraseña.';
-    toast.error(`Error: ${errorMessage}`);
+    toast.error(`Error: validar contraseña actual o datos ingresados`);
   }
 };
 
