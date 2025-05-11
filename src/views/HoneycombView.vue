@@ -2,10 +2,6 @@
 
 <template>
   <div class="page-content form-container">
-    <!-- <button v-if="isEditing" @click="goToList" class="back-to-list-btn">
-      ← Regresar a la Lista
-    </button> -->
-
     <h2>{{ isEditing ? 'Editar Panal de Huevos' : 'Registro y Control de Panales de Huevos' }}</h2>
 
     <form @submit.prevent="handleSubmit" class="registro-form" novalidate>
@@ -24,21 +20,21 @@
               :disabled="isEditing"
               :class="{ 'is-invalid': formErrors.idPanal }"
             />
-             <div v-if="formErrors.idPanal" class="field-error-message">{{ formErrors.idPanal }}</div>
+            <div v-if="formErrors.idPanal" class="field-error-message">{{ formErrors.idPanal }}</div>
           </div>
-            <button type="button" @click="generarIdAutomatico" class="generate-btn" v-if="!isEditing">
-              Generar Automático
-            </button>
+          <button type="button" @click="generarIdAutomatico" class="generate-btn" v-if="!isEditing">
+            Generar Automático
+          </button>
         </div>
 
         <div class="form-group">
           <label for="tipoHuevo">Tipo de Huevo</label>
-           <select
-              id="tipoHuevo"
-              v-model="formData.tipoHuevo"
-              class="form-input"
-              required
-              :class="{ 'is-invalid': formErrors.tipoHuevo }"
+          <select
+            id="tipoHuevo"
+            v-model="formData.tipoHuevo"
+            class="form-input"
+            required
+            :class="{ 'is-invalid': formErrors.tipoHuevo }"
           >
             <option value="" disabled selected>Seleccione</option>
             <option value="B">B</option>
@@ -47,14 +43,14 @@
             <option value="AAA">AAA</option>
             <option value="Yumbo">Yumbo</option>
           </select>
-           <div v-if="formErrors.tipoHuevo" class="field-error-message">{{ formErrors.tipoHuevo }}</div>
+          <div v-if="formErrors.tipoHuevo" class="field-error-message">{{ formErrors.tipoHuevo }}</div>
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-group">
           <label for="cantidadHuevos">Cantidad de Huevos</label>
-           <input
+          <input
             id="cantidadHuevos"
             v-model.number="formData.cantidadHuevos"
             type="number"
@@ -63,102 +59,113 @@
             required
             :class="{ 'is-invalid': formErrors.cantidadHuevos }"
           />
-           <div v-if="formErrors.cantidadHuevos" class="field-error-message">{{ formErrors.cantidadHuevos }}</div>
+          <div v-if="formErrors.cantidadHuevos" class="field-error-message">{{ formErrors.cantidadHuevos }}</div>
         </div>
 
+        <div class="form-group">
+          <label for="cantidadPanales">Cantidad de Panales</label>
+          <input
+            id="cantidadPanales"
+            v-model.number="formData.cantidadPanales"
+            type="number"
+            min="1"
+            class="form-input"
+            required
+            :class="{ 'is-invalid': formErrors.cantidadPanales }"
+          />
+          <div v-if="formErrors.cantidadPanales" class="field-error-message">{{ formErrors.cantidadPanales }}</div>
+        </div>
+      </div>
+
+      <div class="form-row">
         <div class="form-group">
           <label for="galponLote">Galpón o Lote</label>
-           <input
-              id="galponLote"
-              v-model="formData.galponLote"
-              type="text"
-              class="form-input"
-              required
-              :class="{ 'is-invalid': formErrors.galponLote }"
+          <input
+            id="galponLote"
+            v-model="formData.galponLote"
+            type="text"
+            class="form-input"
+            required
+            :class="{ 'is-invalid': formErrors.galponLote }"
           />
-           <div v-if="formErrors.galponLote" class="field-error-message">{{ formErrors.galponLote }}</div>
+          <div v-if="formErrors.galponLote" class="field-error-message">{{ formErrors.galponLote }}</div>
+        </div>
+
+        <div class="form-group">
+          <label for="fechaInicio">Fecha de Inicio</label>
+          <input
+            id="fechaInicio"
+            v-model="formData.fechaInicio"
+            type="date"
+            class="form-input"
+            required
+            :class="{ 'is-invalid': formErrors.fechaInicio || dateError }"
+          />
+          <div v-if="formErrors.fechaInicio" class="field-error-message">{{ formErrors.fechaInicio }}</div>
         </div>
       </div>
 
       <div class="form-row">
-        <div class="form-group">
-          <label for="fechaInicio">Fecha de Inicio</label>
-           <input
-              id="fechaInicio"
-              v-model="formData.fechaInicio"
-              type="date"
-              class="form-input"
-              required
-              :class="{ 'is-invalid': formErrors.fechaInicio || dateError }"
-          />
-           <div v-if="formErrors.fechaInicio" class="field-error-message">{{ formErrors.fechaInicio }}</div>
-        </div>
-
         <div class="form-group">
           <label for="fechaVencimiento">Fecha de Vencimiento</label>
-           <input
-              id="fechaVencimiento"
-              v-model="formData.fechaVencimiento"
-              type="date"
-              class="form-input"
-              required
-              :class="{ 'is-invalid': formErrors.fechaVencimiento || dateError }"
+          <input
+            id="fechaVencimiento"
+            v-model="formData.fechaVencimiento"
+            type="date"
+            class="form-input"
+            required
+            :class="{ 'is-invalid': formErrors.fechaVencimiento || dateError }"
           />
           <div class="mensaje-recomendacion">
-               <small><strong>Recomendación: </strong> La fecha de vencimiento no debe superar los 28 días desde la postura.</small>
-           </div>
-           <div v-if="dateError" class="field-error-message">{{ dateError }}</div> <div v-if="formErrors.fechaVencimiento" class="field-error-message">{{ formErrors.fechaVencimiento }}</div>
+            <small><strong>Recomendación: </strong>La fecha de vencimiento no debe superar los 28 días desde la postura.</small>
+          </div>
+          <div v-if="dateError" class="field-error-message">{{ dateError }}</div>
+          <div v-if="formErrors.fechaVencimiento" class="field-error-message">{{ formErrors.fechaVencimiento }}</div>
+        </div>
+
+        <div class="form-group" v-if="isEditing">
+          <label for="estado">Estado</label>
+          <select
+            id="estado"
+            v-model="formData.estado"
+            class="form-input"
+            required
+            :class="{ 'is-invalid': formErrors.estado }"
+          >
+            <option value="Activo">Activo</option>
+            <option value="Vencido">Vencido</option>
+            <option value="Vendido">Vendido</option>
+          </select>
+          <div v-if="formErrors.estado" class="field-error-message">{{ formErrors.estado }}</div>
         </div>
       </div>
 
       <div class="form-row">
-        <div class="form-group" v-if="isEditing">
-          <label for="estado">Estado</label>
-           <select
-              id="estado"
-              v-model="formData.estado"
-              class="form-input"
-              required
-              :class="{ 'is-invalid': formErrors.estado }"
-          >
-            <!-- las opciones para la versiona edicion  -->
-              <option value="Activo">Activo</option>
-              <option value="Vencido">Vencido</option>
-              <option value="Vendido">Vendido</option>
-             
-          </select>
-           <div v-if="formErrors.estado" class="field-error-message">{{ formErrors.estado }}</div>
+        <div class="form-group submit-group">
+          <button type="submit" class="submit-btn" :disabled="panalesStore.loading">
+            <span v-if="!panalesStore.loading">{{ isEditing ? 'GUARDAR CAMBIOS' : 'GUARDAR PANAL' }}</span>
+            <span v-else>
+              <span class="loading-spinner"></span> {{ isEditing ? 'Guardando Cambios...' : 'Guardando Panal...' }}
+            </span>
+          </button>
         </div>
-
-         <div class="form-group submit-group">
-            <button type="submit" class="submit-btn" :disabled="panalesStore.loading">
-              <span v-if="!panalesStore.loading">{{ isEditing ? 'GUARDAR CAMBIOS' : 'GUARDAR PANAL' }}</span>
-              <span v-else>
-                <span class="loading-spinner"></span> {{ isEditing ? 'Guardando Cambios...' : 'Guardando Panal...' }}
-              </span>
-            </button>
-         </div>
       </div>
 
       <p v-if="panalesStore.error" class="general-error-message">{{ panalesStore.error }}</p>
-
     </form>
 
-
-    <!-- {/* === Añadir el componente ConfirmModal para Guardar Cambios (en edición) === */} -->
-    <!-- {/* Se mostrará cuando showSaveConfirm sea true */} -->
     <ConfirmModal
-      v-if="showSaveConfirm" 
+      v-if="showSaveConfirm"
       title="Confirmar Guardar Cambios"
       message="¿Estás seguro de que quieres guardar los cambios realizados en este panal?"
       confirmButtonText="Sí, Guardar"
       cancelButtonText="Cancelar"
-      @confirm="executeSave" 
-      @cancel="cancelSave" 
+      @confirm="executeSave"
+      @cancel="cancelSave"
     />
-    
   </div>
 </template>
+
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
@@ -180,6 +187,7 @@ const formData = ref({
   idPanal: '',
   tipoHuevo: '',
   cantidadHuevos: null,
+  cantidadPanales: null,
   galponLote: '',
   fechaInicio: '',
   fechaVencimiento: '',
@@ -218,6 +226,7 @@ onMounted(async () => {
                 idPanal: panalToEdit.idPanal,
                 tipoHuevo: panalToEdit.tipoHuevo,
                 cantidadHuevos: panalToEdit.cantidadHuevos,
+                cantidadPanales: panalToEdit.cantidadPanales,
                 galponLote: panalToEdit.galponLote,
                 fechaInicio: panalToEdit.fechaInicio,
                 fechaVencimiento: panalToEdit.fechaVencimiento,
@@ -247,6 +256,7 @@ const validateForm = () => {
     if (!formData.value.idPanal) { formErrors.value.idPanal = 'El ID del Panal es obligatorio.'; isValid = false; }
     if (!formData.value.tipoHuevo) { formErrors.value.tipoHuevo = 'El Tipo de Huevo es obligatorio.'; isValid = false; }
     if (formData.value.cantidadHuevos === null || formData.value.cantidadHuevos <= 0) { formErrors.value.cantidadHuevos = 'La Cantidad de Huevos debe ser un número positivo.'; isValid = false; }
+    if (formData.value.cantidadPanales === null || formData.value.cantidadPanales <= 0) { formErrors.value.cantidadPanales = 'La Cantidad de Panales debe ser un número positivo.'; isValid = false; }
     if (!formData.value.galponLote) { formErrors.value.galponLote = 'El Galpón o Lote es obligatorio.'; isValid = false; }
     if (!formData.value.fechaInicio) { formErrors.value.fechaInicio = 'La Fecha de Inicio es obligatoria.'; isValid = false; }
     if (!formData.value.fechaVencimiento) { formErrors.value.fechaVencimiento = 'La Fecha de Vencimiento es obligatoria.'; isValid = false; }
@@ -360,6 +370,7 @@ const resetForm = () => {
         idPanal: '',
         tipoHuevo: '',
         cantidadHuevos: null,
+        cantidadPanales: null,
         galponLote: '',
         fechaInicio: '',
         fechaVencimiento: '',

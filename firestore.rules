@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Reglas para la colección 'panales'
+    match /panales/{panalId} {
+      // Permite leer cualquier documento de panal SOLO si el usuario está autenticado
+      // Y si el campo 'userId' del documento de panal coincide con el UID del usuario autenticado
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+
+      // Permite crear un nuevo documento de panal SOLO si el usuario está autenticado
+      // Y si el campo 'userId' en los datos que se intentan crear coincide con el UID del usuario autenticado
+      // (Esto protege contra que alguien intente crear un panal a nombre de otro usuario)
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+
+      // Permite actualizar o eliminar un documento de panal SOLO si el usuario está autenticado
+      // Y si el campo 'userId' del documento existente coincide con el UID del usuario autenticado (es el dueño)
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+
+     // Regla para la colección 'panales' en operaciones de listado/consulta
+     // Permite listar/consultar documentos en la colección 'panales' SOLO si el usuario está autenticado
+     // Y si la consulta incluye un filtro donde el campo 'userId' es igual al UID del usuario autenticado
+     // (Esto asegura que fetchPanales() con el filtro funcione y sea seguro)
+    match /panales {
+       allow list, read: if request.auth != null && request.auth.uid == resource.data.userId;
+       // Nota: La regla 'list' puede requerir índices compuestos en Firestore si filtras y ordenas.
+       // Firestore te dará un error si la consulta requiere un índice que no existe y te proporcionará un enlace para crearlo.
+    }
+
+
+    // Regla por defecto para CUALQUIER OTRA COSA:
+    // Deniega cualquier operación (leer, escribir) por defecto, a menos que haya una regla 'match' específica arriba que lo permita.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+
+}

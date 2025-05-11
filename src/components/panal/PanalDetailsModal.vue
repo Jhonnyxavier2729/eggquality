@@ -10,6 +10,7 @@
             <p><strong>ID del Panal:</strong> {{ panal.idPanal }}</p>
             <p><strong>Tipo de Huevo:</strong> {{ panal.tipoHuevo }}</p>
             <p><strong>Cantidad de Huevos:</strong> {{ panal.cantidadHuevos }}</p>
+            <p><strong>Cantidad de Panales:</strong> {{ panal.cantidadPanales }}</p>
             <p><strong>Galpón o Lote:</strong> {{ panal.galponLote }}</p>
             <p><strong>Fecha de Inicio:</strong> {{ panal.fechaInicio }}</p>
             <p><strong>Fecha de Vencimiento:</strong> {{ panal.fechaVencimiento }}</p>

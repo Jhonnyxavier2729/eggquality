@@ -3,92 +3,103 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { useToast } from 'vue-toastification';
 import {
+  // Mantén los imports necesarios para las acciones que se quedan client-side (fetch, update, delete)
   collection,
-  addDoc,
   getDocs,
   query,
   where,
-  doc, // Importar 'doc' para referenciar un documento específico
+  doc,
   updateDoc,
   deleteDoc,
-  serverTimestamp,
   orderBy,
-  getDoc // Importar 'getDoc' para leer un solo documento
+  getDoc
+  // ¡Ya NO necesitas addDoc ni serverTimestamp aquí para la acción savePanal!
 } from 'firebase/firestore';
-import { db } from '@/firebase/config';
+import { db } from '@/firebase/config'; // Asegúrate que la ruta a tu db sea correcta
+
 import { useAuthStore } from '@/stores/auth';
+
+// === Imports necesarios para llamar Cloud Functions ===
+import { getFunctions, httpsCallable } from 'firebase/functions';
+// Asegúrate de que tu archivo de configuración de Firebase (config.js o similar)
+// exporte la instancia de la app de Firebase (ej: export const app = initializeApp(firebaseConfig);)
+import { app } from '@/firebase/config'; // <-- Asume que 'app' se exporta desde tu config.js
+// ==================================================
+
 
 export const usePanalesStore = defineStore('panales', () => {
   // --- Estados reactivos ---
-  const panales = ref([]); // Lista de panales del usuario
-  const loading = ref(false); // Indicador de carga para operaciones generales/lista
-  const error = ref(null); // Estado para mensajes de error
-  const toast = useToast(); // Instancia de Vue-Toastification
+  const panales = ref([]);
+  const loading = ref(false);
+  const error = ref(null);
+  const toast = useToast();
+
+  // --- Inicializar Firebase Functions y la referencia a la Callable Function ---
+  const functions = getFunctions(app); // Obtiene la instancia de Cloud Functions
+  // Obtén una referencia a la Cloud Function Callable para añadir panales
+  // 'addPanal' debe coincidir exactamente con el nombre exportado en functions/index.js (v2)
+  const addPanalCallable = httpsCallable(functions, 'addPanal');
+
 
   // --- Acciones del Store ---
 
-  // Acción para guardar un nuevo panal en Firestore
+  // MODIFICADA: Acción para guardar un nuevo panal llamando a la Cloud Function
   const savePanal = async (panalData) => {
     loading.value = true;
     error.value = null;
 
-    const authStore = useAuthStore();
-    const userId = authStore.user?.uid;
-
-    if (!userId) {
-      error.value = 'Usuario no autenticado. No se puede guardar el panal.';
-      toast.error(error.value);
-      loading.value = false;
-      // Es buena práctica lanzar el error para que la vista pueda manejarlo si necesita
-      throw new Error('Usuario no autenticado.');
-    }
+    // NOTA: La validación de fechas que tenías aquí puede quedarse o moverse a la vista.
+    // La validación de unicidad ahora la hace la Cloud Function.
+    // La autenticación y añadir userId/createdAt también los hace la Cloud Function.
 
     try {
-      // Validación adicional (opcional, también se puede hacer en la vista)
-      if (new Date(panalData.fechaVencimiento) < new Date(panalData.fechaInicio)) {
-        const msg = 'La fecha de vencimiento no puede ser anterior a la fecha de inicio.';
-        error.value = msg;
-        toast.error(msg);
-        throw new Error(msg);
-      }
+      console.log('Llamando a la Cloud Function addPanal con datos:', panalData);
+      // Llama a la función callable con los datos del formulario
+      // La Cloud Function se encarga de validar unicidad, añadir userId/createdAt y guardar en Firestore
+      const result = await addPanalCallable(panalData);
 
-      const panalesCollection = collection(db, 'panales');
+      // La Cloud Function retorna { documentId: ..., message: ... } si tiene éxito
+      console.log('Resultado de la Cloud Function addPanal:', result.data);
+      toast.success(result.data.message || 'Panal guardado correctamente.'); // Usa el mensaje de la CF
 
-      // Añadir el documento a la colección
-      const docRef = await addDoc(panalesCollection, {
-        ...panalData, // Copia los datos del formulario
-        estado: 'Activo', // <--- ¡Añade o sobrescribe el estado para asegurar que siempre sea 'Activo' al crear!
-        userId: userId, // Añade el ID del usuario logueado
-        createdAt: serverTimestamp() // Añade la marca de tiempo del servidor
-      });
+      // Después de guardar exitosamente, refresca la lista para incluir el nuevo panal
+      // O considera añadirlo localmente si quieres una actualización más rápida (con caveats sobre orden/serverTimestamp)
+      fetchPanales(); // Refrescar la lista completa es más seguro para reflejar el estado correcto
 
-      console.log('Documento de panal guardado con ID:', docRef.id);
-      // Mostrar notificación de éxito
-      toast.success('Panal guardado correctamente.');
+      // Retorna el ID del documento creado (devuelto por la Cloud Function)
+      return result.data.documentId;
 
-      // Opcional: Añadir el nuevo panal a la lista local si está cargada (para mantener la UI actualizada sin refetch completo)
-      // Esto puede ser complejo con ordenamiento, podrías decidir solo refetch la lista completa en la vista después de guardar
-      // panales.value.push({ id: docRef.id, ...panalData, userId: userId, createdAt: new Date() }); // Usar new Date() para aproximar si no necesitas el timestamp exacto del servidor en la lista
-
-      return docRef.id; // Retorna el ID del documento guardado
     } catch (err) {
-      console.error('Error al guardar el panal:', err);
-      // Establecer error en el store y mostrar notificación de error
-      error.value = err.message || 'Error desconocido al guardar el panal.';
-      toast.error('Error al guardar el panal.');
-      // Propagar el error
+      console.error('Error al guardar panal a través de Cloud Function:', err);
+      // Maneja errores específicos lanzados por la Cloud Function (HttpsError)
+      if (err.code) {
+         // Asigna el error del store para mostrarlo en la UI si es necesario
+         error.value = err.message;
+         // Muestra un toast con el mensaje de error específico (ej. 'Ya existe un panal...')
+         toast.error(err.message);
+      } else {
+         // Mensaje genérico para errores inesperados del cliente o red
+         error.value = 'Error inesperado al guardar panal.';
+         toast.error('Error inesperado al guardar panal.');
+      }
+      // Relanza el error para que la vista que llamó a savePanal sepa que falló
       throw err;
+
     } finally {
-      // Restablecer estado de carga
-      loading.value = false;
+      loading.value = false; // Deshabilita el estado de carga al finalizar (éxito o error)
     }
   };
 
-  // Acción para cargar los panales del usuario logueado desde Firestore
+  // --- Las acciones fetchPanales, fetchSinglePanal, updatePanal, deletePanal pueden quedarse client-side ---
+  // Tu código para fetchPanales, fetchSinglePanal, updatePanal, deletePanal parece correcto para operaciones client-side.
+  // Solo necesitas asegurarte de que 'db' se importe correctamente desde tu archivo de configuración.
+
+  // Acción para cargar los panales del usuario logueado desde Firestore (Client-side)
+  // Tu código actual para fetchPanales está bien para leer los datos.
   const fetchPanales = async () => {
     loading.value = true;
     error.value = null;
-    panales.value = []; // Limpiar la lista actual antes de cargar
+    panales.value = [];
 
     const authStore = useAuthStore();
     const userId = authStore.user?.uid;
@@ -97,7 +108,8 @@ export const usePanalesStore = defineStore('panales', () => {
       error.value = 'Usuario no autenticado. No se pueden cargar los panales.';
       toast.error(error.value);
       loading.value = false;
-      throw new Error('Usuario no autenticado.');
+      // No lanzar aquí si quieres que la lista simplemente esté vacía para no autenticados
+      return; // Sale de la función
     }
 
     try {
@@ -109,102 +121,110 @@ export const usePanalesStore = defineStore('panales', () => {
         orderBy("createdAt", "desc")
       );
 
-      // Ejecutar la consulta
       const querySnapshot = await getDocs(q);
 
-      // Mapear los documentos a objetos JavaScript, añadiendo el ID del documento
       const fetchedPanales = querySnapshot.docs.map(doc => ({
-        id: doc.id, // Añade el ID del documento de Firestore
-        ...doc.data() // Copia los datos del documento
+        id: doc.id,
+        ...doc.data()
       }));
 
-      // Actualizar el estado 'panales' del store
       panales.value = fetchedPanales;
       console.log('Panales cargados:', panales.value);
     } catch (err) {
       console.error('Error al cargar los panales:', err);
-      // Establecer error en el store y mostrar notificación
       error.value = err.message || 'Error desconocido al cargar los panales.';
       toast.error('Error al cargar los panales.');
-      throw err;
+      throw err; // Relanza el error
     } finally {
-      // Restablecer estado de carga
       loading.value = false;
     }
   };
 
+  // Acción: Obtiene un solo panal por su ID de Firestore (Client-side)
+  // Tu código actual para fetchSinglePanal está bien.
+  const fetchSinglePanal = async (panalId) => {
+      // ... (código de fetchSinglePanal como lo proporcionaste) ...
+      if (!panalId) {
+          console.warn('fetchSinglePanal llamado sin ID.');
+          error.value = 'Se requiere un ID para cargar un solo panal.';
+          return null;
+      }
 
-  // Nueva acción: Obtiene un solo panal por su ID de Firestore
-  const fetchSinglePanal = async (panalId) => {
-      if (!panalId) {
-          console.warn('fetchSinglePanal llamado sin ID.');
-          error.value = 'Se requiere un ID para cargar un solo panal.';
-          return null;
-      }
+      loading.value = true;
+      error.value = null;
 
-      // Usar el mismo estado de carga o uno específico si prefieres
-      loading.value = true;
-      error.value = null; // Limpiar errores previos
+      try {
+          const panalDocRef = doc(db, 'panales', panalId);
+          const panalDocSnap = await getDoc(panalDocRef);
 
-      try {
-          const panalDocRef = doc(db, 'panales', panalId); // Crea una referencia al documento específico
-          const panalDocSnap = await getDoc(panalDocRef); // Obtiene el snapshot del documento
+          if (panalDocSnap.exists()) {
+              // Opcional: verificar que el panal pertenezca al usuario actual para seguridad client-side
+              const authStore = useAuthStore();
+              if (panalDocSnap.data().userId !== authStore.user?.uid) {
+                   console.warn('Intento de acceder a panal que no pertenece al usuario.');
+                   error.value = 'No tienes permiso para ver este panal.';
+                   toast.error('No tienes permiso.');
+                   return null;
+              }
 
-          if (panalDocSnap.exists()) {
-              // Si el documento existe, retorna un objeto con su ID y sus datos
-              console.log("Datos del documento encontrado:", panalDocSnap.data());
-              return { id: panalDocSnap.id, ...panalDocSnap.data() };
-          } else {
-              // Si el documento no existe
-              console.log("Documento con ID", panalId, "no encontrado en Firestore!");
-              error.value = `Panal con ID ${panalId} no encontrado.`; // Establecer error en el store
-              return null; // Retorna null para indicar que no se encontró
-          }
-      } catch (err) {
-          console.error("Error al obtener documento con ID", panalId, ":", err);
-          error.value = err.message || 'Error desconocido al obtener el panal.'; // Establecer error
-          throw err; // Propagar el error
-      } finally {
-          loading.value = false; // Restablecer estado de carga
-      }
-  };
+              console.log("Datos del documento encontrado:", panalDocSnap.data());
+              return { id: panalDocSnap.id, ...panalDocSnap.data() };
+          } else {
+              console.log("Documento con ID", panalId, "no encontrado en Firestore!");
+              error.value = `Panal con ID ${panalId} no encontrado.`;
+              return null;
+          }
+      } catch (err) {
+          console.error("Error al obtener documento con ID", panalId, ":", err);
+          error.value = err.message || 'Error desconocido al obtener el panal.';
+          throw err;
+      } finally {
+          loading.value = false;
+      }
+  };
 
-
-  // Acción para actualizar un panal existente en Firestore
+  // Acción para actualizar un panal existente en Firestore (Client-side)
+  // Tu código actual para updatePanal está bien.
   const updatePanal = async (panalId, newData) => {
     loading.value = true;
     error.value = null;
 
-    // Opcional: Validación adicional antes de actualizar
-     if (newData.fechaVencimiento && newData.fechaInicio && new Date(newData.fechaVencimiento) < new Date(newData.fechaInicio)) {
-         const msg = 'La fecha de vencimiento no puede ser anterior a la fecha de inicio.';
-         error.value = msg;
-         toast.error(msg);
+    // Opcional: Validación adicional antes de actualizar
+     if (newData.fechaVencimiento && newData.fechaInicio && new Date(newData.fechaVencimiento) < new Date(newData.fechaInicio)) {
+         const msg = 'La fecha de vencimiento no puede ser anterior a la fecha de inicio.';
+         error.value = msg;
+         toast.error(msg);
+         loading.value = false;
+         throw new Error(msg);
+     }
+
+     // Opcional: verifica que el panal pertenezca al usuario antes de intentar actualizarlo client-side
+     const authStore = useAuthStore();
+     const panalDocSnap = await getDoc(doc(db, 'panales', panalId));
+     if (!panalDocSnap.exists() || panalDocSnap.data().userId !== authStore.user?.uid) {
+         console.warn('Intento de actualizar panal que no pertenece al usuario.');
+         error.value = 'No tienes permiso para editar este panal.';
+         toast.error('No tienes permiso.');
          loading.value = false;
-         throw new Error(msg);
+         throw new Error('Permission denied');
      }
 
 
     try {
-      // Crea una referencia al documento a actualizar usando su ID de Firestore
       const panalDocRef = doc(db, 'panales', panalId);
 
-      // Actualiza el documento con los nuevos datos
       await updateDoc(panalDocRef, newData);
 
       console.log('Documento de panal actualizado:', panalId);
-      // Mostrar notificación de éxito
       toast.success('Panal actualizado correctamente.');
 
-      // Actualizar la lista local en el store para reflejar los cambios inmediatamente en la UI de lista
+      // Actualizar la lista local
       const index = panales.value.findIndex(p => p.id === panalId);
       if (index !== -1) {
-        // Mezcla los datos existentes con los nuevos datos
         panales.value[index] = { ...panales.value[index], ...newData };
       }
     } catch (err) {
       console.error('Error al actualizar el panal:', err);
-      // Establecer error y mostrar notificación
       error.value = err.message || 'Error desconocido al actualizar el panal.';
       toast.error('Error al actualizar el panal.');
       throw err;
@@ -213,27 +233,36 @@ export const usePanalesStore = defineStore('panales', () => {
     }
   };
 
-  // Acción para eliminar un panal existente en Firestore
+  // Acción para eliminar un panal existente en Firestore (Client-side)
+  // Tu código actual para deletePanal está bien.
   const deletePanal = async (panalId) => {
     loading.value = true;
     error.value = null;
 
+     // Opcional: verifica que el panal pertenezca al usuario antes de intentar eliminarlo client-side
+     const authStore = useAuthStore();
+     const panalDocSnap = await getDoc(doc(db, 'panales', panalId));
+     if (!panalDocSnap.exists() || panalDocSnap.data().userId !== authStore.user?.uid) {
+         console.warn('Intento de eliminar panal que no pertenece al usuario.');
+         error.value = 'No tienes permiso para eliminar este panal.';
+         toast.error('No tienes permiso.');
+         loading.value = false;
+         throw new Error('Permission denied');
+     }
+
+
     try {
-      // Crea una referencia al documento a eliminar
       const panalDocRef = doc(db, 'panales', panalId);
 
-      // Elimina el documento
       await deleteDoc(panalDocRef);
 
       console.log('Documento de panal eliminado:', panalId);
-      // Mostrar notificación de éxito
       toast.success('Panal eliminado correctamente.');
 
-      // Remover el panal de la lista local en el store para actualizar la UI
+      // Remover de la lista local
       panales.value = panales.value.filter(panal => panal.id !== panalId);
     } catch (err) {
       console.error('Error al eliminar el panal:', err);
-      // Establecer error y mostrar notificación
       error.value = err.message || 'Error desconocido al eliminar el panal.';
       toast.error('Error al eliminar el panal.');
       throw err;
@@ -242,15 +271,15 @@ export const usePanalesStore = defineStore('panales', () => {
     }
   };
 
-  // --- Retornar todos los estados y acciones para que estén disponibles ---
+  // --- Retornar todos los estados y acciones ---
   return {
-    panales,
-    loading,
-    error,
-    savePanal,
-    fetchPanales,
-    updatePanal,
-    deletePanal,
-    fetchSinglePanal // ¡Ahora fetchSinglePanal también está disponible!
-  };
+    panales,
+    loading,
+    error,
+    savePanal, // Esta es la acción modificada para usar la Cloud Function
+    fetchPanales,
+    updatePanal,
+    deletePanal,
+    fetchSinglePanal
+  };
 });
