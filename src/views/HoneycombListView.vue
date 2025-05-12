@@ -7,7 +7,7 @@
     <div class="controls">
       <input
         type="text"
-        placeholder="Buscar panal por ID..."
+        placeholder="Buscar panal por ID, Galpon o Estado"
         v-model="searchQuery"
         class="search-input"
       />

@@ -49,8 +49,6 @@
       @cancel="cancelLogout"
     />
 
-    </aside>
-
     <!-- Contenido principal con desplazamiento condicional -->
     <div :class="['main-content', { 'shifted-left': !props.isSidebarOpen }]">
       <slot />
@@ -86,6 +84,7 @@ const menuItems = [
   { text: 'Análisis de Huevos', name: 'egg-analysis', route: { name: 'egg-analysis' }, icon: 'fa-egg', completed: false },
   { text: 'Panales', name: 'honeycomb', route: { name: 'honeycomb' }, icon: 'fa-cube', completed: true },
   { text: 'Lista de Panales', name: 'honeycomb-list', route: { name: 'honeycomb-list' }, icon: 'fa-list', completed: false },
+  { text: 'Reportes', name: 'reports', route: { name: 'reports' }, icon: 'fa-file-alt', completed: false }, // O 'fa-chart-bar', 'fa-file-pdf', etc. (elige un ícono relevante)
   { text: 'Configuración', name: 'settings', route: { name: 'settings' }, icon: 'fa-cog', completed: true },
 ];
 
