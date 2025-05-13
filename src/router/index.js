@@ -66,6 +66,13 @@ const routes = [
         component: () => import('@/views/HoneycombListView.vue'),
         meta: { requiresAuth: true },
       },
+      // router/index.js (ejemplo, añadirías esta ruta a tu array 'routes')
+      {
+        path: '/reports', // La URL para tus reportes
+        name: 'reports', // Un nombre para la ruta
+        component: () => import('@/views/ReportView.vue'), // Tu componente de vista de reportes
+        meta: { requiresAuth: true }, // Requiere autenticación
+      },
       {
         path: 'settings',
         name: 'settings',

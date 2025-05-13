@@ -23,5 +23,8 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 // --- Obtener la instancia de Firestore ---
 const db = getFirestore(app);
-export const functions = getFunctions(app);
-export { app, auth, db };
+
+const functions = getFunctions(app); // <-- Inicializa la instancia 'functions'
+
+
+export { auth, db, app, functions };

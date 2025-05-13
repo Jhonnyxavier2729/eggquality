@@ -132,9 +132,11 @@
             required
             :class="{ 'is-invalid': formErrors.estado }"
           >
-            <option value="Activo">Activo</option>
-            <option value="Vencido">Vencido</option>
-            <option value="Vendido">Vendido</option>
+            <!-- las opciones para la versiona edicion  -->
+              <option value="Activo">Activo</option>
+              <option value="Vencido">Vencido</option>
+              <option value="Vendido">Vendido</option>
+
           </select>
           <div v-if="formErrors.estado" class="field-error-message">{{ formErrors.estado }}</div>
         </div>
@@ -163,6 +165,7 @@
       @confirm="executeSave"
       @cancel="cancelSave"
     />
+
   </div>
 </template>
 
@@ -298,44 +301,40 @@ const generarIdAutomatico = () => {
      }
 };
 
-
 // --- Función para manejar el envío del formulario (MODIFICADA para usar Modal en Edición) ---
 const handleSubmit = async () => {
-    // Limpiar errores previos
-    panalesStore.error = null;
-    dateError.value = null;
-    formErrors.value = {};
+  // Limpiar errores previos
+  panalesStore.error = null;
+  dateError.value = null;
+  formErrors.value = {};
 
-    // Validar el formulario localmente
-    if (!validateForm()) {
-        console.log('Validación del formulario fallida.');
-        return; // Detiene el proceso si la validación falla
-    }
+  // Validar el formulario localmente
+  if (!validateForm()) {
+    console.log('Validación del formulario fallida.');
+    return; // Detiene el proceso si la validación falla
+  }
 
-    console.log('Formulario validado. Intentando guardar/actualizar panal con datos:', formData.value);
+  console.log('Formulario validado. Intentando guardar/actualizar panal con datos:', formData.value);
 
-    // === Si estamos en modo EDICIÓN, mostramos el modal de confirmación ===
-    if (isEditing.value) {
-        console.log('Modo edición: Mostrando modal de confirmación para guardar cambios.');
-        showSaveConfirm.value = true; // Muestra el modal de guardar cambios
-    } else {
-        // === Si estamos en modo REGISTRO, guarda directamente ===
-        console.log('Modo registro: Llamando a savePanal directamente.');
-        try {
-            const docId = await panalesStore.savePanal(formData.value);
-            console.log('Panal guardado con ID:', docId);
-            resetForm(); // Resetear el formulario después de guardar un nuevo panal
-            // Opcional: Redirigir a la lista después de guardar un nuevo
-            // router.push({ name: 'honeycomb-list' });
-        } catch (error) {
-            console.error('Error al guardar panal desde la vista:', error);
-            // El error se muestra desde el store
-        }
-    }
+  // === Si estamos en modo EDICIÓN, mostramos el modal de confirmación ===
+  if (isEditing.value) {
+    console.log('Modo edición: Mostrando modal de confirmación para guardar cambios.');
+    showSaveConfirm.value = true; // Muestra el modal de guardar cambios
+  } else {
+    // === Si estamos en modo REGISTRO, guarda directamente ===
+    console.log('Modo registro: Llamando a savePanal directamente.');
+    try {
+      const docId = await panalesStore.savePanal(formData.value);
+      console.log('Panal guardado con ID:', docId);
+      resetForm(); // Resetear el formulario después de guardar un nuevo panal
+      // Opcional: Redirigir a la lista después de guardar un nuevo
+      // router.push({ name: 'honeycomb-list' });
+    } catch (error) {
+      console.error('Error al guardar panal desde la vista:', error);
+      // El error se muestra desde el store
+    }
+  }
 };
-
-// --- Funciones para manejar el Modal de Guardar Cambios ---
-
 // Función llamada cuando el usuario confirma en el modal de guardar cambios
 const executeSave = async () => {
   console.log('Confirmado guardar cambios. Ejecutando updatePanal.');
@@ -416,6 +415,7 @@ watch(() => route.params.id, (newId, oldId) => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   border: 2px solid #eee9e7; /* Borde naranja */
   position: relative;
+  width: 100%;
 }
 
 .mensaje-recomendacion {
@@ -697,5 +697,7 @@ label {
     width: 100%; /* Botón ocupa todo el ancho */
   }
 }
+
+
 </style>
 
