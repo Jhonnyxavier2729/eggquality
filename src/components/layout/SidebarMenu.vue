@@ -152,7 +152,7 @@ const executeLogout = async () => {
   height: 100vh; /* <-- Ocupa el alto completo de la ventana */
   display: flex;
   flex-direction: column; /* Items en columna */
-  z-index: 1000; /* Asegura que esté encima de otros elementos */
+  /* Asegura que esté encima de otros elementos */
   box-shadow: 2px 0 5px rgba(139, 55, 55, 0.1); /* Sombra ligera a la derecha */
   transition: transform 0.3s ease-in-out;
   transform: translateX(-100%);
@@ -236,7 +236,7 @@ const executeLogout = async () => {
   position: fixed;
   top: 1rem;
   left: 1rem;
-  z-index: 1100;
+  z-index: 1000;
   font-size: 2rem;
   background: none;
   border: none;
@@ -268,7 +268,7 @@ const executeLogout = async () => {
     position: fixed;
     top: 1rem;
     left: 1rem;
-    z-index: 1100;
+    z-index: 1000;
     background: none;
     border: none;
     font-size: 2rem;
@@ -300,7 +300,6 @@ const executeLogout = async () => {
     left: 0;
     top: 0;
     background-color: #d1cfcf;
-    z-index: 1000;
     transform: translateX(-100%);
     transition: transform 0.3s ease;
   }
@@ -314,7 +313,7 @@ const executeLogout = async () => {
     position: fixed;
     top: 1rem;
     left: 1rem;
-    z-index: 1100;
+    z-index: 1000;
     background: none;
     border: none;
     font-size: 2rem;

@@ -73,7 +73,7 @@
     display: flex;
     justify-content: center; /* Centrar horizontalmente */
     align-items: center; /* Centrar verticalmente */
-    z-index: 1000; /* Asegurar que esté por encima de otros elementos */
+    z-index: 9999; /* Asegurar que esté por encima de otros elementos */
   }
   
   /* Estilos para el Contenedor del Modal */
