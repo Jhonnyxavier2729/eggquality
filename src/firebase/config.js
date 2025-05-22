@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAuth } from 'firebase/auth';
+import { getAuth,  setPersistence, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore'; 
 import { getFunctions } from 'firebase/functions';
 
@@ -22,9 +22,21 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 // --- Obtener la instancia de Firestore ---
+
+setPersistence(auth, browserLocalPersistence) // <<-- RECOMENDADO para la mayoría de las apps
+  .then(() => {
+    console.log("Firebase Auth Persistence configured: browserLocalPersistence");
+  })
+  .catch((error) => {
+    console.error("Error setting Firebase Auth persistence:", error.message);
+  });
+// *** FIN CAMBIO ***
+
+
 const db = getFirestore(app);
 
 const functions = getFunctions(app); // <-- Inicializa la instancia 'functions'
+
 
 
 export { auth, db, app, functions };

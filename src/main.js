@@ -3,21 +3,20 @@
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import App from './App.vue';
-import router from './router'; // Importa la instancia del router
+import router from './router'; 
 import Toast from 'vue-toastification';
 import 'vue-toastification/dist/index.css';
 import '@/assets/main.css';
-import { auth } from '@/firebase/config'; // Importa la configuración de Firebase
+import { auth } from '@/firebase/config'; 
 import { onAuthStateChanged } from 'firebase/auth';
+import { useAuthStore } from '@/stores/auth'; // Asegúrate de importar tu store de autenticación
 
 // Importa font awesome
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faChartLine, faEgg, faCube, faList, faCog, faPowerOff, faQuestionCircle, faEye, faPen, faTrash, faFileAlt } from '@fortawesome/free-solid-svg-icons';
+import { faChartLine, faEgg, faCube, faList, faCog, faPowerOff, faQuestionCircle, faEye, faPen, faTrash, faFileAlt, faFilePdf } from '@fortawesome/free-solid-svg-icons';
 
-library.add(faChartLine, faEgg, faCube, faList, faCog, faPowerOff, faQuestionCircle, faEye, faPen, faTrash, faFileAlt);
-
-
+library.add(faChartLine, faEgg, faCube, faList, faCog, faPowerOff, faQuestionCircle, faEye, faPen, faTrash, faFileAlt, faFilePdf);
 
 const toastOptions = {
   timeout: 5000,
@@ -31,56 +30,56 @@ const toastOptions = {
   icon: true,
 };
 
-let app;
+// Crea la instancia de Pinia y la app ANTES de onAuthStateChanged
+const app = createApp(App);
+const pinia = createPinia();
+app.use(pinia);
 
+// Obtén el store de autenticación
+const authStore = useAuthStore();
 
+// Usa una bandera para controlar el montaje de la aplicación/router
+let isAppMounted = false;
 
-// Esperamos a que Firebase Auth determine el estado inicial
-onAuthStateChanged(auth, async (user) => { // Hacemos esta función async
-  if (!app) { // Nos aseguramos de crear/montar la app una sola vez
-    app = createApp(App);
-    app.use(createPinia());
+// onAuthStateChanged se disparará cuando el estado de autenticación inicial sea conocido
+onAuthStateChanged(auth, async (user) => {
+  // Actualiza el estado de autenticación en tu store
+  authStore.user = user; 
+  authStore.isLoading = false; // Asume que tienes un isLoading en tu store para indicar que la auth está cargada
+
+  console.log("Estado de autenticación actualizado en store:", user ? user.uid : null);
+
+  if (!isAppMounted) { // Asegura que solo se monta una vez
     app.use(router); // Instala el router
-    app.use(Toast, toastOptions);
 
+    // Esperar a que el router esté listo antes de proceder con la navegación
+    await router.isReady(); 
 
-     // Registra el componente de Font Awesome después de inicializar `app`
-     app.component('font-awesome-icon', FontAwesomeIcon);
-
-    // --- Navegación Inicial Explícita Basada en Autenticación ---
-
-    // Obtenemos la ruta a la que el usuario intentó acceder (la URL actual)
+    // --- Lógica de redirección inicial ---
     const initialPath = window.location.pathname;
-
-    // Resolvemos la ruta para poder verificar sus metadatos
-    // Usamos await router.isReady() para asegurar que el router está listo para resolver rutas
-     await router.isReady(); // Esperar a que el router esté listo
-
-
     const targetRoute = router.resolve(initialPath);
 
-    // Si la ruta inicial requiere autenticación Y el usuario NO está autenticado
     if (targetRoute.matched.some(record => record.meta.requiresAuth) && !user) {
-        console.log('Main.js: Usuario no autenticado para ruta inicial protegida, redirigiendo a /login');
-        // Redirigimos inmediatamente al login ANTES de que el router intente ir a la ruta protegida
-        // Usamos replace para que el usuario no pueda volver atrás a la página protegida con el botón del navegador
-        router.replace('/login');
+      console.log('Main.js: Usuario no autenticado para ruta inicial protegida, redirigiendo a /login');
+      router.replace('/login');
     } else {
-         // Si la ruta inicial es pública O si el usuario SÍ está autenticado:
-         // Permitimos la navegación a la ruta solicitada por el usuario.
-         // Usamos replace para que esta sea la primera entrada en el historial.
-         console.log('Main.js: Navegación inicial permitida a', initialPath);
-         router.replace(initialPath); // Navega a la ruta que el usuario pidió
+      console.log('Main.js: Navegación inicial permitida a', initialPath);
+      // No necesitas router.replace(initialPath) aquí si el router ya está en esa ruta.
+      // Solo es necesario si la ruta inicial no es la actual.
+      // Sin embargo, si quieres asegurar que el historial se limpia, puedes dejarlo.
+      // Si la ruta inicial es '/', y el usuario está logueado, router.replace('/') no es necesario.
+      // router.replace(initialPath); 
     }
+    // --- Fin Lógica de redirección inicial ---
 
-    // --- Fin Navegación Inicial Explícita ---
+    app.use(Toast, toastOptions);
+    app.component('font-awesome-icon', FontAwesomeIcon);
 
-
-    app.mount('#app'); // Monta la aplicación en el DOM
+    app.mount('#app'); // Monta la aplicación
+    isAppMounted = true;
   }
 });
 
-// El guardián en index.js sigue siendo necesario para manejar las navegaciones
-// posteriores *después* de la carga inicial (ej: navegación entre páginas, clics en enlaces).
-// El guardián ahora se ejecutará *después* de que onAuthStateChanged en main.js
-// haya resuelto y potencialmente ya haya empujado una ruta inicial.
+// Nota: Elimina cualquier lógica de 'index.js' que haga un setTimeout
+// para "carga inicial de auth", ya que onAuthStateChanged en main.js
+// es el lugar correcto para manejar esto.

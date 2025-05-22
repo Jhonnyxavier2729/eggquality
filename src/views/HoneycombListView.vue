@@ -82,6 +82,7 @@
 </template>
 
 <script setup>
+
 import { ref, computed, onMounted } from 'vue'
 import { usePanalesStore } from '@/stores/panalesStore'
 // Importa el nuevo componente Modal
