@@ -21,38 +21,39 @@ const goToRegister = () => {
 
 // ===> Función de LOGIN (Corregida para mostrar Toast) <===
 const login = async (formData) => {
-  // Limpiar error previo del store (AuthForm ya lo hace al inicio de su submit)
-  authStore.error = null;
+  // Limpiar error previo del store (AuthForm ya lo hace al inicio de su submit)
+  authStore.error = null;
 
   // Opcional: Validar campos vacíos en el front-end (AuthForm ya lo hace si seguiste la última corrección)
   // if (!formData.email || !formData.password) {
-  //    toast.warning('Por favor, ingresa tu correo y contraseña.');
-  //    return;
+  //   toast.warning('Por favor, ingresa tu correo y contraseña.');
+  //   return;
   // }
 
-  try {
-    console.log('Vista de Login: Llamando a authStore.login...');
-    await authStore.login(formData.email, formData.password);
+  try {
+    console.log('Vista de Login: Llamando a authStore.login...');
+    await authStore.login(formData.email, formData.password);
 
-    // Si la acción del store es exitosa (no lanza error), muestra el toast de éxito y redirige
+    // Si la acción del store es exitosa (no lanza error), muestra el toast de éxito y redirige
     toast.success('Inicio de sesión exitoso.');
-    console.log('Inicio de sesión exitoso. Redirigiendo al dashboard.');
-    router.push('/dashboard'); // Redirige al dashboard solo si el inicio de sesión es exitoso
+    console.log('Inicio de sesión exitoso. Redirigiendo al dashboard.');
+    router.push('/dashboard'); // Redirige al dashboard solo si el inicio de sesión es exitoso
 
-  } catch (error) {
-    // ===> 3. Este catch recibe el error relanzado por la acción del store <===
-    console.error('Vista de Login: Error capturado al iniciar sesión:', error); // Log del error completo
+  } catch (error) {
+    // ===> Este catch recibe el error relanzado por la acción del store <===
+    console.error('Vista de Login: Error capturado al iniciar sesión:', error); // Log del error completo
 
-    // El store ya estableció authStore.error con el mensaje amigable (ej: 'Contraseña incorrecta.') si el error es conocido.
-    // Usa ese mensaje (o el mensaje original del error si el store no lo mapeó) para mostrar UN SOLO Toast aquí.
-    const errorMessage = authStore.error || error.message || 'Ocurrió un error inesperado durante el inicio de sesión.';
+    // El store ya estableció authStore.error con el mensaje amigable (ej: 'Contraseña incorrecta.') si el error es conocido.
+    // Usa ese mensaje (o el mensaje original del error si el store no lo mapeó) para mostrar UN SOLO Toast aquí.
+    const errorMessage = authStore.error || error.message || 'Ocurrió un error inesperado durante el inicio de sesión.';
 
-    // ===> Muestra el Toast de ERROR AQUÍ <===
-    toast.error(`Error: ${errorMessage}`); // <--- Muestra el Toast de ERROR
-  }
-  // El estado de loading se maneja en el store (finally)
+    // ===> Muestra el Toast de ERROR aquí <===
+    toast.error(`Error: ${errorMessage}`);
+  }
+
+  // El estado de loading se maneja en el store (finally)
 };
-// ===> Fin Función de LOGIN <===
+// ===> Fin función de LOGIN <===
 </script>
 
 <style scoped>

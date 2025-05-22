@@ -45,7 +45,7 @@ onUnmounted(() => {
 
 .main-content {
   flex-grow: 1;
-  padding: 1.5rem; /* Padding base */
+  padding:0rem; /* Padding base */
   margin-left: 250px; /* Margen cuando sidebar está ABIERTO */
   overflow-y: auto; /* Permite scroll vertical si el contenido es largo */
   transition: margin-left 0.3s ease-in-out /* Añade padding a la transición */
@@ -57,7 +57,7 @@ onUnmounted(() => {
   /* --- >>> ¡LA CLAVE ESTÁ AQUÍ! <<< --- */
   /* Añade padding para el botón hamburguesa fijo */
   padding-left: 3rem;
-  padding-top: 3rem;
+  padding-top: 0rem;
   padding-right: 1.5rem;
   padding-bottom: 1.5rem;
 }
@@ -68,7 +68,7 @@ onUnmounted(() => {
     /* Por lo tanto, aplicamos los estilos de 'shifted-left' directamente */
     margin-left: 0;
     padding-left: 1.5rem;  /* Mismo padding para el botón */
-    padding-top: 1.5rem;   /* Mismo padding para el botón */
+    padding-top: 0rem;   /* Mismo padding para el botón */
     padding-right: 1.5rem;
     padding-bottom: 1.5rem;
   }
@@ -76,7 +76,7 @@ onUnmounted(() => {
   @media (max-width: 768px) {
     .main-content {
         padding-left: 1rem; /* Incluso menos padding en pantallas muy pequeñas */
-        padding-top: 1rem; /* O ajusta según tu diseño */
+        padding-top: 0rem; /* O ajusta según tu diseño */
         padding-right: 1rem;
         padding-bottom: 1rem;
     }

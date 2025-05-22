@@ -48,10 +48,7 @@
       @confirm="executeLogout"
       @cancel="cancelLogout"
     />
-
-    </aside>
-
-    <!-- Contenido principal con desplazamiento condicional -->
+  <!-- Contenido principal con desplazamiento condicional -->
     <div :class="['main-content', { 'shifted-left': !props.isSidebarOpen }]">
       <slot />
     </div>

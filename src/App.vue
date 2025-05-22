@@ -23,6 +23,7 @@ body, html {
 }
 
 #app {
+  
   /* Estilos para el contenedor principal de tu app */
   /* Puedes añadir padding, fuentes, colores base, etc. */
   font-family: sans-serif; /* Ejemplo de fuente */
@@ -32,4 +33,5 @@ body, html {
 }
 
 /* Otros estilos globales si los tienes... */
+
 </style>
