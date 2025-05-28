@@ -132,64 +132,77 @@ exports.addPanal = onCall(async (request) => {
 
 
 // --- Cloud Function Programada (v2) para actualizar estado a 'Vencido' ---
-exports.updateExpiredPanals = onSchedule('0 0 * * *', { timeZone: 'America/Bogota' }, async (context) => {
-    logger.info('Ejecutando tarea programada updateExpiredPanals en America/Bogota.');
+// ¡CORRECCIÓN CRÍTICA AQUÍ!
+exports.updateExpiredPanals = onSchedule(
+  {
+    schedule: '0 0 1 * *', // Tu programación mensual
+    timeZone: 'America/Bogota'
+  },
+  async (context) => {
+    logger.info('Ejecutando tarea programada updateExpiredPanals en America/Bogota (mensual).');
 
     const hoy = new Date();
     const hoyString = hoy.toISOString().split('T')[0];
 
     try {
-        const expiredPanalesQuery = db.collection('panales')
-            .where('estado', '==', 'Activo')
-            .where('fechaVencimiento', '<=', hoyString);
+      const expiredPanalesQuery = db.collection('panales')
+        .where('estado', '==', 'Activo')
+        .where('fechaVencimiento', '<=', hoyString);
 
-        const snapshot = await expiredPanalesQuery.get();
+      const snapshot = await expiredPanalesQuery.get();
 
-        if (snapshot.empty) {
-            logger.info('No se encontraron panales vencidos hoy o antes.');
-            return null;
-        }
+      if (snapshot.empty) {
+        logger.info('No se encontraron panales vencidos hoy o antes.');
+        return null;
+      }
 
-        logger.info(`Se encontraron ${snapshot.size} panales vencidos para actualizar.`);
+      logger.info(`Se encontraron ${snapshot.size} panales vencidos para actualizar.`);
 
-        const batch = db.batch();
-        let updatedCount = 0;
+      const batch = db.batch();
+      let updatedCount = 0;
 
-        snapshot.forEach(doc => {
-            const panalRef = db.collection('panales').doc(doc.id);
-            batch.update(panalRef, {
-                estado: 'Vencido',
-            });
-            updatedCount++;
+      snapshot.forEach(doc => {
+        const panalRef = db.collection('panales').doc(doc.id);
+        batch.update(panalRef, {
+          estado: 'Vencido',
         });
+        updatedCount++;
+      });
 
-        await batch.commit();
+      await batch.commit();
 
-        logger.info(`Actualización de estado a 'Vencido' completada para ${updatedCount} panales.`);
-        return { status: 'success', updatedCount: updatedCount };
+      logger.info(`Actualización de estado a 'Vencido' completada para ${updatedCount} panales.`);
+      return { status: 'success', updatedCount: updatedCount };
 
     } catch (error) {
-        logger.error('Error en la Cloud Function programada updateExpiredPanales:', error);
-        throw error;
+      logger.error('Error en la Cloud Function programada updateExpiredPanals:', error);
+      throw error;
     }
-});
+  }
+);
 
 
 // --- Cloud Function Programada (v2) para enviar alertas por correo electrónico ---
-// Añade los secretos a las opciones de la función para que estén disponibles en process.env
-exports.sendExpirationAlerts = onSchedule('0 0 * * *', { timeZone: 'America/Bogota', secrets: [sendgridApiKey, sendgridSenderEmail] }, async (context) => { // <-- MODIFICADA
-    logger.info('Ejecutando tarea programada sendExpirationAlerts en America/Bogota.');
+// ¡CORRECCIÓN CRÍTICA AQUÍ!
+exports.sendExpirationAlerts = onSchedule(
+  {
+    schedule: '0 0 1 * *', // Tu programación mensual
+    timeZone: 'America/Bogota',
+    secrets: [sendgridApiKey, sendgridSenderEmail]
+  },
+  async (context) => {
+    logger.info('Ejecutando tarea programada sendExpirationAlerts en America/Bogota (mensual).');
 
     // Accede a los secretos a través de process.env
     const actualSendGridApiKey = process.env.SENDGRID_API_KEY;
-    const actualSendGridSenderEmail = process.env.SENDGRID_SENDER_EMAIL || 'jj8760207@gmail.com'; // Usa tu valor por defecto si el secreto no está configurado o es el caso
+    const actualSendGridSenderEmail = process.env.SENDGRID_SENDER_EMAIL || 'jj8760207@gmail.com';
 
     if (!actualSendGridApiKey) {
-        logger.error("SendGrid API Key (from Secret Manager) is NOT available. Skipping email alerts.");
-        return null;
+      logger.error("SendGrid API Key (from Secret Manager) is NOT available. Skipping email alerts.");
+      return null;
     }
 
-    sgMail.setApiKey(actualSendGridApiKey); // Setear la clave justo antes de usarla
+    sgMail.setApiKey(actualSendGridApiKey);
 
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
@@ -198,81 +211,61 @@ exports.sendExpirationAlerts = onSchedule('0 0 * * *', { timeZone: 'America/Bogo
     const fechaAlertaString = fechaAlerta.toISOString().split('T')[0];
 
     try {
-        const panalesToAlertQuery = db.collection('panales')
-            .where('estado', '==', 'Activo')
-            .where('fechaVencimiento', '==', fechaAlertaString);
+      const panalesToAlertQuery = db.collection('panales')
+        .where('estado', '==', 'Activo')
+        .where('fechaVencimiento', '==', fechaAlertaString);
 
-        const snapshot = await panalesToAlertQuery.get();
+      const snapshot = await panalesToAlertQuery.get();
 
-        if (snapshot.empty) {
-            logger.info('No se encontraron panales que venzan en 7 días.');
-            return null;
+      if (snapshot.empty) {
+        logger.info('No se encontraron panales que venzan en 7 días.');
+        return null;
+      }
+
+      logger.info(`Se encontraron ${snapshot.size} panales próximos a vencer en 7 días.`);
+
+      let sentCount = 0;
+
+      for (const doc of snapshot.docs) {
+        const panal = doc.data();
+        const panalIdFirestore = doc.id;
+        const panalIdApp = panal.idPanal;
+        const userEmail = panal.userEmail;
+
+        if (!userEmail || typeof userEmail !== 'string' || !userEmail.includes('@')) {
+          logger.warn(`Panal ${panalIdFirestore} (ID: ${panalIdApp}) no tiene un email de usuario válido (${userEmail}). No se puede enviar alerta.`);
+          continue;
         }
 
-        logger.info(`Se encontraron ${snapshot.size} panales próximos a vencer en 7 días.`);
+        const msg = {
+          to: userEmail,
+          from: actualSendGridSenderEmail,
+          subject: `Alerta de vencimiento próximo para tu Panal ID ${panalIdApp}`,
+          text: `Hola, te recordamos que tu panal con ID ${panalIdApp} vence pronto, en 7 días (${panal.fechaVencimiento}). Por favor, revisa su estado en la aplicación.`,
+          html: `
+            <p>Hola,</p>
+            <p>Te recordamos que tu panal con ID <strong>${panalIdApp}</strong> está próximo a vencer.</p>
+            <p>La fecha de vencimiento registrada es el ${panal.fechaVencimiento}, lo que significa que vence en 7 días.</p>
+            <p>Por favor, ingresa a la aplicación para revisar el estado de este panal.</p>
+            <p>Gracias por usar nuestra aplicación.</p>
+          `,
+        };
 
-        let sentCount = 0;
-
-        for (const doc of snapshot.docs) {
-            const panal = doc.data();
-            const panalIdFirestore = doc.id;
-            const panalIdApp = panal.idPanal;
-            const userEmail = panal.userEmail;
-
-            if (!userEmail || typeof userEmail !== 'string' || !userEmail.includes('@')) {
-                logger.warn(`Panal ${panalIdFirestore} (ID: ${panalIdApp}) no tiene un email de usuario válido (${userEmail}). No se puede enviar alerta.`);
-                continue;
-            }
-
-            const msg = {
-                to: userEmail,
-                from: actualSendGridSenderEmail, // Usar el email del remitente del secreto o el por defecto
-                subject: `Alerta de vencimiento próximo para tu Panal ID ${panalIdApp}`,
-                text: `Hola, te recordamos que tu panal con ID ${panalIdApp} vence pronto, en 7 días (${panal.fechaVencimiento}). Por favor, revisa su estado en la aplicación.`,
-                html: `
-                   <p>Hola,</p>
-                   <p>Te recordamos que tu panal con ID <strong>${panalIdApp}</strong> está próximo a vencer.</p>
-                   <p>La fecha de vencimiento registrada es el ${panal.fechaVencimiento}, lo que significa que vence en 7 días.</p>
-                   <p>Por favor, ingresa a la aplicación para revisar el estado de este panal.</p>
-                   <p>Gracias por usar nuestra aplicación.</p>
-                 `,
-            };
-
-            try {
-                await sgMail.send(msg);
-                logger.info(`Alerta de vencimiento enviada para Panal ID ${panalIdApp} (Firestore ID: ${panalIdFirestore}) a ${userEmail}`);
-                sentCount++;
-            } catch (emailError) {
-                logger.error(`Error al enviar alerta por email para Panal ID ${panalIdApp} a ${userEmail}:`, emailError);
-            }
+        try {
+          await sgMail.send(msg);
+          logger.info(`Alerta de vencimiento enviada para Panal ID ${panalIdApp} (Firestore ID: ${panalIdFirestore}) a ${userEmail}`);
+          sentCount++;
+        } catch (emailError) {
+          logger.error(`Error al enviar alerta por email para Panal ID ${panalIdApp} a ${userEmail}:`, emailError);
         }
+      }
 
-        logger.info(`Envío de alertas de vencimiento completado. Se enviaron ${sentCount} correos.`);
-        return { status: 'success', sentCount: sentCount };
+      logger.info(`Envío de alertas de vencimiento completado. Se enviaron ${sentCount} correos.`);
+      return { status: 'success', sentCount: sentCount };
 
     } catch (error) {
-        logger.error('Error en la Cloud Function programada sendExpirationAlerts (consulta principal):', error);
-        throw error;
+      logger.error('Error en la Cloud Function programada sendExpirationAlerts (consulta principal):', error);
+      throw error;
     }
-});
-
-// functions/index.js
-
-// ... (todo tu código existente: imports, admin.initializeApp, db, sendgrid config, addPanal, updateExpiredPanals, sendExpirationAlerts) ...
-
-// --- NUEVA FUNCIÓN DE PRUEBA: testSchedulerFunction ---
-exports.testSchedulerFunction = onSchedule('every 5 minutes', { timeZone: 'America/Bogota' }, async (context) => {
-    logger.info('¡Función de prueba de scheduler (testSchedulerFunction) ejecutada con éxito!');
-    return { status: 'success', message: 'Test function ran successfully' };
-});
-// --- FIN DE LA NUEVA FUNCIÓN DE PRUEBA ---
-
-// functions/index.js
-
-// ... (tus imports de v2: onCall, onSchedule, logger, defineSecret) ...
-
-// Importa funciones de la v1 específicamente para esta prueba
-// Asegúrate de que esta línea esté presente y apunte a 'firebase-functions' general.
-
-// ... (admin.initializeApp, db, sgMail, defineSecrets) ...
-
+  }
+);
