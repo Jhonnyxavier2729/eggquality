@@ -220,7 +220,7 @@ h2 {
     color: #2c3e50;
     margin-bottom: 1rem; /* Reduce margen inferior */
     text-align: center;
-    font-size: 1.4rem; /* Tamaño de fuente base */
+    font-size: 1.5rem; /* Tamaño de fuente base */
 }
 
 .controls {
@@ -229,25 +229,28 @@ h2 {
     align-items: stretch; /* Estira elementos al ancho completo */
     gap: 1rem; /* Espacio entre elementos apilados */
     margin-bottom: 1rem; /* Reduce margen inferior */
+    ;
 }
 .controls :focus {
     outline: none;
-    border-color: hsl(20, 78%, 47%);
-    box-shadow: 0 0 0 1px orange;
+    box-shadow: 0 0 0 1px rgb(232, 139, 69);
 }
 
 .search-box {
-    position: relative;
-    width: 100%; /* Ocupa todo el ancho disponible en móviles */
+  position: relative;
+  width: 100%; /* Asegura que la caja de búsqueda ocupe el ancho completo */
+  display: flex; /* Para alinear el icono y el input */
+  align-items: center;
 }
 
 .search-input {
     width: 100%; /* Ocupa todo el ancho del search-box */
     padding: 0.5rem 0.75rem 0.5rem 2rem; /* espacio para ícono a la izquierda */
-    border: 1px solid #ccc;
+    border: 1.8px solid #ccc;
     border-radius: 6px;
     font-size: 1rem;
     box-sizing: border-box; /* Incluir padding y borde en el ancho */
+    border-color: #ff753a;
 }
 
 .search-icon {
@@ -314,7 +317,6 @@ h2 {
 }
 
 /* Estilos para el estado en la tabla */
-/* Mantener estilos de color y peso */
 .status-activo { color: #4caf50; font-weight: bold; }
 .status-vencido { color: #f44336; font-weight: bold; }
 .status-vendido { color: #ff9800; font-weight: bold; }
@@ -332,13 +334,10 @@ h2 {
 
 .action-btn:hover { color: #ff753a; }
 .edit-btn { color: #615f5e; }
-.edit-btn:hover { color: #4f5153; }
 .delete-btn { color: #e57373; }
-.delete-btn:hover { color: #f44336; }
 
 /* Estilo para mensajes de estado */
-.status-message,
-.error-message {
+.status-message,.error-message {
     text-align: center;
     margin-top: 1.5rem; /* Reduce margen superior */
     font-size: 1rem; /* Tamaño de fuente base */
@@ -360,7 +359,7 @@ h2 {
     }
 
     h2 {
-        font-size: 1.6rem; /* Aumenta tamaño de fuente h2 */
+        font-size: 1.5rem; /* Aumenta tamaño de fuente h2 */
         margin-bottom: 1.2rem;
     }
 
@@ -423,11 +422,11 @@ h2 {
         border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         border: 2px solid #eaeaea; /* Borde más grueso */
-        max-width: 800px; /* Max-width típico para tablet/escritorio pequeño */
+        max-width: 1000px; /* Max-width típico para tablet/escritorio pequeño */
     }
 
     h2 {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
         margin-bottom: 1.5rem;
     }
 
@@ -477,7 +476,7 @@ h2 {
 /* --- Media Query para Escritorios Grandes ( >= 1024px ) --- */
 @media (min-width: 1024px) {
      .honeycomb-list-view {
-        padding: 2.5rem; /* Aumenta padding general */
+        padding: 2rem; /* Aumenta padding general */
         max-width: 100%; /* Permite que el content-container controle el ancho */
     }
 
@@ -486,11 +485,11 @@ h2 {
         border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         border: 2px solid #eaeaea;
-        max-width: 900px; /* Max-width típico para escritorio */
+        max-width: 1400px; /* Max-width típico para escritorio */
     }
 
     h2 {
-        font-size: 2rem;
+        font-size: 1.5rem;
         margin-bottom: 2rem;
     }
 
@@ -559,11 +558,11 @@ h2 {
         border-radius: 16px; /* Bordes más redondeados */
         box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
         border: 3px solid #dcdcdc; /* Borde más grueso */
-        max-width: 80%; /* Ejemplo: No más del 70% del viewport */
+        max-width: 80%;
     }
 
     h2 {
-        font-size: 2.5rem; /* Tamaño de fuente mucho más grande h2 */
+        font-size: 1.5rem; /* Tamaño de fuente mucho más grande h2 */
         margin-bottom: 2.5rem;
     }
 

@@ -70,7 +70,7 @@ const actividades = [
   margin-top: 0;
   margin-bottom: 2rem;
   color: #080808;
-  font-size: 1.2rem; /* Tamaño de fuente base para el título */
+  font-size: 1.5rem; /* Tamaño de fuente base para el título */
 }
 
 .tabla-responsive {

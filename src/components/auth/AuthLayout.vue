@@ -17,7 +17,7 @@
 .auth-layout {
   display: flex;
   min-height: 100vh;
-  background: linear-gradient(to right, #e0b997 , #ffffff); /* Degradado de blanco a morado */
+  background: linear-gradient(to right, #f9faf9 , #f9f9f9); /* Degradado de blanco a morado */
 }
 
 .logo-container {

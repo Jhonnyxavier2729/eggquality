@@ -81,10 +81,10 @@ const login = async (email, password) => {
         console.log('Intentando iniciar sesión con correo:', email);
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         user.value = userCredential.user;
-  
+
         // Considera mover este toast de ÉXITO a la vista que llama a 'login'
         // toast.success('Inicio de sesión exitoso'); // <-- ELIMINA O COMENTA
-  
+
       } catch (err) {
         console.error('Error en authStore al iniciar sesión:', err);
         // ===> Manejamos los errores específicos de LOGIN y establecemos error.value <===
@@ -108,13 +108,13 @@ const login = async (email, password) => {
             error.value = err.message || 'Error al iniciar sesión, inténtalo de nuevo.'; // <--- ¡Asigna a error.value!
         }
         // =======================================================
-  
+
         // ===> IMPORTANTE: NO mostramos toast.error AQUÍ <===
         // toast.error('Error al iniciar sesión: ...'); // <-- ELIMINA O COMENTA ESTA LÍNEA
-  
+
         // Relanzamos el error para que el componente que llamó a esta acción lo capture
         throw err;
-  
+
       } finally {
         loading.value = false; // Asegurar que el loading se desactive
       }

@@ -21,7 +21,7 @@
         v-model="password"
         required
         placeholder="••••••••"
-        
+
       />
     </div>
 
@@ -33,7 +33,7 @@
         v-model="confirmPassword"
         required
         placeholder="••••••••"
-        
+
       />
     </div>
 

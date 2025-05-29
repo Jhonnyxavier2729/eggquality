@@ -143,7 +143,7 @@ const guardarPreferencias = async () => {
 /* --- ESTILOS BASE (para móviles pequeños, por defecto < 600px) --- */
 .config-container {
     max-width: 100%; /* Ocupa el 100% del padre en móviles */
-    margin: 0.1rem auto;  /*Margen vertical y centrado */
+    margin: 0rem;  /*Margen vertical y centrado */
     padding: 1rem; /* Padding interno base */
 
 }
@@ -163,7 +163,7 @@ const guardarPreferencias = async () => {
 h2 {
     text-align: center;
     margin-bottom: 1.5rem; /* Reduce margen inferior */
-    color: #ff753a;
+    color: #0b0b0b;
     font-size: 1.5rem; /* Tamaño de fuente base */
 }
 
@@ -259,7 +259,7 @@ input[type='text']:hover {
 input[type='email']:focus,
 input[type='password']:focus,
 input[type='text']:focus {
-  outline: none; /* 
+  outline: none; /*
   border-color: #ff753a; /* Puedes usar tu naranja principal para el borde al enfocar */
   box-shadow: 0 0 5px rgba(255, 117, 58, 0.6); /* Agrega una sombra suave del mismo color naranja para un efecto visual de enfoque */
 }
@@ -321,7 +321,7 @@ form input[type='text'] {
     }
 
     h2 {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
         margin-bottom: 2rem;
     }
 
@@ -395,7 +395,7 @@ form input[type='text'] {
 @media (min-width: 768px) {
     .config-container {
         padding: 2rem;
-        max-width: 1000px; /*  para dar más espacio al padre */
+        max-width: 5000px; /*  para dar más espacio al padre */
     }
 
     .form-container {
@@ -403,13 +403,13 @@ form input[type='text'] {
         border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         border: 2px solid #e6e2e2;
-        max-width: 950px;
+        max-width: 100%;
         margin: 0 auto; /* Centrado */
         z-index: 1;
     }
 
     h2 {
-        font-size: 2rem;
+        font-size: 1.5rem;
         margin-bottom: 2.5rem;
     }
 
@@ -495,7 +495,10 @@ form input[type='text'] {
 @media (min-width: 1024px) {
     .config-container {
         padding: 2.5rem;
-        max-width: 1000px; /* Max-width estándar */
+        max-width:1400px; /* Max-width estándar */
+        margin-top: -0.6rem; /* Probablemente este es el que necesitas ajustar */
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .form-container {
@@ -509,7 +512,7 @@ form input[type='text'] {
     }
 
     h2 {
-        font-size: 2rem;
+        font-size: 1.5rem;
         margin-bottom: 25px;
     }
 
@@ -592,14 +595,11 @@ form input[type='text'] {
         border-radius: 16px; /* Bordes más redondeados */
         box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
         border: 3px solid #dcdcdc; /* Borde más grueso */
-        /* --- Para que el CONTENEDOR principal se expanda --- */
-        /* Usa un porcentaje para max-width */
         max-width: 70%; /* Ejemplo: No más del 70% del viewport */
-        /* margin: auto; ya está para centrar */
     }
 
     h2 {
-        font-size: 3rem; /* Tamaño de fuente mucho más grande h2 */
+        font-size: 1.5rem; /* Tamaño de fuente mucho más grande h2 */
         margin-bottom: 40px;
     }
 

@@ -1,59 +1,55 @@
 <template>
   <div>
-    <!-- Botón hamburguesa -->
-    <button class="hamburger" @click="$emit('toggle')">
-      <i class="fas fa-bars"></i>
-    </button>
-
-    <!-- Sidebar con clase condicional -->
     <aside :class="['sidebar', { open: props.isSidebarOpen }]">
-      <div>
-        <img src="@/assets/logo1.png" alt="EggQuality Logo" class="logo-img" />
+      <div class="header-sidebar">
+        <button class="hamburger" @click="$emit('toggle')">
+          <i class="fas fa-bars"></i>
+        </button>
+        <img v-if="props.isSidebarOpen" src="@/assets/logo1.png" alt="EggQuality Logo" class="logo-img" />
       </div>
+        <nav class="menu">
+          <ul>
+            <li
+              v-for="item in menuItems"
+              :key="item.name"
+              :class="{ active: isActive(item.name) }"
+              @click="navigate(item.route)"
+            >
+              <span class="icon">
+                <font-awesome-icon :icon="item.icon" />
+              </span>
+              <span class="text">{{ item.text }}</span>
+            </li>
+          </ul>
+        </nav>
 
-      <nav class="menu">
-        <ul>
-          <li
-            v-for="item in menuItems"
-            :key="item.name"
-            :class="{ active: isActive(item.name) }"
-            @click="navigate(item.route)"
-          >
-            <span class="icon">
-              <font-awesome-icon :icon="item.icon" />
-            </span>
-            <span class="text">{{ item.text }}</span>
-          </li>
-        </ul>
-      </nav>
-
-      <button class="logout-btn" @click="confirmLogout">
-        <span class="icon">
-          <font-awesome-icon :icon="['fas', 'power-off']" />
-        </span>
-        <span class="text">Cerrar Sesión</span>
-      </button>
-
-
+        <button class="logout-btn" @click="confirmLogout">
+          <span class="icon">
+            <font-awesome-icon :icon="['fas', 'power-off']" />
+          </span>
+          <span class="text">Cerrar Sesión</span>
+        </button>
     </aside>
 
-    <!-- {/* === Añadir el componente ConfirmModal aquí === */} -->
-    <!-- {/* Se mostrará cuando showLogoutConfirm sea true */} -->
-    <ConfirmModal
-      v-if="showLogoutConfirm"
-      title="Confirmar Cierre de Sesión"
-      message="¿Estás seguro de que quieres cerrar tu sesión actual? "
-      confirmButtonText="Sí, cerrar sesión"
-      cancelButtonText="Cancelar"
-      @confirm="executeLogout"
-      @cancel="cancelLogout"
-    />
+      <!-- {/* === Añadir el componente ConfirmModal aquí === */} -->
+      <!-- {/* Se mostrará cuando showLogoutConfirm sea true */} -->
+      <ConfirmModal
+        v-if="showLogoutConfirm"
+        title="Confirmar Cierre de Sesión"
+        message="¿Estás seguro de que quieres cerrar tu sesión actual? "
+        confirmButtonText="Sí, cerrar sesión"
+        cancelButtonText="Cancelar"
+        @confirm="executeLogout"
+        @cancel="cancelLogout"
+      />
 
-    <!-- Contenido principal con desplazamiento condicional -->
-    <div :class="['main-content', { 'shifted-left': !props.isSidebarOpen }]">
-      <slot />
+      <!-- Contenido principal con desplazamiento condicional -->
+      <!---->>
+      <div :class="['main-content', { 'content-shifted': !props.isSidebarOpen }]">
+
+        <slot />
+      </div>
     </div>
-  </div>
 </template>
 
 <script setup>
@@ -62,6 +58,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import { useAuthStore } from '@/stores/auth'
 import ConfirmModal from '@/components/auth/ConfirmModal.vue';
+
 
 // Props y eventos
 const props = defineProps({
@@ -133,37 +130,82 @@ const executeLogout = async () => {
 };
 // --- Fin Lógica Modal Cerrar Sesión ---
 </script>
-
 <style scoped>
-.logo-img {
-  max-width: 100%; /* Asegura que la imagen no exceda el ancho del contenedor */
-  height: auto; /* Mantiene la proporción de la imagen */
-  display: block; /* Centra la imagen dentro del contenedor */
-  margin: 0 auto; /* Centra horizontalmente */
+/* --- Contenedor del Logo y Hamburguesa --- */
+.header-sidebar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem 1rem 1rem 1rem;
+  position: relative;
+  top: -40px;
 }
 
+.sidebar:not(.open) .header-sidebar {
+  top: 20px;
+}
+
+/* --- Logo --- */
+.logo-img {
+  max-width: 150px;
+  height: auto;
+  display: block;
+  margin: 0;
+}
+
+/* --- Sidebar Principal --- */
 .sidebar {
-  width: 250px; /* Ancho base para pantallas grandes */
-  background-color: #d1cfcf; /* Fondo principal (lila/rosa claro) */
-  color: #000000; /* Color del texto por defecto (negro) */
-  padding: 1.5rem;
-  position: fixed; /* Fija la barra lateral */
-  left: 0; /* Fija desde la izquierda */
-  height: 100vh; /* <-- Ocupa el alto completo de la ventana */
+  width: 80px;
+  background-color: #d1cfcf;
+  color: #000000;
+  padding: 1rem;
+  position: fixed;
+  left: 0;
+  height: 100vh;
   display: flex;
-  flex-direction: column; /* Items en columna */
-  z-index: 1000; /* Asegura que esté encima de otros elementos */
-  box-shadow: 2px 0 5px rgba(139, 55, 55, 0.1); /* Sombra ligera a la derecha */
-  transition: transform 0.3s ease-in-out;
-  transform: translateX(-100%);
+  flex-direction: column;
+  z-index: 1000;
+  box-shadow: 2px 0 5px rgba(139, 55, 55, 0.1);
+  transition: width 0.5s cubic-bezier(0,1,0,1);
+  box-sizing: border-box;
 }
 
 .sidebar.open {
-  transform: translateX(0);
+  width: 250px;
 }
 
+.sidebar:not(.open) .text {
+  display: none;
+}
+/* APLICAMOS EL CAMBIO AQUÍ: Bajamos el menú cuando el sidebar NO está abierto */
+.sidebar:not(.open) .menu {
+  margin-top: 8.4rem; /* Aumenta este valor para bajar más los íconos */
+}
+
+.sidebar:not(.open) .menu li,
+.sidebar:not(.open) .logout-btn {
+  justify-content: center;
+}
+
+.sidebar:not(.open) .icon {
+  margin-right: 0;
+}
+
+/* --- Botón Hamburguesa --- */
+.hamburger {
+  background: none;
+  border: none;
+  color: #ff753a;
+  cursor: pointer;
+  font-size: 1.5rem;
+  padding: 0;
+}
+
+/* --- Menú de Navegación --- */
 .menu {
-  flex: 1; /* Permite que el menú crezca y ocupe el espacio disponible */
+  flex-grow: 1;
   margin-top: 1rem;
 }
 
@@ -173,153 +215,129 @@ const executeLogout = async () => {
   margin: 0;
 }
 
-.menu li,.logout-btn {
+.menu li, .logout-btn {
   padding: 0.75rem;
   margin: 0.25rem 0;
   border-radius: 4px;
-  cursor: pointer; /* Indica que es clickeable */
-  transition: all 0.3s ease; /* Animación suave al pasar el ratón/activar */
+  cursor: pointer;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  color: inherit; /* Hereda el color del texto del .sidebar */
-  background: transparent; /* Fondo transparente por defecto */
-  border: none;
   width: 100%;
   text-align: left;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Línea divisoria entre los items */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  background: transparent;
+  border-top: none; border-left: none; border-right: none;
 }
 
 .menu li:last-child {
   border-bottom: none;
 }
 
-/* Estilos para los íconos */
 .icon {
-  font-size: 1.2rem; /* Aumenta el tamaño del ícono */
-  margin-right: 1rem; /* Espaciado entre el ícono y el texto */
-  color: #ff753a; /* Color naranja para los íconos */
+  font-size: 1.2rem;
+  margin-right: 1rem;
+  color: #ff753a;
+  transition: margin 0.3s ease;
+  min-width: 30px;
+  text-align: center;
 }
-/* Estilos para el estado HOVER (pasar el ratón) */
+
 .menu li:hover,
 .logout-btn:hover {
   background-color: rgba(255, 209, 71, 0.3);
 }
 
-/* Estilos para el estado ACTIVO (la página actual) */
 .menu li.active {
   background-color: rgba(255, 209, 71, 1);
-  font-weight: bold; /* Texto en negrita */
-}
-
-.logout-btn .icon {
-  font-size: 1.5rem;
-  margin-right: 0.5rem;
+  font-weight: bold;
 }
 
 .text {
-  flex: 1; /* Permite que el texto ocupe el espacio restante */
+  flex: 1;
+  white-space: nowrap;
 }
 
 .logout-btn {
-  margin-top: auto; /* Empuja el botón de logout hacia abajo */
   margin-bottom: 1rem;
 }
 
-/* Ocultar sidebar en pantallas grandes si no está abierto */
-.sidebar.hide-on-large {
-  transform: translateX(-100%);
-  display: block; /* Asegúrate de que el sidebar esté presente para la transición */
+/* --- Contenido Principal --- */
+.main-content {
+  margin-left: -45px;
+  padding: 1.5rem;
+  transition: margin-left 0.3s ease-in-out;
 }
 
-.hamburger {
-  display: block;
-  position: fixed;
-  top: 1rem;
-  left: 1rem;
-  z-index: 1100;
-  font-size: 2rem;
-  background: none;
-  border: none;
-  color: #ff753a;
-  cursor: pointer;
+.main-content.content-shifted {
+  margin-left: 2px;
 }
 
-/* Estilos responsivos */
+/* ========== MEDIA QUERIES RESPONSIVE ========== */
+
+/* Tablets (pantallas medianas) */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 70px;
+    padding: 0.5rem;
+  }
+
+  .sidebar.open {
+    width: 220px;
+  }
+
+  .logo-img {
+    max-width: 120px;
+  }
+
+  .hamburger {
+    font-size: 1.4rem;
+  }
+
+  .main-content {
+    padding: 1rem;
+  }
+
+  .main-content.content-shifted {
+    margin-left: 70px;
+  }
+}
+
+/* Teléfonos (pantallas pequeñas) */
 @media (max-width: 767px) {
   .sidebar {
-    width: 80%;
-    max-width: 300px;
-    height: 100vh;
-    position: fixed;
-    left: 0;
-    top: 0;
-    background-color: #d1cfcf;
-    z-index: 1000;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
+    width: 60px;
+    padding: 0.5rem;
   }
 
   .sidebar.open {
-    transform: translateX(0);
+    width: 200px;
+  }
+
+  .logo-img {
+    max-width: 100px;
   }
 
   .hamburger {
-    display: block;
-    position: fixed;
-    top: 1rem;
-    left: 1rem;
-    z-index: 1100;
-    background: none;
-    border: none;
-    font-size: 2rem;
-    color: #ff753a;
-    cursor: pointer;
-  }
-}
-
-/* Estilos responsivos */
-@media (min-width: 1024px) {
-  .hamburger {
-    display: block;
-  }
-  .sidebar {
-    display: block;
-    transform: translateX(-100%);
-  }
-  .sidebar.open {
-    transform: translateX(0); /* Visible cuando está abierto */
-  }
-}
-
-@media (min-width: 768px) and (max-width: 1023px) {
-  .sidebar {
-    width: 70%;
-    max-width: 320px;
-    height: 100vh;
-    position: fixed;
-    left: 0;
-    top: 0;
-    background-color: #d1cfcf;
-    z-index: 1000;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
+    font-size: 1.3rem;
   }
 
-  .sidebar.open {
-    transform: translateX(0);
+  .header-sidebar {
+    top: -20px;
+    padding: 0.5rem;
   }
 
-  .hamburger {
-    display: block;
-    position: fixed;
-    top: 1rem;
-    left: 1rem;
-    z-index: 1100;
-    background: none;
-    border: none;
-    font-size: 2rem;
-    color: #ff753a;
-    cursor: pointer;
+  .sidebar:not(.open) .header-sidebar {
+    top: 15px;
+  }
+
+  .main-content {
+    padding: 0.75rem;
+  }
+
+  .main-content.content-shifted {
+    margin-left: 60px;
   }
 }
 </style>

@@ -27,10 +27,10 @@
       </div>
     </div>
   </template>
-  
+
   <script setup>
   import { defineProps, defineEmits } from 'vue';
-  
+
   // Definir las props que espera el componente
   const props = defineProps({
     panal: {
@@ -38,16 +38,16 @@
       required: true // La prop panal es obligatoria
     }
   });
-  
+
   // Definir los eventos que el componente puede emitir
   const emit = defineEmits(['close']); // Puede emitir un evento 'close'
-  
+
   // Función para emitir el evento close (para cerrar el modal desde el padre)
   const closeModal = () => {
     emit('close');
   };
   </script>
-  
+
   <style scoped>
   /* Estilos para el overlay (fondo oscuro) */
   .modal-overlay {
@@ -62,7 +62,7 @@
     align-items: center; /* Centrar verticalmente */
     z-index: 1000; /* Asegurarse de que esté por encima de otros elementos */
   }
-  
+
   /* Estilos para el contenedor principal del contenido del modal */
   .modal-content {
     background-color: white;
@@ -76,7 +76,7 @@
     max-height: 90vh; /* Altura máxima para scroll si el contenido es largo */
     overflow-y: auto; /* Agrega scroll si el contenido excede la altura máxima */
   }
-  
+
   /* Estilos para el encabezado del modal */
   .modal-header {
     display: flex;
@@ -86,12 +86,12 @@
     padding-bottom: 15px;
     margin-bottom: 20px;
   }
-  
+
   .modal-header h3 {
     margin: 0; /* Quita margen por defecto del h3 */
     color: #ff753a; /* Color del título */
   }
-  
+
   /* Estilos para el botón de cerrar (X) */
   .close-button {
     background: none;
@@ -103,28 +103,28 @@
     color: #555;
     transition: color 0.2s ease;
   }
-  
+
   .close-button:hover {
     color: #ff5c1a; /* Naranja oscuro al pasar el ratón */
   }
-  
+
   /* Estilos para el cuerpo del modal (donde se muestra la info) */
   .modal-body {
     flex-grow: 1; /* Permite que el cuerpo crezca */
     padding-right: 10px; /* Espacio para la barra de scroll si aparece */
   }
-  
+
   .modal-body p {
       margin-bottom: 10px;
       line-height: 1.5;
       color: #333;
   }
-  
+
   .modal-body strong {
       color: #2c3e50; /* Color más oscuro para las etiquetas */
   }
-  
-  
+
+
   /* Estilos para el pie de página del modal */
   .modal-footer {
     border-top: 1px solid #eee;
@@ -132,7 +132,7 @@
     margin-top: 20px;
     text-align: right; /* Alinea el botón a la derecha */
   }
-  
+
   .modal-footer button {
     padding: 10px 20px; /* Padding */
     background-color: #ff753a; /* Fondo naranja */
@@ -178,5 +178,5 @@
          font-size: 0.95rem;
     }
 }
-  
+
   </style>

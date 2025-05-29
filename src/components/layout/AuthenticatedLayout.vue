@@ -4,7 +4,7 @@
 
 
     <main :class="['main-content', { 'shifted-left': !isSidebarOpen }]">
-      <router-view />
+      <router-view /> 
     </main>
   </div>
 </template>
@@ -54,7 +54,7 @@ onUnmounted(() => {
 /* --- ESTILOS CUANDO SIDEBAR ESTÁ CERRADO --- */
 .main-content.shifted-left {
   margin-left: 0;
-  /* --- >>> ¡LA CLAVE ESTÁ AQUÍ! <<< --- */
+  /* --- >>> ¡LA CLAVE <<< --- */
   /* Añade padding para el botón hamburguesa fijo */
   padding-left: 3rem;
   padding-top: 0rem;

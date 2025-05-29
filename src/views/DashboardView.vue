@@ -23,7 +23,7 @@ import RecentActivity from '@/components/dashboard/RecentActivity.vue'
 
 /* Este contenedor centraliza y controla el contenido principal */
 .contenedor-tablas {
-  width: 100%;
+  width: 98%;
   max-width: 1600px; /* ← Aumentado para pantallas grandes */
   background-color: white;
   padding: 0.5rem;

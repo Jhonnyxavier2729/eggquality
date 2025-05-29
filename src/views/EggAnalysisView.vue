@@ -69,20 +69,13 @@ const submitAnalysis = () => {
   transition: margin-left 0.3s ease-in-out; /* Transición suave para el sidebar si aplica */
 }
 
-/* Ajusta esto para que no mueva el contenido si el sidebar no existe o se oculta en móviles */
-.analysis-view.shifted-left {
-   /* margin-left: -250px; /* Esto probablemente no lo quieres en móviles */
-   /* Puedes definir esto en una media query para pantallas donde el sidebar es visible */
-}
-
-
 .content-container {
   position: relative;
   background-color: white;
   padding: 1.5rem; /* Padding base un poco reducido para móviles */
   border-radius: 8px; /* Bordes un poco menos redondeados */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Sombra más suave */
-  border: 1px solid #eaeaea; /* Borde más delgado */
+  border: 1px solid #dc6565; /* Borde más delgado */
   max-width: 100%; /* Ocupa el 100% del padre en móviles */
   margin: 0 auto;
   z-index: 1;
@@ -218,7 +211,7 @@ h2 {
 
   h2 {
     margin-bottom: 1.5rem;
-    font-size: 1.8rem; /* Aumenta el tamaño de fuente del h2 */
+    font-size: 1.5rem; /* Aumenta el tamaño de fuente del h2 */
   }
 
   .action-bar {
@@ -307,12 +300,12 @@ h2 {
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     border: 2px solid #eaeaea;
-    max-width: 1000px; /* Aumenta el max-width para escritorios */
+    max-width: 1400px; /* Aumenta el max-width para escritorios */
   }
 
   h2 {
     margin-bottom: 2rem;
-    font-size: 2rem; /* Tamaño de fuente más grande para h2 */
+    font-size: 1.5rem; /* Tamaño de fuente más grande para h2 */
   }
 
   .action-bar {
@@ -395,7 +388,7 @@ h2 {
 
   h2 {
     margin-bottom: 3rem;
-    font-size: 2.5rem; /* Tamaño de fuente mucho más grande para h2 */
+    font-size: 1.5rem; /* Tamaño de fuente mucho más grande para h2 */
   }
 
   .action-bar {

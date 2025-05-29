@@ -90,7 +90,7 @@ exports.addPanal = onCall(async (request) => {
             logger.warn(`Intento de añadir idPanal duplicado '${panalData.idPanal}' por usuario ${userId}`);
             throw new functions.https.HttpsError(
                 'already-exists',
-                `Ya existe un panal con el ID '${panalData.idPanal.trim()}' registrado.`
+                 `Ya existe un panal con el ID '${panalData.idPanal.trim()}' registrado.`
             );
         }
 
@@ -107,7 +107,7 @@ exports.addPanal = onCall(async (request) => {
             cantidadPanales: Number(panalData.cantidadPanales),
             fechaInicio: panalData.fechaInicio,
             fechaVencimiento: panalData.fechaVencimiento,
-            isDeleted: false 
+            isDeleted: false
         };
 
         const newPanalRef = await db.collection('panales').add(panalToSave);
