@@ -66,13 +66,13 @@
           </tbody>
         </table>
       </div>
-
+      
       <PanalDetailsModal
         v-if="showDetailsModal"
         :panal="selectedPanal"
         @close="showDetailsModal = false"
       />
-
+      
       <ConfirmModal
         v-if="showDeleteConfirm"
         title="Eliminar"
@@ -93,6 +93,7 @@ import { usePanalesStore } from '@/stores/panalesStore'
 // Importa el nuevo componente Modal
 import PanalDetailsModal from '@/components/panal/PanalDetailsModal.vue'
 // Si necesitas el router para navegar a páginas de edición/detalle, impórtalo
+
 import { useRouter } from 'vue-router'
 
 import ConfirmModal from '@/components/auth/ConfirmModal.vue'
