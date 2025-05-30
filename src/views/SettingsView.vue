@@ -45,6 +45,9 @@
             <span v-else>Cargando...</span>
           </button>
         </section>
+        <div v-if="!preferenciasCargadas" class="loader-preferencias">
+          Cargando preferencias...
+        </div>
         
 
         <section class="form-section password-section"  v-if="preferenciasCargadas">
