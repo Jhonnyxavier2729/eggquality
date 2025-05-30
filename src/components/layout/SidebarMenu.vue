@@ -5,16 +5,15 @@
         <button class="hamburger" @click="$emit('toggle')">
           <i class="fas fa-bars"></i>
         </button>
+        <img v-if="props.isSidebarOpen" src="@/assets/logo1.png" alt="EggQuality Logo" class="logo-img" />
       </div>
-      <div class="logo-section">
-        <img src="@/assets/logo1.png" alt="EggQuality Logo" class="logo-img" />
-        <div class="user-info" v-if="authStore.isAuthenticated">
+      <div class="user-info" v-if="authStore.isAuthenticated">
           <span class="welcome-text">Bienvenido, </span>
           <span class="username-display">
             {{ authStore.userProfile?.username || authStore.user?.email || 'Usuario' }}
           </span>
         </div>
-      </div>
+      
         <nav class="menu">
           <ul>
             <li
@@ -82,7 +81,7 @@ const toast = useToast();
 const authStore = useAuthStore(); // <-- Usa tu store
 // --- Estado para controlar la visibilidad del modal de Cerrar Sesión ---
 const showLogoutConfirm = ref(false);
-// --- Fin Estado Modal Cerrar Sesión ---
+/// --- Fin Estado Modal Cerrar Sesión ---
 
 const menuItems = [
   { text: 'Dashboard', name: 'dashboard', route: { name: 'dashboard' }, icon: 'fa-chart-line', completed: false },
@@ -348,4 +347,6 @@ const executeLogout = async () => {
     margin-left: 60px;
   }
 }
+
+
 </style>
