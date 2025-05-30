@@ -1,12 +1,15 @@
 // functions/index.js
+
 // Importa function triggers from their respective submodules (sintaxis v2)
-const {onCall} = require("firebase-functions/v2/https");
-const {onSchedule} = require("firebase-functions/v2/scheduler");
-const {logger} = require("firebase-functions");
-// Importa defineSecret para usar Firebase Secret Manager
-const { defineSecret } = require('firebase-functions/params');// <-- NUEVA LÍNEA
-// Para acceso a variables de entorno (todavía se usa de v1) y HttpsError
-const functions = require('firebase-functions');
+const { onCall } = require("firebase-functions/v2/https");
+const { onSchedule } = require("firebase-functions/v2/scheduler");
+const { logger } = require("firebase-functions");
+
+// Importa defineSecret para usar Firebase Secret Manager (desde firebase-functions/params)
+const { defineSecret } = require('firebase-functions/params');
+
+// Para acceso a HttpsError y FieldPath (ya que FieldPath de admin se usa)
+const functions = require('firebase-functions'); // Mantenemos esta para HttpsError y otras utilidades v1
 
 const admin = require('firebase-admin');
 
@@ -25,20 +28,17 @@ try {
 const db = admin.firestore();
 
 // === Configuración de SendGrid con Secret Manager ===
-// Debes instalar el paquete en tu carpeta functions: npm install @sendgrid/mail
 const sgMail = require('@sendgrid/mail');
 
-// 1. Define los secretos que tus funciones usarán.
-// El nombre del secreto debe coincidir con el que configuraste con `firebase functions:secrets:set`.
-const sendgridApiKey = defineSecret('SENDGRID_API_KEY');         // <-- NUEVA LÍNEA
-const sendgridSenderEmail = defineSecret('SENDGRID_SENDER_EMAIL'); // <-- NUEVA LÍNEA, si también lo usas como secreto
+// Define los secretos que tus funciones usarán.
+const sendgridApiKey = defineSecret('SENDGRID_API_KEY');
+const sendgridSenderEmail = defineSecret('SENDGRID_SENDER_EMAIL');
+const sendgridTemplateId = defineSecret('SENDGRID_EXPIRATION_TEMPLATE_ID'); // Asegúrate de que este secreto exista
 
 logger.info("SendGrid configuration will use Secret Manager.");
-// ===============================
-
 
 // --- Cloud Function Callable (v2) para guardar un nuevo panal con verificación de unicidad ---
-// Esta función no necesita acceso directo a SendGrid, por lo que no añadimos 'secrets' aquí.
+// Tu función addPanal original sin cambios
 exports.addPanal = onCall(async (request) => {
     logger.info('Cloud Function addPanal (v2) llamada.', request.data);
 
@@ -107,7 +107,7 @@ exports.addPanal = onCall(async (request) => {
             cantidadPanales: Number(panalData.cantidadPanales),
             fechaInicio: panalData.fechaInicio,
             fechaVencimiento: panalData.fechaVencimiento,
-            isDeleted: false 
+            isDeleted: false
         };
 
         const newPanalRef = await db.collection('panales').add(panalToSave);
@@ -130,18 +130,18 @@ exports.addPanal = onCall(async (request) => {
     }
 });
 
-
 // --- Cloud Function Programada (v2) para actualizar estado a 'Vencido' ---
-// ¡CORRECCIÓN CRÍTICA AQUÍ!
+// Tu función updateExpiredPanals original sin cambios en la lógica
 exports.updateExpiredPanals = onSchedule(
   {
-    schedule: '0 0 1 * *', // Tu programación mensual
+    schedule: '0 0 1 * *', // Tu programación mensual, mantenida según tu solicitud
     timeZone: 'America/Bogota'
   },
   async (context) => {
     logger.info('Ejecutando tarea programada updateExpiredPanals en America/Bogota (mensual).');
 
     const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0); // Establece la hora a medianoche para comparaciones de fecha
     const hoyString = hoy.toISOString().split('T')[0];
 
     try {
@@ -183,89 +183,138 @@ exports.updateExpiredPanals = onSchedule(
 
 
 // --- Cloud Function Programada (v2) para enviar alertas por correo electrónico ---
-// ¡CORRECCIÓN CRÍTICA AQUÍ!
 exports.sendExpirationAlerts = onSchedule(
   {
-    schedule: '0 0 1 * *', // Tu programación mensual
+    schedule: '0 0 1 * *', // Tu programación mensual, mantenida según tu solicitud
     timeZone: 'America/Bogota',
-    secrets: [sendgridApiKey, sendgridSenderEmail]
+    secrets: [sendgridApiKey, sendgridSenderEmail, sendgridTemplateId]
   },
   async (context) => {
     logger.info('Ejecutando tarea programada sendExpirationAlerts en America/Bogota (mensual).');
 
-    // Accede a los secretos a través de process.env
-    const actualSendGridApiKey = process.env.SENDGRID_API_KEY;
-    const actualSendGridSenderEmail = process.env.SENDGRID_SENDER_EMAIL || 'jj8760207@gmail.com';
+    // Accede a los secretos USANDO .value()
+    const actualSendGridApiKey = sendgridApiKey.value();
+    const actualSendGridSenderEmail = sendgridSenderEmail.value();
+    const actualSendGridTemplateId = sendgridTemplateId.value();
 
-    if (!actualSendGridApiKey) {
-      logger.error("SendGrid API Key (from Secret Manager) is NOT available. Skipping email alerts.");
+    if (!actualSendGridApiKey || !actualSendGridSenderEmail || !actualSendGridTemplateId) {
+      logger.error("SendGrid API Key, Sender Email, or Template ID is NOT available from Secret Manager. Skipping email alerts.");
       return null;
     }
 
     sgMail.setApiKey(actualSendGridApiKey);
 
     const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-    const fechaAlerta = new Date(hoy);
-    fechaAlerta.setDate(hoy.getDate() + 7);
-    const fechaAlertaString = fechaAlerta.toISOString().split('T')[0];
+    hoy.setHours(0, 0, 0, 0); // Establece la hora a medianoche para comparaciones de fecha
 
     try {
-      const panalesToAlertQuery = db.collection('panales')
-        .where('estado', '==', 'Activo')
-        .where('fechaVencimiento', '==', fechaAlertaString);
+      const panalesRef = db.collection('panales');
+      const allActivePanalesSnapshot = await panalesRef.where('estado', '==', 'Activo').get();
 
-      const snapshot = await panalesToAlertQuery.get();
-
-      if (snapshot.empty) {
-        logger.info('No se encontraron panales que venzan en 7 días.');
+      if (allActivePanalesSnapshot.empty) {
+        logger.info('No se encontraron panales activos.');
         return null;
       }
 
-      logger.info(`Se encontraron ${snapshot.size} panales próximos a vencer en 7 días.`);
+      logger.info(`Se encontraron ${allActivePanalesSnapshot.size} panales activos. Evaluando preferencias.`);
 
-      let sentCount = 0;
+      let sentEmailsCount = 0;
+      const panalesAgrupadosPorUsuario = new Map();
 
-      for (const doc of snapshot.docs) {
-        const panal = doc.data();
-        const panalIdFirestore = doc.id;
-        const panalIdApp = panal.idPanal;
-        const userEmail = panal.userEmail;
+      // Paso 1: Agrupar panales por userId y precargar preferencias
+      const userIdsToFetch = new Set();
+      for (const doc of allActivePanalesSnapshot.docs) {
+        const panalData = doc.data();
+        const userId = panalData.userId;
+        const userEmail = panalData.userEmail;
 
-        if (!userEmail || typeof userEmail !== 'string' || !userEmail.includes('@')) {
-          logger.warn(`Panal ${panalIdFirestore} (ID: ${panalIdApp}) no tiene un email de usuario válido (${userEmail}). No se puede enviar alerta.`);
-          continue;
-        }
-
-        const msg = {
-          to: userEmail,
-          from: actualSendGridSenderEmail,
-          subject: `Alerta de vencimiento próximo para tu Panal ID ${panalIdApp}`,
-          text: `Hola, te recordamos que tu panal con ID ${panalIdApp} vence pronto, en 7 días (${panal.fechaVencimiento}). Por favor, revisa su estado en la aplicación.`,
-          html: `
-            <p>Hola,</p>
-            <p>Te recordamos que tu panal con ID <strong>${panalIdApp}</strong> está próximo a vencer.</p>
-            <p>La fecha de vencimiento registrada es el ${panal.fechaVencimiento}, lo que significa que vence en 7 días.</p>
-            <p>Por favor, ingresa a la aplicación para revisar el estado de este panal.</p>
-            <p>Gracias por usar nuestra aplicación.</p>
-          `,
-        };
-
-        try {
-          await sgMail.send(msg);
-          logger.info(`Alerta de vencimiento enviada para Panal ID ${panalIdApp} (Firestore ID: ${panalIdFirestore}) a ${userEmail}`);
-          sentCount++;
-        } catch (emailError) {
-          logger.error(`Error al enviar alerta por email para Panal ID ${panalIdApp} a ${userEmail}:`, emailError);
+        if (userId && userEmail) {
+          if (!panalesAgrupadosPorUsuario.has(userId)) {
+            panalesAgrupadosPorUsuario.set(userId, { email: userEmail, panales: [] });
+            userIdsToFetch.add(userId);
+          }
+          panalesAgrupadosPorUsuario.get(userId).panales.push(panalData);
+        } else {
+          logger.warn(`Panal ${doc.id} no tiene userId o userEmail. Será ignorado.`);
         }
       }
 
-      logger.info(`Envío de alertas de vencimiento completado. Se enviaron ${sentCount} correos.`);
-      return { status: 'success', sentCount: sentCount };
+      // Paso 2: Obtener las preferencias de notificación para todos los usuarios únicos
+      const userPreferencesMap = new Map();
+      if (userIdsToFetch.size > 0) {
+        const userPrefsRef = db.collection('userPreferences');
+        // Aquí usamos admin.firestore.FieldPath.documentId() que es el estándar para el Admin SDK
+        const userPrefsSnapshot = await userPrefsRef.where(admin.firestore.FieldPath.documentId(), 'in', Array.from(userIdsToFetch)).get();
+        userPrefsSnapshot.forEach(doc => {
+          userPreferencesMap.set(doc.id, doc.data());
+        });
+      }
 
+      // Paso 3: Iterar sobre los usuarios y sus panales para enviar correos
+      for (const [userId, userData] of panalesAgrupadosPorUsuario.entries()) {
+        const userEmail = userData.email;
+        const userPanales = userData.panales;
+        const userPrefs = userPreferencesMap.get(userId) || { recibirNotificacionesCorreo: true, diasAnticipacionNotificacion: 7 };
+
+        if (!userPrefs.recibirNotificacionesCorreo) {
+          logger.info(`Usuario ${userEmail} (${userId}) ha deshabilitado las notificaciones. Saltando.`);
+          continue;
+        }
+
+        let diasAnticipacionUsuario = userPrefs.diasAnticipacionNotificacion;
+        if (typeof diasAnticipacionUsuario !== 'number' || diasAnticipacionUsuario <= 0) {
+            logger.warn(`Preferencias de días de anticipación inválidas para ${userEmail} (${userId}). Usando 7 días por defecto.`);
+            diasAnticipacionUsuario = 7;
+        }
+
+        const fechaAlertaUsuario = new Date(hoy);
+        fechaAlertaUsuario.setDate(hoy.getDate() + diasAnticipacionUsuario);
+        const fechaAlertaStringUsuario = fechaAlertaUsuario.toISOString().split('T')[0];
+
+        const panalesParaEsteUsuario = userPanales.filter(panal => {
+          return panal.fechaVencimiento === fechaAlertaStringUsuario;
+        });
+
+        if (panalesParaEsteUsuario.length > 0) {
+          logger.info(`Usuario ${userEmail} (${userId}) tiene ${panalesParaEsteUsuario.length} panales que vencen en ${diasAnticipacionUsuario} días.`);
+
+          // Prepara los detalles de los panales para pasarlos a la plantilla
+          const panalesDetalles = panalesParaEsteUsuario.map(panal => ({
+            idPanal: panal.idPanal,
+            fechaVencimiento: panal.fechaVencimiento,
+            tipoHuevo: panal.tipoHuevo,
+            galponLote: panal.galponLote,
+          }));
+
+          const msg = {
+            to: userEmail,
+            from: actualSendGridSenderEmail,
+            templateId: actualSendGridTemplateId,
+            dynamicTemplateData: {
+              nombreUsuario: userPrefs.nombreUsuario || userEmail, // Asegúrate de tener 'nombreUsuario' en userPreferences
+              diasRestantes: diasAnticipacionUsuario,
+              panales: panalesDetalles, // Pasa el array de panales para que la plantilla itere
+            },
+          };
+
+          try {
+            await sgMail.send(msg);
+            logger.info(`Alerta de vencimiento combinada enviada a ${userEmail} para ${panalesParaEsteUsuario.length} panales.`);
+            sentEmailsCount++;
+          } catch (error) {
+            logger.error(`Error al enviar correo combinado para usuario ${userEmail}: ${error.message}`, { error });
+          }
+        } else {
+            logger.info(`Usuario ${userEmail} (${userId}) no tiene panales que venzan en ${diasAnticipacionUsuario} día(s).`);
+        }
+      }
+
+      logger.info(`Envío de alertas de vencimiento completado. Se enviaron ${sentEmailsCount} correos.`);
+      return null;
     } catch (error) {
-      logger.error('Error en la Cloud Function programada sendExpirationAlerts (consulta principal):', error);
-      throw error;
+      logger.error(`Error en la Cloud Function programada sendExpirationAlerts: ${error.message}`, { error });
+      // Usamos functions.https.HttpsError para relanzar errores de manera consistente
+      throw new functions.https.HttpsError('internal', 'Error al ejecutar la tarea programada de alertas.', error.message);
     }
   }
 );

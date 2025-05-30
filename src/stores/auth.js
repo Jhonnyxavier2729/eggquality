@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useToast } from 'vue-toastification';
 
 import {
@@ -8,121 +8,129 @@ import {
   signOut,
   sendPasswordResetEmail,
   onAuthStateChanged,
-  updatePassword, // <--- Importa updatePassword
-  reauthenticateWithCredential, // <--- Importa reauthenticateWithCredential
-  EmailAuthProvider // <--- Importa EmailAuthProvider
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+  updateProfile, // <-- NUEVO: Importa updateProfile para el nombre de usuario
 } from 'firebase/auth';
 import { auth } from '@/firebase/config';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { db } from '@/firebase/config'; 
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref(null);
+  const user = ref(null); // Objeto de usuario de Firebase Auth
+  const userProfile = ref(null); // <-- NUEVO: Datos adicionales del perfil del usuario desde Firestore
+  const userPreferences = ref(null);
   const error = ref(null);
   const loading = ref(false);
   const toast = useToast();
-  const isAuthInitialized = ref(false); // Variable añadida
+  const isAuthInitialized = ref(false);
 
-  // Observador de autenticación
-  onAuthStateChanged(auth, (currentUser) => {
-    console.log('Estado de autenticación cambiado:', currentUser);
-    user.value = currentUser;
-    isAuthInitialized.value = true; // Ahora sí se indica que ya se inicializó
-  });
+  // === NUEVO: Getter para verificar si el usuario está autenticado y tiene perfil cargado ===
+  const isAuthenticated = computed(() => !!user.value);
+  const hasProfileLoaded = computed(() => !!userProfile.value);
+  const hasPreferencesLoaded = computed(() => !!userPreferences.value);
 
-  // / ===> Acción de REGISTRO (Corregida: no muestra Toast de error, mapea errores) <===
-  const register = async (email, password) => {
-    loading.value = true;
-    error.value = null; // Limpiar error al inicio
-    try {
-      console.log('Intentando registrar usuario con correo:', email);
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      user.value = userCredential.user; // Actualiza el estado del usuario
+ //Observador de autenticación
+  onAuthStateChanged(auth, async (currentUser) => {
+  console.log('Estado de autenticación cambiado:', currentUser);
+  user.value = currentUser;
 
-      // Opcional: Mostrar toast de ÉXITO desde el store, O la vista puede mostrarlo.
-      // Si la vista llama a la acción y redirige, quizás la vista debería mostrar el de éxito después de la redirección.
-      // Para consistencia con la gestión de errores, dejemos que la vista también maneje el éxito (toast y redirección).
-      // toast.success('Registro exitoso'); // <--- Considera mover este a la vista que llama a 'register'
+  if (currentUser) {
+    await fetchUserProfile(currentUser.uid);
+  } else {
+    userProfile.value = null;
+  }
 
-    } catch (err) {
-      console.error('Error en authStore al registrar:', err);
-      // ===> Manejamos los errores específicos de REGISTRO y establecemos error.value <===
-      if (err.code === 'auth/email-already-in-use') {
-        error.value = 'El correo electrónico ya está registrado.'; // Mensaje amigable en español
-      } else if (err.code === 'auth/invalid-email') {
-        error.value = 'El formato del correo electrónico no es válido.';
-      } else if (err.code === 'auth/weak-password') {
-        // Aunque validamos en front, Firebase puede tener otras reglas o validarlo de nuevo
-        error.value = 'La contraseña es demasiado débil.';
-      }
-      // Puedes añadir otros casos si encuentras otros códigos de error relevantes
-      else {
-        // Para otros errores desconocidos de Firebase Auth o de red durante el registro
-        error.value = err.message || 'Ocurrió un error al intentar registrarse.'; // Mensaje genérico
-      }
-      // =========================================================
+  isAuthInitialized.value = true; // Aquí es donde se establece
+  console.log('Auth initialized:', isAuthInitialized.value); // Agrega este log
+});
 
-      // ===> IMPORTANTE: NO mostramos toast.error AQUÍ. Solo establecemos error.value <===
-      // toast.error('Error al registrarse: ' + err.message); // <--- ELIMINA O COMENTA ESTA LÍNEA
+  // ===> Acción de REGISTRO (Ahora acepta 'username' como parte de los datos) <===
+  const register = async (email, password, username) => {
+    loading.value = true;
+    error.value = null;
+    try {
+      console.log('Intentando registrar usuario con correo:', email, 'y nombre:', username);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      user.value = userCredential.user;
 
-      // Relanzamos el error para que el componente que llamó a esta acción lo capture y muestre el Toast.
-      throw err;
+      // --- NUEVO: Actualizar el displayName en Firebase Auth ---
+      await updateProfile(userCredential.user, {
+        displayName: username,
+      });
+      console.log('displayName actualizado en Firebase Auth.');
 
-    } finally {
-      loading.value = false; // Asegurar que el loading se desactive
-    }
-  };
-  // === Fin Acción de REGISTRO ===
+      // --- NUEVO: Guardar datos adicionales en Firestore ---
+      const userRef = doc(db, 'users', userCredential.user.uid);
+      const userData = {
+        email: email,
+        username: username,
+        createdAt: new Date().toISOString(),
+      };
+      await setDoc(userRef, userData);
+      userProfile.value = userData;
+      console.log('Perfil de usuario guardado en Firestore.');
 
-  // Fragmento corregido de la función 'login' en src/stores/authStore.js
+    } catch (err) {
+      console.error('Error en authStore al registrar:', err);
+      if (err.code === 'auth/email-already-in-use') {
+        error.value = 'El correo electrónico ya está registrado.';
+      } else if (err.code === 'auth/invalid-email') {
+        error.value = 'El formato del correo electrónico no es válido.';
+      } else if (err.code === 'auth/weak-password') {
+        error.value = 'La contraseña es demasiado débil.';
+      } else {
+        error.value = err.message || 'Ocurrió un error al intentar registrarse.';
+      }
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+  // === Fin Acción de REGISTRO ===
 
-const login = async (email, password) => {
-      loading.value = true;
-      error.value = null; // Limpiar error al inicio
-      try {
-        console.log('Intentando iniciar sesión con correo:', email);
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        user.value = userCredential.user;
-  
-        // Considera mover este toast de ÉXITO a la vista que llama a 'login'
-        // toast.success('Inicio de sesión exitoso'); // <-- ELIMINA O COMENTA
-  
-      } catch (err) {
-        console.error('Error en authStore al iniciar sesión:', err);
-        // ===> Manejamos los errores específicos de LOGIN y establecemos error.value <===
-        switch (err.code) {
-          case 'auth/invalid-credential':
-           error.value = 'Credenciales inválidas. Por favor verifica tu correo y contraseña.'; // <--- ¡Asigna a error.value!
-           break;
-          case 'auth/user-not-found':
-            error.value = 'El usuario no existe.'; // <--- ¡Asigna a error.value!
-            break;
-          case 'auth/wrong-password':
-            error.value = 'Contraseña incorrecta.'; // <--- ¡Asigna a error.value!
-            break;
-          case 'auth/invalid-email':
-            error.value = 'El formato del correo electrónico no es válido.'; // <--- ¡Asigna a error.value!
-            break;
-          case 'auth/user-disabled': // Otro error común
-              error.value = 'Tu cuenta ha sido deshabilitada.'; // <--- ¡Asigna a error.value!
-              break;
-          default:
-            error.value = err.message || 'Error al iniciar sesión, inténtalo de nuevo.'; // <--- ¡Asigna a error.value!
-        }
-        // =======================================================
-  
-        // ===> IMPORTANTE: NO mostramos toast.error AQUÍ <===
-        // toast.error('Error al iniciar sesión: ...'); // <-- ELIMINA O COMENTA ESTA LÍNEA
-  
-        // Relanzamos el error para que el componente que llamó a esta acción lo capture
-        throw err;
-  
-      } finally {
-        loading.value = false; // Asegurar que el loading se desactive
-      }
-    };
+  const login = async (email, password) => {
+    loading.value = true;
+    error.value = null;
+    try {
+      console.log('Intentando iniciar sesión con correo:', email);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      user.value = userCredential.user;
+
+      // --- NUEVO: Al iniciar sesión, carga también el perfil de Firestore ---
+      await fetchUserProfile(userCredential.user.uid);
+
+    } catch (err) {
+      console.error('Error en authStore al iniciar sesión:', err);
+      switch (err.code) {
+        case 'auth/invalid-credential':
+          error.value = 'Credenciales inválidas. Por favor verifica tu correo y contraseña.';
+          break;
+        case 'auth/user-not-found':
+          error.value = 'El usuario no existe.';
+          break;
+        case 'auth/wrong-password':
+          error.value = 'Contraseña incorrecta.';
+          break;
+        case 'auth/invalid-email':
+          error.value = 'El formato del correo electrónico no es válido.';
+          break;
+        case 'auth/user-disabled':
+          error.value = 'Tu cuenta ha sido deshabilitada.';
+          break;
+        default:
+          error.value = err.message || 'Error al iniciar sesión, inténtalo de nuevo.';
+      }
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
 
   const logout = async () => {
-    error.value = null; // Limpiar errores previos
-    loading.value = true; // Opcional: mostrar estado de carga durante el logout
+    error.value = null;
+    loading.value = true;
     try {
       await signOut(auth);
       // El listener onAuthStateChanged actualizará user.value a null automáticamente
@@ -179,10 +187,89 @@ const login = async (email, password) => {
       // Relanzar el error para que el componente que llamó a esta acción pueda manejarlo
       throw err;
     } finally {
-      loading.value = false; // Asegurar que el loading se desactive
+      loading.value = false;
     }
   };
-  // ==============================================================
 
-  return {  user, error, loading, isAuthInitialized, register, login, logout, recoverPassword, updateUserPasswordWithReauth };
+  // --- NUEVO: Acción para cargar el perfil del usuario desde Firestore ---
+  const fetchUserProfile = async (uid) => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const userRef = doc(db, 'users', uid);
+      const docSnap = await getDoc(userRef);
+      if (docSnap.exists()) {
+        userProfile.value = docSnap.data();
+        console.log('Perfil de usuario cargado desde Firestore:', userProfile.value);
+      } else {
+        console.warn('No se encontró perfil de usuario en Firestore para UID:', uid);
+        userProfile.value = null;
+      }
+    } catch (err) {
+      console.error('Error al cargar el perfil de usuario desde Firestore:', err);
+      error.value = err.message;
+      userProfile.value = null;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const fetchUserPreferences = async (uid) => {
+    console.log('fetchUserPreferences: Intentando cargar preferencias para UID:', uid);
+    try {
+      const preferencesRef = doc(db, 'userPreferences', uid);
+      const docSnap = await getDoc(preferencesRef);
+      if (docSnap.exists()) {
+        userPreferences.value = docSnap.data();
+        console.log('fetchUserPreferences: Preferencias cargadas:', userPreferences.value);
+      } else {
+        console.warn('fetchUserPreferences: No se encontraron preferencias para UID:', uid);
+        userPreferences.value = null;
+      }
+    } catch (err) {
+      console.error('fetchUserPreferences: ERROR al cargar preferencias:', err);
+      userPreferences.value = null;
+      throw err; // <<-- ¡IMPORTANTE! Relanza el error
+    }
+  };
+
+
+  // --- ¡NUEVA ACCIÓN: Guardar preferencias del usuario! ---
+  const saveUserPreferences = async (uid, preferences) => {
+    loading.value = true; // Inicia la carga
+    error.value = null;   // Limpia errores previos
+    try {
+      const userPrefsRef = doc(db, 'userPreferences', uid);
+      await setDoc(userPrefsRef, preferences, { merge: true });
+      userPreferences.value = preferences; // Actualiza el estado local del store
+      console.log('Auth Store: Preferencias de usuario guardadas con éxito para UID:', uid);
+      return true; // Indicador de éxito
+    } catch (err) {
+      console.error('Auth Store: Error al guardar preferencias:', err);
+      error.value = err.message; // Guarda el error en el store
+      throw err; // Propaga el error para que el componente lo capture
+    } finally {
+      loading.value = false; // Finaliza la carga, siempre
+    }
+  };
+
+  return {
+    user,
+    userProfile,
+    userPreferences,
+    error,
+    loading,
+    isAuthInitialized,
+    isAuthenticated,
+    hasProfileLoaded,
+    hasPreferencesLoaded,
+    register,
+    login,
+    logout,
+    recoverPassword,
+    updateUserPasswordWithReauth,
+    fetchUserProfile,
+    fetchUserPreferences,
+    saveUserPreferences
+  };
 });
