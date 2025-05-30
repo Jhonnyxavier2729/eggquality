@@ -61,7 +61,7 @@
   
   </script>
   
-  <style scoped>
+  <style >
   /* Estilos para el Overlay (fondo oscuro) */
   .modal-overlay {
     position: fixed; /* Fijo en la ventana */
@@ -73,7 +73,7 @@
     display: flex;
     justify-content: center; /* Centrar horizontalmente */
     align-items: center; /* Centrar verticalmente */
-    z-index: 9999; /* Asegurar que esté por encima de otros elementos */
+    z-index: 99999; /* Asegurar que esté por encima de otros elementos */
   }
   
   /* Estilos para el Contenedor del Modal */
