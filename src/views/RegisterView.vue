@@ -26,7 +26,7 @@ const register = async (formData) => {
 
   try {
     console.log('Vista de Registro: Llamando a authStore.register...');
-    await authStore.register(formData.email, formData.password);
+    await authStore.register(formData.email, formData.password, formData.username);
 
     toast.success('Registro exitoso.');
     console.log('Registro exitoso. Redirigiendo al dashboard.');

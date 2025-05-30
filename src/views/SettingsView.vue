@@ -5,7 +5,7 @@
     <div class="form-container">
     <h2>Configuración de Usuario</h2>
       <div class="form-wrapper">
-        <section class="form-section user-data-section">
+        <section class="form-section user-data-section" v-if="preferenciasCargadas" >
           <h3>Datos de Usuario</h3>
           <label>
             Correo Electrónico:
@@ -16,13 +16,38 @@
           <label class="notificacion-label">
             Quiero recibir notificaciones por correo sobre vencimiento de panales.
             <input type="checkbox" v-model="recibirNotificaciones" />
+          </label><br>
+
+
+        <label class="notificacion-label" v-if="recibirNotificaciones">
+            Recibir alerta {{ diasAnticipacion }} días antes del vencimiento.
+        <select v-model="diasAnticipacion" class="form-input select-dias">
+            <option :value="1">1 día</option>
+            <option :value="2">2 días</option>
+            <option :value="3">3 días</option>
+            <option :value="4">4 días</option>
+            <option :value="5">5 días</option>
+            <option :value="6">6 días</option>
+            <option :value="7">7 días (recomendado)</option>
+            <option :value="8">8 días</option>
+            <option :value="9">9 días</option>
+            <option :value="10">10 días</option>
+        </select>
           </label>
+          <label class="notificacion-label" v-else>
+            No recibir notificaciones por correo.
+            <input type="checkbox" v-model="recibirNotificaciones" style="display: none;" />
+        </label>
+
+
           <button class="notificacion-btn" @click="guardarPreferencias" :disabled="authStore.loading">
-            Guardar Preferencias
+            <span v-if="!authStore.loading">Guardar Preferencias</span>
+            <span v-else>Cargando...</span>
           </button>
         </section>
+        
 
-        <section class="form-section password-section">
+        <section class="form-section password-section"  v-if="preferenciasCargadas">
           <h3>Cambiar Contraseña</h3>
           <form @submit.prevent="cambiarContrasena">
             <label>
@@ -47,9 +72,12 @@
   </div>
 </template>
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useToast } from 'vue-toastification'
 import { useAuthStore } from '@/stores/auth'
+import { db } from '@/firebase/config'; // Asegúrate de importar tu instancia de Firestore
+import { doc, getDoc, setDoc } from 'firebase/firestore'; // Importar funciones de Firestore
+
 
 const toast = useToast()
 const authStore = useAuthStore()
@@ -60,10 +88,96 @@ const nuevaContrasena = ref('')
 const confirmarContrasena = ref('')
 
 // --- Estados para el formulario de Preferencias ---
-const recibirNotificaciones = ref(false)
-
+const recibirNotificaciones = ref(true)
+const diasAnticipacion = ref(7) // Valor por defecto
+const preferenciasCargadas = ref(false)
 // --- Computed para mostrar el correo del usuario ---
 const emailUsuario = computed(() => authStore.user?.email || '')
+
+// ===> Lógica para Cargar Preferencias al montar el componente <===
+const cargarPreferencias = async () => {
+    if (authStore.user) {
+        const userPrefsRef = doc(db, 'userPreferences', authStore.user.uid);
+        try {
+            const docSnap = await getDoc(userPrefsRef);
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                recibirNotificaciones.value = data.recibirNotificacionesCorreo ?? true;
+                diasAnticipacion.value = data.diasAnticipacionNotificacion ?? 7;
+            } else {
+                // Si no existen preferencias, establece valores por defecto y créalas
+                await setDoc(userPrefsRef, {
+                    recibirNotificacionesCorreo: recibirNotificaciones.value,
+                    diasAnticipacionNotificacion: diasAnticipacion.value
+                }, { merge: true }); // Usar merge: true para no sobrescribir otros campos si los hubiera
+            }
+        } catch (error) {
+            console.error('Error al cargar preferencias:', error);
+            toast.error('Error al cargar sus preferencias de notificación.');
+            // En caso de error al cargar, mantenemos los valores por defecto definidos en ref()
+            recibirNotificaciones.value = true;
+            diasAnticipacion.value = 7;
+        } finally {
+             preferenciasCargadas.value = true // <-- Activar bandera después de cargar
+        }
+    } else {
+        // Si no hay usuario, igualmente establecemos los valores por defecto visualmente
+        recibirNotificaciones.value = true;
+        diasAnticipacion.value = 7;
+        preferenciasCargadas.value = true // <-- Activar aunque no haya usuario
+    }
+}
+
+
+
+
+onMounted(() => {
+  // Asegúrate de que el watch se ejecute una vez que el estado de autenticación se ha inicializado
+  // y cuando el usuario cambia.
+  watch(
+    () => authStore.user,
+    async (user) => {
+      // Solo cargar preferencias si hay un usuario y la autenticación ya fue inicializada.
+      // `authStore.isAuthInitialized` es clave para esperar a que Firebase haya revisado el estado de auth.
+      if (user && authStore.isAuthInitialized) {
+        await cargarPreferencias();
+      } else if (!user && authStore.isAuthInitialized) {
+          // Si no hay usuario después de la inicialización, muestra los valores por defecto.
+          recibirNotificaciones.value = true;
+          diasAnticipacion.value = 7;
+          preferenciasCargadas.value = true;
+      }
+    },
+    { immediate: true } // Ejecutar inmediatamente al montar
+  );
+});
+
+
+
+// ===> Lógica para Guardar Preferencias <===
+const guardarPreferencias = async () => {
+    authStore.error = null;
+
+    if (!authStore.user) {
+        toast.error('No hay usuario autenticado para guardar preferencias.');
+        return;
+    }
+
+    try {
+        const userPrefsRef = doc(db, 'userPreferences', authStore.user.uid);
+        await setDoc(userPrefsRef, {
+            recibirNotificacionesCorreo: recibirNotificaciones.value,
+            diasAnticipacionNotificacion: recibirNotificaciones.value ? diasAnticipacion.value : null, // Guarda null si no quiere recibir notificaciones
+        }, { merge: true }); // Usar merge: true para no sobrescribir otros campos si los hubiera
+
+        toast.success('Preferencias guardadas correctamente.');
+    } catch (error) {
+        console.error('Error al guardar preferencias:', error);
+        const errorMessage =
+            authStore.error || error.message || 'Error desconocido al guardar preferencias.';
+        toast.error(`Error al guardar preferencias: ${errorMessage}`);
+    }
+}
 
 // ===> Lógica para Cambio de Contraseña <===
 const cambiarContrasena = async () => {
@@ -114,29 +228,7 @@ const textoBotonGuardarContrasena = computed(() =>
   authStore.loading ? 'Guardando Contraseña...' : 'Guardar Cambios',
 )
 
-// --- Lógica para Guardar Preferencias ---
-const guardarPreferencias = async () => {
-  authStore.error = null
 
-  if (!authStore.user) {
-    toast.error('No hay usuario autenticado para guardar preferencias.')
-    return
-  }
-
-  try {
-    console.log(
-      'Simulando guardado de preferencia "recibirNotificaciones":',
-      recibirNotificaciones.value,
-    )
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    toast.success('Preferencias guardadas correctamente.')
-  } catch (error) {
-    console.error('Error al guardar preferencias:', error)
-    const errorMessage =
-      authStore.error || error.message || 'Error desconocido al guardar preferencias.'
-    toast.error(`Error al guardar preferencias: ${errorMessage}`)
-  }
-}
 </script>
 
 <style scoped>

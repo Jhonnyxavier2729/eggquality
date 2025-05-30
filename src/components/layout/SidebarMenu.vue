@@ -6,6 +6,22 @@
           <i class="fas fa-bars"></i>
         </button>
         <img v-if="props.isSidebarOpen" src="@/assets/logo1.png" alt="EggQuality Logo" class="logo-img" />
+    <!-- Botón hamburguesa -->
+    <button class="hamburger" @click="$emit('toggle')">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar con clase condicional -->
+    <aside :class="['sidebar', { open: props.isSidebarOpen }]">
+      
+      <div class="logo-section">
+        <img src="@/assets/logo1.png" alt="EggQuality Logo" class="logo-img" />
+        <div class="user-info" v-if="authStore.isAuthenticated">
+          <span class="welcome-text">Bienvenido,</span>
+          <span class="username-display">
+            {{ authStore.userProfile?.username || authStore.user?.email || 'Usuario' }}
+          </span>
+        </div>
       </div>
         <nav class="menu">
           <ul>

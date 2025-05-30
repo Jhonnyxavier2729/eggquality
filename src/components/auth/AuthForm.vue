@@ -2,6 +2,17 @@
   <form @submit.prevent="submit" class="auth-form">
     <h2>{{ isLogin ? 'Iniciar Sesión' : 'Registrarse' }}</h2>
 
+    <div v-if="!isLogin" class="form-group">
+      <label for="username">Nombre de Usuario</label>
+      <input
+        id="username"
+        type="text"
+        v-model="username"
+        required
+        placeholder="Ej: Jhonnyx12"
+      />
+    </div>
+
     <div class="form-group">
       <label for="email">Correo Electrónico</label>
       <input
@@ -9,7 +20,7 @@
         type="email"
         v-model="email"
         required
-        placeholder="tu@email.com"
+        placeholder="Tu@email.com"
       />
     </div>
 
@@ -33,7 +44,6 @@
         v-model="confirmPassword"
         required
         placeholder="••••••••"
-
       />
     </div>
 
@@ -76,6 +86,8 @@ const props = defineProps({
 
 const emit = defineEmits(['toggle-auth-mode', 'submit']);
 
+// Nuevo campo para el nombre de usuario
+const username = ref('');
 const email = ref('');
 const password = ref('');
 const confirmPassword = ref('');
@@ -97,8 +109,9 @@ const openPasswordRecoveryModal = () => {
 
 const submit = async () => {
   if (!props.isLogin) {
-    if (!email.value || !password.value || !confirmPassword.value) {
-      toast.warning('Por favor, completa todos los campos del formulario.');
+    // Validar también el nombre de usuario
+    if (!username.value || !email.value || !password.value || !confirmPassword.value) {
+      toast.warning('Por favor, completa todos los campos del formulario, incluyendo el nombre de usuario.');
       return;
     }
 
@@ -134,6 +147,8 @@ const submit = async () => {
   emit('submit', {
     email: email.value,
     password: password.value,
+    username: username.value, // Asegúrate de emitir el username
+    isLogin: props.isLogin // También envía isLogin para que handleAuth sepa si es login o registro
   });
 };
 </script>
