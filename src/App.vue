@@ -20,13 +20,16 @@ body, html {
   width: 100%;
   height: 100%;
   overflow-x: hidden; /* Evita scroll horizontal si no lo necesitas */
+  
 }
+
 
 #app {
   
   /* Estilos para el contenedor principal de tu app */
   /* Puedes añadir padding, fuentes, colores base, etc. */
-  font-family: sans-serif; /* Ejemplo de fuente */
+  font-family: sans-serif;
+   /* Ejemplo de fuente */
   /* Elimina text-align y color si tus vistas los manejan individualmente */
   /* text-align: center; */
   /* color: #2c3e50; */

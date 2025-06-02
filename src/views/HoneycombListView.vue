@@ -67,21 +67,23 @@
         </table>
       </div>
       
-      <PanalDetailsModal
-        v-if="showDetailsModal"
-        :panal="selectedPanal"
-        @close="showDetailsModal = false"
-      />
-      
-      <ConfirmModal
-        v-if="showDeleteConfirm"
-        title="Eliminar"
-        :message="`¿Estás seguro de que quieres eliminar el panal?`"
-        confirmButtonText="Sí, Eliminar"
-        cancelButtonText="Cancelar"
-        @confirm="executeDelete"
-        @cancel="cancelDelete"
-      />
+      <Teleport to="body">
+        <PanalDetailsModal
+          v-if="showDetailsModal"
+          :panal="selectedPanal"
+          @close="showDetailsModal = false"
+        />
+        
+          <ConfirmModal
+            v-if="showDeleteConfirm"
+            title="Eliminar"
+            :message="`¿Estás seguro de que quieres eliminar el panal?`"
+            confirmButtonText="Sí, Eliminar"
+            cancelButtonText="Cancelar"
+            @confirm="executeDelete"
+            @cancel="cancelDelete"
+          />
+      </Teleport>
     </div>
   </div>
 </template>
