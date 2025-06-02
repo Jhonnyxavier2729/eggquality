@@ -105,6 +105,11 @@ h2 {
   align-items: center;
   gap: 0.5rem;
   font-size: 1rem; /* Tamaño de fuente base del botón */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px); /* AÑADIR EFECTO DE SUBIDA */
 }
 
 .analysis-form {
@@ -228,6 +233,7 @@ h2 {
   .primary-btn {
     font-size: 1rem; /* Mantener o ajustar tamaño de fuente */
     display: inline-flex;
+    transition: background-color 0.3s ease, transform 0.2s ease;
   }
 
   .analysis-form {
@@ -317,6 +323,7 @@ h2 {
    .primary-btn {
     padding: 0.9rem 1.8rem; /* Botón más grande */
     font-size: 1.1rem;
+    transition: background-color 0.3s ease, transform 0.2s ease;
    }
 
   .analysis-form {
@@ -400,6 +407,7 @@ h2 {
    .primary-btn {
     padding: 1rem 2rem; /* Botón aún más grande */
     font-size: 1.2rem;
+    transition: background-color 0.3s ease, transform 0.2s ease;
    }
 
 

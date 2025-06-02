@@ -7,13 +7,19 @@
         </button>
         <img v-if="props.isSidebarOpen" src="@/assets/logo1.png" alt="EggQuality Logo" class="logo-img" />
       </div>
-      <div class="user-info" v-if="authStore.isAuthenticated">
-          <span class="welcome-text">Bienvenido, </span>
+      <div class="user-info" v-if="props.isSidebarOpen && authStore.isAuthenticated">
+        <div class="user-avatar">
+          <font-awesome-icon :icon="['fas', 'user-circle']" class="user-icon" />
+        </div>
+
+        <div class="user-details">
+          <span class="welcome-text">Bienvenido</span>
           <span class="username-display">
-            {{ authStore.userProfile?.username || authStore.user?.email || 'Usuario' }}
+            {{ authStore.user?.displayName || authStore.user?.email || 'Usuario' }}
           </span>
         </div>
-      
+      </div>
+
         <nav class="menu">
           <ul>
             <li
@@ -38,8 +44,6 @@
         </button>
     </aside>
 
-      <!-- {/* === Añadir el componente ConfirmModal aquí === */} -->
-      <!-- {/* Se mostrará cuando showLogoutConfirm sea true */} -->
       <ConfirmModal
         v-if="showLogoutConfirm"
         title="Confirmar Cierre de Sesión"
@@ -144,7 +148,7 @@ const executeLogout = async () => {
   align-items: center;
   justify-content: flex-start;
   gap: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: -3rem;
   padding: 0.5rem 1rem 1rem 1rem;
   position: relative;
   top: -40px;
@@ -175,7 +179,7 @@ const executeLogout = async () => {
   flex-direction: column;
   z-index: 1000;
   box-shadow: 2px 0 5px rgba(139, 55, 55, 0.1);
-  transition: width 0.5s cubic-bezier(0,1,0,1);
+  transition: width 0.5s cubic-bezier(0,0,0,1);
   box-sizing: border-box;
 }
 
@@ -188,7 +192,7 @@ const executeLogout = async () => {
 }
 /* APLICAMOS EL CAMBIO AQUÍ: Bajamos el menú cuando el sidebar NO está abierto */
 .sidebar:not(.open) .menu {
-  margin-top: 8.4rem; /* Aumenta este valor para bajar más los íconos */
+  margin-top: 13rem; /* Aumenta este valor para bajar más los íconos */
 }
 
 .sidebar:not(.open) .menu li,
@@ -213,7 +217,7 @@ const executeLogout = async () => {
 /* --- Menú de Navegación --- */
 .menu {
   flex-grow: 1;
-  margin-top: 1rem;
+  margin-top: 0rem;
 }
 
 .menu ul {
@@ -279,6 +283,61 @@ const executeLogout = async () => {
 
 .main-content.content-shifted {
   margin-left: 2px;
+}
+
+/* --- Nuevo Estilo para la Información del Usuario --- */
+.user-info {
+  display: flex; /* Para alinear el ícono y el texto en una fila */
+  align-items: center; /* Centrar verticalmente */
+  gap: 0.8rem; /* Espacio entre el ícono y el texto */
+  padding: 1rem 0; /* Padding superior e inferior, 0 a los lados */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Separador sutil */
+  margin-bottom: 1rem; /* Espacio debajo del bloque de usuario */
+  color: #333; /* Color de texto general */
+}
+
+/* Estilos para el contenedor del ícono */
+.user-avatar {
+  min-width: 40px; /* Asegura un tamaño mínimo para el ícono */
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Estilos para el ícono de usuario */
+.user-icon {
+  font-size: 2.2rem; /* Tamaño más grande para el ícono */
+  color: #ff753a; /* Color naranja de tu tema */
+}
+
+/* Estilos para los detalles del usuario (texto) */
+.user-details {
+  display: flex;
+  flex-direction: column; /* Texto de bienvenida y nombre uno debajo del otro */
+  flex-grow: 1; /* Para que ocupe el espacio restante */
+  overflow: hidden; /* Asegura que el texto largo no desborde */
+}
+
+.welcome-text {
+  font-size: 0.9rem;
+  color: #555;
+  white-space: nowrap; /* Evita que el texto se rompa en varias líneas */
+}
+
+.username-display {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #000; /* Color más oscuro para resaltar el nombre */
+  white-space: nowrap; /* Evita que el texto se rompa en varias líneas */
+  text-overflow: ellipsis; /* Añade puntos suspensivos si el texto es demasiado largo */
+  overflow: hidden; /* Oculta el texto que excede el contenedor */
+}
+
+/* --- Ajuste para el sidebar contraído (solo íconos) --- */
+/* Cuando el sidebar está contraído, el user-info debería desaparecer o solo mostrar el avatar */
+.sidebar:not(.open) .user-info {
+  display: none; /* Oculta completamente el user-info cuando el sidebar está cerrado */
 }
 
 /* ========== MEDIA QUERIES RESPONSIVE ========== */
