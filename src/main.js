@@ -14,9 +14,9 @@ import { useAuthStore } from '@/stores/auth'; // Asegúrate de importar tu store
 // Importa font awesome
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faChartLine, faEgg, faCube, faList, faCog, faPowerOff, faQuestionCircle, faEye, faPen, faTrash, faFileAlt, faFilePdf, faSearch, faUserCircle} from '@fortawesome/free-solid-svg-icons';
+import { faChartLine, faEgg, faCube, faList, faCog, faPowerOff, faQuestionCircle, faEye, faPen, faTrash, faFileAlt, faFilePdf, faSearch, faUserCircle, faHouse} from '@fortawesome/free-solid-svg-icons';
 
-library.add(faChartLine, faEgg, faCube, faList, faCog, faPowerOff, faQuestionCircle, faEye, faPen, faTrash, faFileAlt, faFilePdf, faSearch, faUserCircle);
+library.add(faChartLine, faEgg, faCube, faList, faCog, faPowerOff, faQuestionCircle, faEye, faPen, faTrash, faFileAlt, faFilePdf, faSearch, faUserCircle, faHouse);
 
 const toastOptions = {
   timeout: 5000,
