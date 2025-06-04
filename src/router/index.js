@@ -43,8 +43,8 @@ const routes = [
     component: AuthenticatedLayout,
     children: [
       {
-        path: 'dashboard',
-        name: 'dashboard',
+        path: 'inicio',
+        name: 'inicio',
         component: () => import('@/views/DashboardView.vue'),
         meta: { requiresAuth: true },
       },

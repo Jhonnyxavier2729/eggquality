@@ -15,7 +15,7 @@ import {
 } from 'firebase/auth';
 import { auth } from '@/firebase/config';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { db } from '@/firebase/config'; 
+import { db } from '@/firebase/config';
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null); // Objeto de usuario de Firebase Auth
@@ -266,7 +266,10 @@ export const useAuthStore = defineStore('auth', () => {
       loading.value = false; // Finaliza la carga, siempre
     }
   };
-
+  const userName = computed(() => {
+    return user.value?.displayName || userProfile.value?.username || 'Invitado';
+  });
+  
   return {
     user,
     userProfile,
@@ -277,6 +280,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     hasProfileLoaded,
     hasPreferencesLoaded,
+    userName,
     register,
     login,
     logout,

@@ -8,31 +8,34 @@
         <section class="form-section user-data-section" v-if="preferenciasCargadas" >
           <h3>Datos de Usuario</h3>
           <label>
+            Nombre de usuario:
+            <input type="text" :value="nameUsuario" disabled class="form-input" />
+          </label>
+          <label>
             Correo Electrónico:
             <input type="email" :value="emailUsuario" disabled class="form-input" />
           </label>
 
-          <h3 style="margin-top: 1.5rem">Preferencias de Notificación</h3>
-          <label class="notificacion-label">
-            Quiero recibir notificaciones por correo sobre vencimiento de panales.
-            <input type="checkbox" v-model="recibirNotificaciones" />
-          </label><br>
+          <h3>Preferencias de Notificación</h3>
+            <label class="notificacion-label">
+              <span class="notificacion-text">Quiero recibir notificaciones por correo sobre vencimiento de panales.</span>
+              <input type="checkbox" v-model="recibirNotificaciones" />
+            </label>
 
-
-        <label class="notificacion-label" v-if="recibirNotificaciones">
-            Recibir alerta {{ diasAnticipacion }} días antes del vencimiento.
-        <select v-model="diasAnticipacion" class="form-input select-dias">
-            <option :value="1">1 día</option>
-            <option :value="2">2 días</option>
-            <option :value="3">3 días</option>
-            <option :value="4">4 días</option>
-            <option :value="5">5 días</option>
-            <option :value="6">6 días</option>
-            <option :value="7">7 días (recomendado)</option>
-            <option :value="8">8 días</option>
-            <option :value="9">9 días</option>
-            <option :value="10">10 días</option>
-        </select>
+        <label class="notificacion-label notificacion-label--stacked" v-if="recibirNotificaciones">
+          <span>Recibir alerta {{ diasAnticipacion }} días antes del vencimiento.</span>
+            <select v-model="diasAnticipacion" class="form-input select-dias">
+                <option :value="1">1 día</option>
+                <option :value="2">2 días</option>
+                <option :value="3">3 días</option>
+                <option :value="4">4 días</option>
+                <option :value="5">5 días</option>
+                <option :value="6">6 días</option>
+                <option :value="7">7 días (recomendado)</option>
+                <option :value="8">8 días</option>
+                <option :value="9">9 días</option>
+                <option :value="10">10 días</option>
+            </select>
           </label>
           <label class="notificacion-label" v-else>
             No recibir notificaciones por correo.
@@ -48,7 +51,7 @@
         <div v-if="!preferenciasCargadas" class="loader-preferencias">
           Cargando preferencias...
         </div>
-        
+
 
         <section class="form-section password-section"  v-if="preferenciasCargadas">
           <h3>Cambiar Contraseña</h3>
@@ -96,6 +99,7 @@ const diasAnticipacion = ref(7) // Valor por defecto
 const preferenciasCargadas = ref(false)
 // --- Computed para mostrar el correo del usuario ---
 const emailUsuario = computed(() => authStore.user?.email || '')
+const nameUsuario = computed(() => authStore.userName);
 
 // ===> Lógica para Cargar Preferencias al montar el componente <===
 const cargarPreferencias = async () => {
@@ -130,8 +134,6 @@ const cargarPreferencias = async () => {
         preferenciasCargadas.value = true // <-- Activar aunque no haya usuario
     }
 }
-
-
 
 
 onMounted(() => {
@@ -230,8 +232,6 @@ const cambiarContrasena = async () => {
 const textoBotonGuardarContrasena = computed(() =>
   authStore.loading ? 'Guardando Contraseña...' : 'Guardar Cambios',
 )
-
-
 </script>
 
 <style scoped>
@@ -282,6 +282,9 @@ h3 {
     padding: 1rem; /* Padding interno base de la sección */
     border-radius: 10px; /* Bordes menos redondeados */
     box-shadow: 0 0 6px rgba(120, 86, 86, 0.08); /* Sombra más suave */
+    display: flex; /*cambios aqui*/
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 /* Estilos de borde por sección */
@@ -292,16 +295,30 @@ h3 {
 
 .user-data-section {
     background-color: #f9f9f9;
+    padding: 1rem; /* Un poco más de padding para que respire */
+    box-shadow: 0 4px 10px rgba(255, 117, 58, 0.1); /* Sombra más pronunciada y con tu color */
+    border: 2px solid #ff753a; /* Borde un poco más grueso y definido */
+    border-radius: 12px;
 }
 
 .notificacion-label {
     display: flex;
     align-items: center;
-    gap: 8px; /* Reduce espacio */
+    gap: 0px; /* Reduce espacio */
     font-weight: 500;
     color: #333;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    flex-shrink: 0;
     font-size: 0.9rem; /* Tamaño de fuente base */
+}
+.notificacion-label.notificacion-label--stacked {
+  flex-direction: column; /* Apila los elementos verticalmente */
+  align-items: flex-start; /* Alinea los elementos a la izquierda dentro de la columna */
+  gap: 5px; /* Ajusta el espacio vertical entre el texto y el select */
+}
+
+.notificacion-label.notificacion-label--stacked span {
+  margin-bottom: 2px; /* Opcional: pequeño espacio si el gap no es suficiente o quieres controlarlo distinto */
 }
 
 input[type='checkbox'] {
@@ -309,6 +326,7 @@ input[type='checkbox'] {
     height: auto;
     margin: 0;
     padding: 0;
+    transform: scale(1.3);/* Aumenta el tamaño del checkbox */
 }
 
 .notificacion-btn {
@@ -324,10 +342,12 @@ input[type='checkbox'] {
     width: 100%; /* Ocupa todo el ancho disponible apilado */
     max-width: none; /* Elimina max-width fijo en móviles */
     font-size: 1rem; /* Tamaño de fuente base */
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .notificacion-btn:hover {
     background-color: #e44d0e;
+    transform: translateY(-2px);
 }
 .notificacion-btn:disabled {
     background-color: #ccc;
@@ -335,28 +355,32 @@ input[type='checkbox'] {
 }
 input[type='email'],
 input[type='password'],
-input[type='text'] {
-  margin-top: 5px;
-  padding: 0.8rem;
+input[type='text'],
+select.form-input{
+  margin-top: 3px;
+  padding: 0.3rem;
   width: 100%;
-  border-radius: 4px;
-  border: 1px solid #ff753a; /* Borde naranja normal */
+  border-radius: 6px;
+  border: 1.7px solid #ff753a; /* Borde naranja normal */
   font-size: 1rem;
   transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Añade transición para suavizar */
+
 }
 
 input[type='email']:hover,
 input[type='password']:hover,
-input[type='text']:hover {
-  border-color: #c97a60; /* Cambia a un naranja más oscuro al pasar el ratón */
-  cursor: text;
+input[type='text']:hover,
+select.form-input:hover { /* Añadimos select.form-input:hover */
+border-color: #d88569; /* Naranja más oscuro al pasar el ratón */
+cursor: pointer; /* Cambia a pointer para el select, ya que es clickeable */
 }
 input[type='email']:focus,
 input[type='password']:focus,
-input[type='text']:focus {
-  outline: none; /*
-  border-color: #ff753a; /* Puedes usar tu naranja principal para el borde al enfocar */
-  box-shadow: 0 0 5px rgba(255, 117, 58, 0.6); /* Agrega una sombra suave del mismo color naranja para un efecto visual de enfoque */
+input[type='text']:focus,
+select.form-input:focus { /* Añadimos select.form-input:focus */
+outline: none;
+border-color: #ed6227; /* Un naranja un poco más intenso para el foco */
+box-shadow: 0 0 2px rgba(255, 117, 58, 0.6);
 }
 input:disabled {
     background-color: #e9e9e9;
@@ -376,6 +400,7 @@ form label {
     font-weight: 600;
     color: #333;
     font-size: 0.9rem; /* Tamaño de fuente base */
+
 }
 
 form input[type='password'],
@@ -395,10 +420,12 @@ form input[type='text'] {
     font-weight: bold;
     align-self: stretch; /* Ocupa todo el ancho disponible apilado */
     font-size: 1rem; /* Tamaño de fuente base */
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .centered-button:hover {
     background-color: #e44d0e;
+    transform: translateY(-2px);
 }
 
 
@@ -438,7 +465,7 @@ form input[type='text'] {
     }
 
     .notificacion-label {
-        gap: 10px;
+        gap: 2px;
         font-size: 1rem;
         flex-direction: row; /* Vuelven a estar en fila */
         align-items: center;
@@ -450,8 +477,9 @@ form input[type='text'] {
         border-radius: 6px;
         width: auto; /* Ancho automático */
         max-width: 200px; /* Opcional: un max-width para que no sean enormes */
-         font-size: 1rem;
-         align-self: flex-start; /* Alinear a la izquierda si el padre es flex column */
+        font-size: 1rem;
+        align-self: center; /* Alinear a la izquierda si el padre es flex column */
+        transition: background-color 0.3s ease, transform 0.2s ease;
      }
 
 
@@ -483,7 +511,8 @@ form input[type='text'] {
         padding: 1rem 1.8rem;
         border-radius: 6px;
         font-size: 1rem;
-         align-self: center; /* Vuelve a centrarse */
+        align-self: center; /* Vuelve a centrarse */
+        transition: background-color 0.3s ease, transform 0.2s ease;
     }
 }
 /* --- Media Query para Tablets Grandes y Escritorios pequeños ( >= 768px ) --- */
@@ -535,12 +564,12 @@ form input[type='text'] {
 
     /* Ajustar bordes específicos si cambiaste el base */
     .user-data-section,.password-section,.notificaciones-section {
-        border: 2px solid #ff753a;
+        border: 1px solid #ff753a;
     }
-    .notificacion-label {
-        gap: 12px;
-        font-size: 1rem;
+    .user-data-section label {
+    margin-bottom: 0.5rem; /* Más espacio entre cada par label-input */
     }
+
 
      .notificacion-btn {
         margin-top: 1.5rem;
@@ -549,7 +578,8 @@ form input[type='text'] {
         width: auto;
         max-width: 250px;
         font-size: 1.1rem;
-        align-self: flex-start;
+        align-self: center;
+        transition: background-color 0.3s ease, transform 0.2s ease;
      }
 
 
@@ -584,6 +614,7 @@ form input[type='text'] {
         border-radius: 6px;
         font-size: 1.1rem;
         align-self: center;
+        transition: background-color 0.3s ease, transform 0.2s ease;
     }
 
 /* --- Media Query para Escritorios Grandes ( >= 1024px ) --- */
@@ -633,7 +664,7 @@ form input[type='text'] {
     }
 
     .notificacion-label {
-        gap: 10px; /* Reducido de 15px */
+        gap: 1px; /* Reducido de 15px */
         font-size: 0.9rem; /* Reducido de 1rem para textos más pequeños */
     }
 
@@ -644,6 +675,7 @@ form input[type='text'] {
         width: auto;
         max-width: 250px; /* Reducido de 280px */
         font-size: 1rem; /* Reducido de 1.1rem */
+        transition: background-color 0.3s ease, transform 0.2s ease;
     }
 
     input[type='email'],
@@ -675,6 +707,7 @@ form input[type='text'] {
         padding: 0.9rem 1.8rem; /* Reducido de 1.1rem 2rem */
         border-radius: 6px;
         font-size: 1.1rem; /* Reducido de 1.2rem */
+        transition: background-color 0.3s ease, transform 0.2s ease;
     }
 }
 
@@ -730,6 +763,7 @@ form input[type='text'] {
         width: auto;
         max-width: 350px; /* Aumenta max-width del botón */
          font-size: 1.2rem; /* Tamaño de fuente del botón más grande */
+         transition: background-color 0.3s ease, transform 0.2s ease;
      }
 
 
@@ -763,6 +797,7 @@ form input[type='text'] {
         padding: 1.2rem 2.5rem; /* Botón más grande */
         border-radius: 8px;
         font-size: 1.3rem; /* Tamaño de fuente del botón más grande */
+        transition: background-color 0.3s ease, transform 0.2s ease;
     }
 }
 </style>

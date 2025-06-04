@@ -3,20 +3,20 @@
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import App from './App.vue';
-import router from './router'; 
+import router from './router';
 import Toast from 'vue-toastification';
 import 'vue-toastification/dist/index.css';
 import '@/assets/main.css';
-import { auth } from '@/firebase/config'; 
+import { auth } from '@/firebase/config';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useAuthStore } from '@/stores/auth'; // Asegúrate de importar tu store de autenticación
 
 // Importa font awesome
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faChartLine, faEgg, faCube, faList, faCog, faPowerOff, faQuestionCircle, faEye, faPen, faTrash, faFileAlt, faFilePdf, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faChartLine, faEgg, faCube, faList, faCog, faPowerOff, faQuestionCircle, faEye, faPen, faTrash, faFileAlt, faFilePdf, faSearch, faUserCircle, faHouse} from '@fortawesome/free-solid-svg-icons';
 
-library.add(faChartLine, faEgg, faCube, faList, faCog, faPowerOff, faQuestionCircle, faEye, faPen, faTrash, faFileAlt, faFilePdf, faSearch );
+library.add(faChartLine, faEgg, faCube, faList, faCog, faPowerOff, faQuestionCircle, faEye, faPen, faTrash, faFileAlt, faFilePdf, faSearch, faUserCircle, faHouse);
 
 const toastOptions = {
   timeout: 5000,
@@ -44,7 +44,7 @@ let isAppMounted = false;
 // onAuthStateChanged se disparará cuando el estado de autenticación inicial sea conocido
 onAuthStateChanged(auth, async (user) => {
   // Actualiza el estado de autenticación en tu store
-  authStore.user = user; 
+  authStore.user = user;
   authStore.isLoading = false; // Asume que tienes un isLoading en tu store para indicar que la auth está cargada
 
   console.log("Estado de autenticación actualizado en store:", user ? user.uid : null);
@@ -53,7 +53,7 @@ onAuthStateChanged(auth, async (user) => {
     app.use(router); // Instala el router
 
     // Esperar a que el router esté listo antes de proceder con la navegación
-    await router.isReady(); 
+    await router.isReady();
 
     // --- Lógica de redirección inicial ---
     const initialPath = window.location.pathname;
@@ -68,7 +68,7 @@ onAuthStateChanged(auth, async (user) => {
       // Solo es necesario si la ruta inicial no es la actual.
       // Sin embargo, si quieres asegurar que el historial se limpia, puedes dejarlo.
       // Si la ruta inicial es '/', y el usuario está logueado, router.replace('/') no es necesario.
-      // router.replace(initialPath); 
+      // router.replace(initialPath);
     }
     // --- Fin Lógica de redirección inicial ---
 
