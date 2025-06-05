@@ -45,7 +45,7 @@ const routes = [
       {
         path: 'inicio',
         name: 'inicio',
-        component: () => import('@/views/DashboardView.vue'),
+        component: () => import('@/views/InicioView.vue'),
         meta: { requiresAuth: true },
       },
       {
@@ -83,7 +83,7 @@ const routes = [
   },
 
   // Redirección raíz
-  { path: '/', redirect: '/dashboard' },
+  { path: '/', redirect:'/inicio' },
 
   // Catch-all
   { path: '/:pathMatch(.*)*', redirect: '/not-found' },
