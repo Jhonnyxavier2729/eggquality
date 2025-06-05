@@ -87,7 +87,7 @@ const showLogoutConfirm = ref(false);
 /// --- Fin Estado Modal Cerrar Sesión ---
 
 const menuItems = [
-  { text: 'Dashboard', name: 'dashboard', route: { name: 'dashboard' }, icon: 'fa-chart-line', completed: false },
+  { text: 'Inicio', name: 'inicio', route: { name: 'inicio' }, icon: 'fa-house', completed: false },
   { text: 'Análisis de Huevos', name: 'egg-analysis', route: { name: 'egg-analysis' }, icon: 'fa-egg', completed: false },
   { text: 'Panales', name: 'honeycomb', route: { name: 'honeycomb' }, icon: 'fa-cube', completed: true },
   { text: 'Lista de Panales', name: 'honeycomb-list', route: { name: 'honeycomb-list' }, icon: 'fa-list', completed: false },

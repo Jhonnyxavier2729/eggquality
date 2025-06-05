@@ -20,7 +20,7 @@ import {
   // Funciones para construir consultas
   query, // Para construir una consulta compleja
   where, // Para añadir condiciones de filtro (igualdad, rango, etc.)
-  orderBy // Para añadir criterios de ordenamiento
+  orderBy, // Para añadir criterios de ordenamiento
 } from 'firebase/firestore';
 
 // Importa la instancia de la base de datos Firestore y la aplicación Firebase desde tu archivo de configuración
@@ -37,9 +37,6 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 // Inicializa la librería de notificaciones Toast
 const toast = useToast();
 
-// Obtiene una instancia del store de autenticación
-//const authStore = useAuthStore();
-
 // Obtiene una instancia del servicio de Cloud Functions, conectada a la aplicación Firebase
 const functions = getFunctions(app);
 
@@ -55,56 +52,66 @@ export const usePanalesStore = defineStore('panales', () => {
   const loading = ref(false); // Estado global para indicar si una operación asíncrona está en curso en el store
   const error = ref(null); // Estado global para almacenar mensajes de error del store
 
+  // Obtiene una instancia del store de autenticación (inicializado una vez)
+  const authStore = useAuthStore();
+
+  // --- NUEVOS ESTADOS PARA LOS CONTADORES DEL DASHBOARD ---
+  const panalesActivosCount = ref(0);
+  const panalesVendidosCount = ref(0);
+  const panalesVencidosCount = ref(0);
+  const totalPanalesCreadosCount = ref(0);
+  // --- FIN NUEVOS ESTADOS ---
+
   // --- Acciones del Store ---
   // Las acciones son funciones que realizan operaciones (ej. guardar, cargar, eliminar) y pueden modificar el estado
 
   // Acción para guardar o actualizar un panal. Usa una Cloud Function llamable.
   // Espera un objeto panalData con los datos del panal a guardar.
   const savePanal = async (panalData) => {
-  loading.value = true; // Activa el estado de carga global del store
-  error.value = null; // Limpia errores anteriores (este es para el mensaje INLINE, que pondremos a null al final del catch)
+    loading.value = true; // Activa el estado de carga global del store
+    error.value = null; // Limpia errores anteriores (este es para el mensaje INLINE, que pondremos a null al final del catch)
 
-  try {
-    console.log('Llamando a la Cloud Function addPanal con datos:', panalData);
-    // Llama a la función en la nube (o al emulador si está configurado) pasando los datos del panal
-    const result = await addPanalCallable(panalData);
-    console.log('Resultado de la Cloud Function addPanal:', result.data); // Los datos de respuesta están en result.data
+    try {
+      console.log('Llamando a la Cloud Function addPanal con datos:', panalData);
+      // Llama a la función en la nube (o al emulador si está configurado) pasando los datos del panal
+      const result = await addPanalCallable(panalData);
+      console.log('Resultado de la Cloud Function addPanal:', result.data); // Los datos de respuesta están en result.data
 
-    // Muestra un mensaje de éxito basado en la respuesta de la función o un mensaje por defecto
-    toast.success(result.data.message || 'Panal guardado correctamente.');
+      // Muestra un mensaje de éxito basado en la respuesta de la función o un mensaje por defecto
+      toast.success(result.data.message || 'Panal guardado correctamente.');
 
-    // Opcional: Refresca la lista principal de panales después de guardar para que la UI se actualice
-    // Asume que fetchPanales carga la lista principal que se muestra en HoneycombListView.vue
-    fetchPanales(); // Considera si realmente necesitas recargar toda la lista aquí
+      // Opcional: Refresca la lista principal de panales después de guardar para que la UI se actualice
+      // Asume que fetchPanales carga la lista principal que se muestra en HoneycombListView.vue
+      fetchPanales(); // Considera si realmente necesitas recargar toda la lista aquí
 
-    // Retorna el ID del documento creado o actualizado si la función lo proporciona en la respuesta
-    return result.data.documentId;
-  } catch (err) {
-    // Captura y maneja errores durante la llamada a la función (ej. errores de red, errores lanzados por la función)
-    console.error('Error al guardar panal a través de Cloud Function:', err);
+      // Retorna el ID del documento creado o actualizado si la función lo proporciona en la respuesta
+      return result.data.documentId;
+    } catch (err) {
+      // Captura y maneja errores durante la llamada a la función (ej. errores de red, errores lanzados por la función)
+      console.error('Error al guardar panal a través de Cloud Function:', err);
 
-    let displayMessage = 'Ocurrió un error inesperado al guardar el panal.'; // Mensaje por defecto
+      let displayMessage = 'Ocurrió un error inesperado al guardar el panal.'; // Mensaje por defecto
 
-    if (err.code && err.message) {
-      const firebaseErrorPrefix = `functions/${err.code}: `;
-      if (err.message.startsWith(firebaseErrorPrefix)) {
-        displayMessage = err.message.substring(firebaseErrorPrefix.length);
-      } else {
-        displayMessage = err.message;
+      if (err.code && err.message) {
+        const firebaseErrorPrefix = `functions/${err.code}: `;
+        if (err.message.startsWith(firebaseErrorPrefix)) {
+          displayMessage = err.message.substring(firebaseErrorPrefix.length);
+        } else {
+          displayMessage = err.message;
+        }
       }
+
+      // Muestra el mensaje de error limpio en el toast (notificación superior)
+      toast.error(displayMessage);
+
+      // IMPORTANTE: Para que el mensaje de error debajo del botón NO APAREZCA:
+      error.value = null; // Reinicia 'error.value' a null para que el v-if del <p> no se active
+
+      throw err; // Relanza el error para que pueda ser capturado en el componente llamante si es necesario
+    } finally {
+      loading.value = false; // Desactiva el estado de carga global al finalizar (siempre)
     }
-
-    // Muestra el mensaje de error limpio en el toast (notificación superior)
-    toast.error(displayMessage);
-
-    // IMPORTANTE: Para que el mensaje de error debajo del botón NO APAREZCA:
-    error.value = null; // Reinicia 'error.value' a null para que el v-if del <p> no se active
-
-    throw err; // Relanza el error para que pueda ser capturado en el componente llamante si es necesario
-  } finally {
-    loading.value = false; // Desactiva el estado de carga global al finalizar (siempre)
-  }
-};
+  };
 
   // Acción para cargar la lista principal de panales del usuario logueado para la vista principal
   // Solo carga los panales que NO están marcados como eliminados lógicamente
@@ -113,7 +120,6 @@ export const usePanalesStore = defineStore('panales', () => {
     error.value = null; // Limpia errores
     panales.value = []; // Limpia la lista principal (panales.value) antes de cargar nuevos datos
 
-    const authStore = useAuthStore();
     const userId = authStore.user?.uid; // Obtiene el ID del usuario actual
 
     // Si no hay usuario logueado, no se pueden cargar panales. Muestra error y sale.
@@ -133,18 +139,18 @@ export const usePanalesStore = defineStore('panales', () => {
       // 2. Crea la consulta para la lista principal:
       const q = query(
         panalesCollection,
-        where("userId", "==", userId), // Filtra para obtener solo los panales del usuario actual
-        where("isDeleted", "==", false), // <--- Filtra para obtener solo los panales NO eliminados lógicamente
-        orderBy("createdAt", "desc") // Ordena por fecha de creación descendente (más recientes primero)
+        where('userId', '==', userId), // Filtra para obtener solo los panales del usuario actual
+        where('isDeleted', '==', false), // <--- Filtra para obtener solo los panales NO eliminados lógicamente
+        orderBy('createdAt', 'desc') // Ordena por fecha de creación descendente (más recientes primero)
       );
 
       // 3. Ejecuta la consulta a Firestore
       const querySnapshot = await getDocs(q);
 
       // 4. Mapea los documentos retornados a objetos JavaScript y añádeles el ID del documento
-      const fetchedPanales = querySnapshot.docs.map(doc => ({
+      const fetchedPanales = querySnapshot.docs.map((doc) => ({
         id: doc.id, // Añade el ID del documento al objeto panal
-        ...doc.data() // Copia todos los campos del documento en el objeto
+        ...doc.data(), // Copia todos los campos del documento en el objeto
       }));
 
       // 5. Actualiza el estado reactivo 'panales' del store con los resultados
@@ -182,7 +188,6 @@ export const usePanalesStore = defineStore('panales', () => {
 
       // 3. Verifica si el documento existe en Firestore
       if (panalDocSnap.exists()) {
-        const authStore = useAuthStore();
         const panalData = panalDocSnap.data();
 
         // 4. Seguridad adicional (client-side): verifica que el panal pertenezca al usuario logueado
@@ -201,18 +206,18 @@ export const usePanalesStore = defineStore('panales', () => {
         //   return null;
         // }
 
-        console.log("Datos del documento encontrado en Firestore:", panalData);
+        console.log('Datos del documento encontrado en Firestore:', panalData);
         // Retorna el objeto panal con su ID y datos
         return { id: panalDocSnap.id, ...panalData };
       } else {
         // Si el documento no existe
-        console.log("Documento con ID", panalId, "no encontrado en Firestore!");
+        console.log('Documento con ID', panalId, 'no encontrado en Firestore!');
         error.value = `Panal con ID ${panalId} no encontrado.`;
         return null; // Retorna null si no se encuentra
       }
     } catch (err) {
       // Captura y maneja errores durante la obtención del documento
-      console.error("Error al obtener documento con ID", panalId, ":", err);
+      console.error('Error al obtener documento con ID', panalId, ':', err);
       error.value = err.message || 'Error desconocido al obtener el panal.';
       throw err; // Relanza el error para manejo superior
     } finally {
@@ -235,7 +240,6 @@ export const usePanalesStore = defineStore('panales', () => {
       throw new Error(msg);
     }
 
-    const authStore = useAuthStore();
     const panalDocSnap = await getDoc(doc(db, 'panales', panalId));
     // Verifica que el panal exista y pertenezca al usuario antes de permitir la actualización
     if (!panalDocSnap.exists() || panalDocSnap.data().userId !== authStore.user?.uid) {
@@ -264,7 +268,7 @@ export const usePanalesStore = defineStore('panales', () => {
 
       // 4. Opcional: Actualiza la lista local en el store si es necesario (ej. la lista 'panales')
       // Encuentra el índice del panal actualizado en la lista principal
-      const index = panales.value.findIndex(p => p.id === panalId);
+      const index = panales.value.findIndex((p) => p.id === panalId);
       if (index !== -1) {
         // Fusiona los nuevos datos con los datos existentes del panal en la lista
         panales.value[index] = { ...panales.value[index], ...newData };
@@ -287,7 +291,6 @@ export const usePanalesStore = defineStore('panales', () => {
     error.value = null; // Limpia errores
 
     // Opcional: verifica que el panal pertenezca al usuario antes de intentar eliminarlo lógicamente client-side
-    const authStore = useAuthStore();
     const panalDocSnap = await getDoc(doc(db, 'panales', panalId));
     if (!panalDocSnap.exists() || panalDocSnap.data().userId !== authStore.user?.uid) {
       console.warn('Intento de eliminar (lógicamente) panal que no pertenece al usuario.');
@@ -304,7 +307,7 @@ export const usePanalesStore = defineStore('panales', () => {
       // 2. Actualiza el documento para marcarlo como eliminado lógicamente
       await updateDoc(panalDocRef, {
         isDeleted: true, // <--- Establece el campo isDeleted a true
-        deletedAt: new Date().toISOString() // <--- Opcional: Añade una marca de tiempo de cuándo fue eliminado (en formato ISO string)
+        deletedAt: new Date().toISOString(), // <--- Opcional: Añade una marca de tiempo de cuándo fue eliminado (en formato ISO string)
         // Opcional: deletedBy: authStore.user?.uid // Quién lo eliminó (si es relevante)
       });
 
@@ -313,7 +316,7 @@ export const usePanalesStore = defineStore('panales', () => {
 
       // 3. Opcional: Remover el panal de la lista local principal en el store
       // Esto es útil para que desaparezca de la lista principal (que solo muestra no eliminados) sin recargar
-      panales.value = panales.value.filter(panal => panal.id !== panalId);
+      panales.value = panales.value.filter((panal) => panal.id !== panalId);
     } catch (err) {
       // Captura y maneja errores durante la eliminación lógica
       console.error('Error al eliminar (lógicamente) el panal:', err);
@@ -326,138 +329,164 @@ export const usePanalesStore = defineStore('panales', () => {
   };
 
   // === Acción: Para cargar panales para reportes con filtros ===
-  // **MODIFICADA**: AHORA ACEPTA EL OBJETO 'filters' Y CONSTRUYE LA CONSULTA DINÁMICAMENTE
-  // Esta acción carga panales para el módulo de reportes, permitiendo aplicar filtros de estado y fecha.
-  // Por defecto, carga todos los panales del usuario (incluyendo lógicamente eliminados) si no se aplican filtros.
-  const fetchPanalesForReport = async (filters = {}) => { // <--- Acepta el objeto filters
-    loading.value = true; // Activa el estado de carga del store
-    error.value = null; // Limpia errores anteriores
-    let reportPanales = []; // Usamos una variable local para los resultados de este reporte específico
+  // (Mantener esta función, ya está bien y se usará internamente)
+  const fetchPanalesForReport = async (filters = {}) => {
+    loading.value = true;
+    error.value = null;
+    let reportPanales = [];
 
-    const authStore = useAuthStore();
-    const userId = authStore.user?.uid; // Obtiene el ID del usuario actual
+    const userId = authStore.user?.uid;
 
-    // Verifica si hay usuario autenticado
     if (!userId) {
       console.warn('fetchPanalesForReport llamado sin usuario autenticado.');
       error.value = 'Usuario no autenticado. No se pueden cargar los panales para reporte.';
       toast.error(error.value);
       loading.value = false;
-      throw new Error('Usuario no autenticado.'); // Lanza error si no hay usuario
+      throw new Error('Usuario no autenticado.');
     }
 
-    // === LOG: Muestra los filtros que recibió esta acción ===
-    console.log("fetchPanalesForReport action called with filters:", filters);
+    console.log('fetchPanalesForReport action called with filters:', filters);
 
     try {
-      // 1. Obtiene la referencia a la colección 'panales'
       const panalesCollection = collection(db, 'panales');
+      let q = query(panalesCollection, where('userId', '==', userId));
 
-      // --- Construir la consulta dinámicamente basada en los filtros recibidos ---
-      // Empezamos con la consulta base: siempre filtrar por el usuario logueado
-      let q = query(
-        panalesCollection,
-        where("userId", "==", userId) // Filtro de igualdad por userId (siempre aplicado)
-      );
-
-      // 2. Añadir filtro por estado si está definido en los filters y no es 'Todos'
-      // En ReportView.vue pasamos undefined si selectedEstado es 'Todos'.
       if (filters.estado !== undefined) {
-        q = query(q, where("estado", "==", filters.estado)); // Filtro de igualdad por estado
-        console.log("Filtro de estado añadido:", filters.estado);
+        q = query(q, where('estado', '==', filters.estado));
+        console.log('Filtro de estado añadido:', filters.estado);
       }
 
-      // === 3. Añadir filtro por tipoHuevo si está definido en los filters y no es 'Todos' ===
-      // En ReportView.vue pasamos undefined si selectedTipoHuevo es 'Todos'.
       if (filters.tipoHuevo !== undefined) {
-        q = query(q, where("tipoHuevo", "==", filters.tipoHuevo)); // Filtro de igualdad por tipoHuevo
-        console.log("Filtro de tipoHuevo añadido:", filters.tipoHuevo);
+        q = query(q, where('tipoHuevo', '==', filters.tipoHuevo));
+        console.log('Filtro de tipoHuevo añadido:', filters.tipoHuevo);
       }
-      // ==============================================================================
 
-      // === 4. Añadir UN filtro por rango de fecha (SOLO Fecha Inicio ahora) ===
-      let dateRangeField = null; // Variable para rastrear qué campo se usó para el filtro de rango
-
-      // Determinar si se ha proporcionado un rango de fecha de Inicio válido
+      let dateRangeField = null;
       const hasInicioRange = filters.fechaInicioStart !== undefined || filters.fechaInicioEnd !== undefined;
-      // === ELIMINADO: ya no verificamos hasVencimientoRange ===
-      // const hasVencimientoRange = filters.fechaVencimientoStart !== undefined || filters.fechaVencimientoEnd !== undefined;
 
       if (hasInicioRange) {
-        // Si hay fechas para el rango de Inicio, aplicar ese filtro
         if (filters.fechaInicioStart && filters.fechaInicioEnd) {
-          q = query(q, where("fechaInicio", ">=", filters.fechaInicioStart), where("fechaInicio", "<=", filters.fechaInicioEnd));
-          dateRangeField = "fechaInicio"; // Marcar que se usó fechaInicio para el rango
-          console.log("Filtros de fechaInicio (rango) añadidos:", { start: filters.fechaInicioStart, end: filters.fechaInicioEnd });
-        } else if (filters.fechaInicioStart) { // Solo Fecha Inicio Desde
-          q = query(q, where("fechaInicio", ">=", filters.fechaInicioStart));
-          dateRangeField = "fechaInicio";
-          console.log("Filtro de fechaInicio (desde) añadido:", filters.fechaInicioStart);
-        } else if (filters.fechaInicioEnd) { // Solo Fecha Inicio Hasta
-          q = query(q, where("fechaInicio", "<=", filters.fechaInicioEnd));
-          dateRangeField = "fechaInicio";
-          console.log("Filtro de fechaInicio (hasta) añadido:", filters.fechaInicioEnd);
+          q = query(q, where('fechaInicio', '>=', filters.fechaInicioStart), where('fechaInicio', '<=', filters.fechaInicioEnd));
+          dateRangeField = 'fechaInicio';
+          console.log('Filtros de fechaInicio (rango) añadidos:', { start: filters.fechaInicioStart, end: filters.fechaInicioEnd });
+        } else if (filters.fechaInicioStart) {
+          q = query(q, where('fechaInicio', '>=', filters.fechaInicioStart));
+          dateRangeField = 'fechaInicio';
+          console.log('Filtro de fechaInicio (desde) añadido:', filters.fechaInicioStart);
+        } else if (filters.fechaInicioEnd) {
+          q = query(q, where('fechaInicio', '<=', filters.fechaInicioEnd));
+          dateRangeField = 'fechaInicio';
+          console.log('Filtro de fechaInicio (hasta) añadido:', filters.fechaInicioEnd);
         }
-        // === ELIMINADO: ya no hay 'else if (hasVencimientoRange)' ===
       } else {
-        // Si no se proporcionó ningún rango de fechas (y ahora solo consideramos Inicio)
-        console.log("Ningún filtro de rango de fechas (Inicio) aplicado.");
+        console.log('Ningún filtro de rango de fechas (Inicio) aplicado.');
       }
-      // ================================================================================
 
-      // 5. Añadir ordenamiento
-      // IMPORTANT: Ajustar el ordenamiento según si se usó el filtro de rango de fechaInicio.
-      // Si se aplicó el filtro de rango en 'fechaInicio', debemos ordenar por ese mismo campo.
-      // Si no se aplicó filtro de rango de fechas, podemos ordenar por createdAt (o el orden por defecto deseado).
-
-      if (dateRangeField) { // dateRangeField solo será "fechaInicio" si se usó ese rango
-        // Si se aplicó un filtro de rango de fechaInicio, ordenar por fechaInicio.
-        // Debes elegir la dirección (asc/desc). Un orden ascendente es común para fechas.
-        q = query(q, orderBy(dateRangeField, "asc")); // Ordena por el campo que se filtró por rango (fechaInicio)
+      if (dateRangeField) {
+        q = query(q, orderBy(dateRangeField, 'asc'));
         console.log(`Ordenando por ${dateRangeField} (ascendente) debido al filtro de rango aplicado.`);
       } else {
-        // Si NO se aplicó ningún filtro de rango de fechas (solo filtros de igualdad), usar el ordenamiento por defecto (createdAt).
-        // Nota: Combinar filtros de igualdad en userId, estado, tipoHuevo con ordenamiento por createdAt
-        // puede requerir un índice compuesto (ej: userId ASC, estado ASC, tipoHuevo ASC, createdAt ASC, __name__ ASC)
-        q = query(q, orderBy("createdAt", "asc")); // Ordenamiento por defecto
-        console.log("Ordenando por createdAt (ascendente) (sin filtro de rango de fechas aplicado).");
+        q = query(q, orderBy('createdAt', 'asc'));
+        console.log('Ordenando por createdAt (ascendente) (sin filtro de rango de fechas aplicado).');
       }
 
-      // === LOG: Muestra la consulta final construida (el objeto 'q') ===
-      console.log("Consulta final construida (Firestore Query Object):", q);
-
-      // 6. Ejecutar la consulta a Firestore
+      console.log('Consulta final construida (Firestore Query Object):', q);
       const querySnapshot = await getDocs(q);
-      // === LOG: Muestra cuántos documentos retornó la consulta ===
-      console.log("Consulta ejecutada. Número de documentos encontrados:", querySnapshot.size);
+      console.log('Consulta ejecutada. Número de documentos encontrados:', querySnapshot.size);
 
-      // 7. Mapear los documentos retornados a objetos JavaScript
-      reportPanales = querySnapshot.docs.map(doc => ({
-        id: doc.id, // Añade el ID del documento
-        ...doc.data() // Copia todos los campos del documento (incluyendo estado, fechaVencimiento, isDeleted)
+      reportPanales = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
       }));
 
-      // === LOG: Muestra los datos mapeados y listos para retornar ===
       console.log('Panales cargados para reporte (mapeados):', reportPanales);
-
-      // 8. Retorna la lista filtrada y ordenada de panales para que el componente la use
       return reportPanales;
     } catch (err) {
-      // === MANEJO DE ERRORES ===
       console.error('Error EN LA ACCIÓN fetchPanalesForReport (Firestore Query Falló):', err);
-      // Muestra el error en el estado del store y como notificación toast
       error.value = err.message || 'Error desconocido al cargar los panales para reporte.';
       toast.error('Error al cargar los panales para reporte.');
-
-      // **¡MUY IMPORTANTE!** Si el error es de índice, el mensaje de error lo indicará aquí
       if (err.message && err.message.includes('The query requires an index')) {
-        console.error("¡ERROR DE ÍNDICE DE FIRESTORE DETECTADO! Revisa el mensaje completo del error en la consola del navegador o la terminal de emuladores. Debes crear un índice compuesto para esta combinación de filtros y ordenamiento.");
-        // El mensaje de error completo del emulador o la nube debería contener el enlace para crear el índice necesario.
+        console.error('¡ERROR DE ÍNDICE DE FIRESTORE DETECTADO! Revisa el mensaje completo del error en la consola del navegador o la terminal de emuladores. Debes crear un índice compuesto para esta combinación de filtros y ordenamiento.');
       }
-
-      throw err; // Relanza el error para que pueda ser capturado en el componente ReportView.vue si es necesario
+      throw err;
     } finally {
-      loading.value = false; // Desactiva el estado de carga del store al finalizar (siempre)
+      loading.value = false;
+    }
+  };
+
+  // --- NUEVA ACCIÓN: Calcular los contadores para el Dashboard ---
+  const fetchDashboardCounts = async () => {
+    loading.value = true;
+    error.value = null;
+    const userId = authStore.user?.uid;
+
+    if (!userId) {
+      console.warn('fetchDashboardCounts llamado sin usuario autenticado.');
+      error.value = 'Usuario no autenticado. No se pueden cargar los contadores del dashboard.';
+      // No mostrar toast aquí, ya que el dashboard puede manejar el estado de no autenticado
+      loading.value = false;
+      return;
+    }
+
+    try {
+      // 1. Obtener TODOS los panales del usuario (incluyendo eliminados lógicamente, para el total y vencidos)
+      // No filtraremos por isDeleted aquí, ya que necesitamos todos para calcular "Total Creados" y "Vencidos"
+      const panalesCollection = collection(db, 'panales');
+      const qAll = query(panalesCollection, where('userId', '==', userId));
+      const allPanalesSnapshot = await getDocs(qAll);
+      const allUserPanales = allPanalesSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      // Inicializar contadores
+      panalesActivosCount.value = 0;
+      panalesVendidosCount.value = 0;
+      panalesVencidosCount.value = 0;
+      totalPanalesCreadosCount.value = allUserPanales.length; // Total de todos los panales creados por el usuario
+
+      const now = new Date();
+      now.setHours(0, 0, 0, 0); // Considerar solo la fecha, no la hora
+
+      // Recorrer todos los panales para calcular los estados
+      allUserPanales.forEach((panal) => {
+        // Ignorar panales eliminados lógicamente para los conteos de Activos/Vendidos/Vencidos
+        if (panal.isDeleted) {
+          return;
+        }
+
+        if (panal.estado === 'Activo') {
+          panalesActivosCount.value++;
+        } else if (panal.estado === 'Vendido') {
+          panalesVendidosCount.value++;
+        }
+
+        // Para panales vencidos:
+        // Considera "Vencido" si la fecha de vencimiento es anterior al día de hoy
+        // Y el estado NO es "Vendido" (para evitar que un panal ya vendido se muestre como vencido)
+        if (panal.fechaVencimiento) {
+          const vencimientoDate = new Date(panal.fechaVencimiento);
+          vencimientoDate.setHours(0, 0, 0, 0); // Normalizar a la medianoche
+
+          if (vencimientoDate < now && panal.estado !== 'Vendido') {
+            panalesVencidosCount.value++;
+          }
+        }
+      });
+
+      console.log('Contadores del Dashboard actualizados:', {
+        Activos: panalesActivosCount.value,
+        Vendidos: panalesVendidosCount.value,
+        Vencidos: panalesVencidosCount.value,
+        Total: totalPanalesCreadosCount.value,
+      });
+    } catch (err) {
+      console.error('Error al cargar los contadores del dashboard:', err);
+      error.value = err.message || 'Error desconocido al cargar los contadores.';
+      toast.error('Error al cargar los contadores del dashboard.');
+      throw err;
+    } finally {
+      loading.value = false;
     }
   };
 
@@ -469,12 +498,19 @@ export const usePanalesStore = defineStore('panales', () => {
     loading, // Estado: Indica si el store está cargando (ejecutando una acción asíncrona)
     error, // Estado: Contiene el último mensaje de error del store
 
+    // Contadores del Dashboard (exportados como estados)
+    panalesActivosCount,
+    panalesVendidosCount,
+    totalPanalesCreadosCount,
+    panalesVencidosCount, // Asegurarse de que este también se exporte
+
     // Acciones
     savePanal, // Acción para guardar/actualizar panales (usa Cloud Function)
     fetchPanales, // Acción para cargar la lista principal (filtrada por usuario y no eliminados)
     updatePanal, // Acción para actualizar campos de un panal existente
     deletePanal, // Acción para eliminación lógica de un panal
     fetchSinglePanal, // Acción para cargar un solo panal por ID
-    fetchPanalesForReport // Acción para cargar panales con filtros para reportes
+    fetchPanalesForReport, // Acción para cargar panales con filtros para reportes
+    fetchDashboardCounts, // Nueva acción para obtener los contadores del dashboard
   };
 });

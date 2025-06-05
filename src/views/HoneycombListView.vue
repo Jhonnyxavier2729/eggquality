@@ -10,7 +10,7 @@
           <font-awesome-icon icon="search" class="search-icon" />
           <input
             type="text"
-            placeholder="Buscar panal por ID, Galpon o Estado"
+            placeholder="Buscar panal por ID, huevo Galpon o Estado"
             v-model="searchQuery"
             class="search-input"
           />
@@ -132,7 +132,8 @@ const filteredPanales = computed(() => {
       // Asegúrate de que los campos existan antes de llamar toLowerCase()
       panal.idPanal?.toLowerCase().includes(query) ||
       panal.galponLote?.toLowerCase().includes(query) ||
-      panal.estado?.toLowerCase().includes(query),
+      panal.estado?.toLowerCase().includes(query) ||
+      panal.tipoHuevo?.toLowerCase().includes(query) 
     // Añade otros campos si quieres que se puedan buscar
     // (panal.tipoHuevo?.toLowerCase().includes(query))
   )
