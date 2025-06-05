@@ -66,14 +66,14 @@
           </tbody>
         </table>
       </div>
-      
+
       <Teleport to="body">
         <PanalDetailsModal
           v-if="showDetailsModal"
           :panal="selectedPanal"
           @close="showDetailsModal = false"
         />
-        
+
           <ConfirmModal
             v-if="showDeleteConfirm"
             title="Eliminar"
@@ -375,7 +375,7 @@ h2 {
     }
 
     .search-box {
-        width: 220px; /* Ancho fijo o ajusta según prefieras */
+        width: 250px; /* Ancho fijo o ajusta según prefieras */
     }
 
      .search-input {
@@ -504,7 +504,7 @@ h2 {
     }
 
      .search-box {
-         width: 280px; /* Ancho un poco mayor para búsqueda */
+         width: 355px; /* Ancho un poco mayor para búsqueda */
      }
 
      .search-input {

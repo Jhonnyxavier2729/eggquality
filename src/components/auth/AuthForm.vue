@@ -1,6 +1,6 @@
 <template>
   <form @submit.prevent="submit" class="auth-form">
-    <h2>{{ isLogin ? 'Iniciar Sesión' : 'Registrarse' }}</h2>
+    <h2>{{ isLogin ? 'Login' : 'Registrarse' }}</h2>
 
     <div v-if="!isLogin" class="form-group">
       <label for="username">Nombre de Usuario</label>
@@ -32,7 +32,6 @@
         v-model="password"
         required
         placeholder="••••••••"
-
       />
     </div>
 
@@ -47,14 +46,14 @@
       />
     </div>
 
+    <div v-if="isLogin" class="forgot-password">
+      <a href="#" @click.prevent="openPasswordRecoveryModal">¿Restablecer contraseña?</a>
+    </div>
+
     <button type="submit" :disabled="loading" class="submit-btn">
       <span v-if="!loading">{{ isLogin ? 'Iniciar Sesión' : 'Registrarse' }}</span>
       <span v-else>Procesando...</span>
     </button>
-
-    <div v-if="isLogin" class="forgot-password">
-      <a href="#" @click.prevent="openPasswordRecoveryModal">¿Olvidaste tu contraseña?</a>
-    </div>
 
     <div class="auth-switch">
       <span>{{ isLogin ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?' }}</span>
@@ -86,7 +85,6 @@ const props = defineProps({
 
 const emit = defineEmits(['toggle-auth-mode', 'submit']);
 
-// Nuevo campo para el nombre de usuario
 const username = ref('');
 const email = ref('');
 const password = ref('');
@@ -96,7 +94,6 @@ const isPasswordRecoveryModalVisible = ref(false);
 const authStore = useAuthStore();
 const toast = useToast();
 
-const error = computed(() => authStore.error);
 const loading = computed(() => authStore.loading);
 
 const toggleAuthMode = () => {
@@ -109,7 +106,6 @@ const openPasswordRecoveryModal = () => {
 
 const submit = async () => {
   if (!props.isLogin) {
-    // Validar también el nombre de usuario
     if (!username.value || !email.value || !password.value || !confirmPassword.value) {
       toast.warning('Por favor, completa todos los campos del formulario, incluyendo el nombre de usuario.');
       return;
@@ -132,8 +128,6 @@ const submit = async () => {
       !hasNumbers
     ) {
       let message = `La contraseña debe tener al menos ${minLength} caracteres, incluyendo mayúsculas, minúsculas y números.`;
-      if (password.value.length < 12) {
-      }
       toast.warning(message);
       return;
     }
@@ -147,26 +141,27 @@ const submit = async () => {
   emit('submit', {
     email: email.value,
     password: password.value,
-    username: username.value, // Asegúrate de emitir el username
-    isLogin: props.isLogin // También envía isLogin para que handleAuth sepa si es login o registro
+    username: username.value,
+    isLogin: props.isLogin
   });
 };
 </script>
 
 <style scoped>
+/* Estilos Base (Escritorio - por defecto) */
 .auth-form {
   width: 100%;
-  max-width: 400px;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  max-width: 380px; /* Ancho máximo en escritorio */
+  padding: 0; /* Tu padding original es 0 en el CSS base */
+  box-sizing: border-box; /* Fundamental para la responsividad */
+  /* Eliminado: background-color, border-radius, box-shadow */
 }
 
 h2 {
   color: #000;
   text-align: center;
   margin-bottom: 2rem;
-  font-size: 1.8rem;
+  font-size: 2rem; /* Tu tamaño original */
 }
 
 .form-group {
@@ -187,6 +182,7 @@ input {
   border-radius: 8px;
   font-size: 1rem;
   transition: all 0.3s;
+  box-sizing: border-box; /* Fundamental para que el padding no desborde */
 }
 
 input:focus {
@@ -198,8 +194,8 @@ input:focus {
 .submit-btn {
   width: 100%;
   padding: 14px;
-  background-color: #ff753a;
-  color: white;
+  background-color: #fefdfd; /* Tu color original */
+  color: rgb(8, 0, 0); /* Tu color original */
   border: none;
   border-radius: 8px;
   font-size: 1rem;
@@ -210,18 +206,18 @@ input:focus {
 }
 
 .submit-btn:hover {
-  background-color: #e56732;
+  background-color: #fdfcfb;
 }
 
 .submit-btn:disabled {
-  background-color: #cccccc;
+  background-color: #bbbab6;
   cursor: not-allowed;
 }
 
 .auth-switch {
   text-align: center;
   margin-top: 1.5rem;
-  color: #666;
+  color: white;
 }
 
 .switch-btn {
@@ -234,21 +230,98 @@ input:focus {
 }
 
 .switch-btn:hover {
-  color: #ffc107;
+  color:#ffd147;
 }
 
 .forgot-password {
-  text-align: center;
+  text-align: right;
   margin-top: 1rem;
 }
 
 .forgot-password a {
-  color: #ff753a;
+  color: #f6f3f2;
   text-decoration: none;
   cursor: pointer;
 }
 
 .forgot-password a:hover {
   color: #e56732;
+}
+
+/* ======================================= */
+/* MEDIA QUERIES PARA RESPONSIVIDAD */
+/* (Solo ajustes de tamaño y espaciado) */
+/* ======================================= */
+
+/* --- Para pantallas de hasta 768px (móviles y tablets pequeñas) --- */
+@media (max-width: 768px) {
+  .auth-form {
+    /* Permitimos que el formulario ocupe casi todo el ancho disponible */
+    max-width: 90%; /* Ocupa el 90% del ancho del viewport */
+    margin: 1.5rem auto; /* Centra el formulario y añade margen vertical */
+    padding: 0 1rem; /* Reducir padding horizontal, manteniendo el vertical si lo tuvieras */
+                     /* Si el formulario se encuentra dentro de un contenedor con padding,
+                        este padding interno de 1rem es para que los elementos no se peguen a los bordes del form. */
+  }
+
+  h2 {
+    font-size: 1.8rem; /* Reducir tamaño de título */
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.2rem; /* Reducir espacio entre grupos de formulario */
+  }
+
+  label {
+    font-size: 0.9rem; /* Reducir tamaño de etiqueta */
+    margin-bottom: 0.4rem;
+  }
+
+  input {
+    padding: 10px 12px; /* Reducir padding de inputs */
+    font-size: 0.9rem; /* Reducir tamaño del texto en los inputs */
+  }
+
+  .submit-btn {
+    padding: 12px; /* Reducir padding del botón */
+    font-size: 0.95rem; /* Reducir tamaño del texto del botón */
+    margin-top: 1.2rem;
+  }
+
+  .auth-switch {
+    margin-top: 1.2rem;
+    font-size: 0.9rem; /* Reducir tamaño del texto de switch */
+  }
+
+  .switch-btn {
+    font-size: 0.9rem; /* Asegura que el botón de switch también se adapte */
+  }
+
+  .forgot-password {
+    font-size: 0.85rem; /* Reducir tamaño del texto de contraseña olvidada */
+    margin-top: 0.8rem;
+  }
+}
+
+/* --- Para pantallas de hasta 480px (móviles muy pequeños) --- */
+@media (max-width: 480px) {
+  .auth-form {
+    padding: 0 0.5rem; /* Mínimo padding horizontal para pantallas muy pequeñas */
+    max-width: 95%; /* Ocupa casi todo el ancho */
+    margin: 1rem auto;
+  }
+
+  h2 {
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+  }
+
+  label, input, .submit-btn, .auth-switch, .forgot-password {
+    font-size: 0.8rem; /* Escalar todo un poco más */
+  }
+  .submit-btn {
+    padding: 8px; /* Reducir un poco más el padding del botón */
+  }
 }
 </style>
