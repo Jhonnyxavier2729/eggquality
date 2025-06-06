@@ -5,9 +5,8 @@
         <button class="hamburger" @click="$emit('toggle')">
           <i class="fas fa-bars"></i>
         </button>
-        <img v-if="props.isSidebarOpen" src="@/assets/logo1.png" alt="EggQuality Logo" class="logo-img" />
-      </div>
-      <div class="user-info" v-if="props.isSidebarOpen && authStore.isAuthenticated">
+        <img v-show="props.isSidebarOpen" src="@/assets/logo1.png" alt="EggQuality Logo" class="logo-img" /></div>
+      <div class="user-info" v-show="props.isSidebarOpen && authStore.isAuthenticated">
         <div class="user-avatar">
           <font-awesome-icon :icon="['fas', 'user-circle']" class="user-icon" />
         </div>
@@ -164,8 +163,8 @@ const executeLogout = async () => {
   height: auto;
   display: block;
   margin: 0;
+  transition: opacity 0.3s ease-out, max-width 0.3s ease-out;
 }
-
 /* --- Sidebar Principal --- */
 .sidebar {
   width: 80px;
@@ -181,6 +180,7 @@ const executeLogout = async () => {
   box-shadow: 2px 0 5px rgba(139, 55, 55, 0.1);
   transition: width 0.5s cubic-bezier(0,0,0,1);
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .sidebar.open {
@@ -268,6 +268,7 @@ const executeLogout = async () => {
 .text {
   flex: 1;
   white-space: nowrap;
+  font-size: 1rem;
 }
 
 .logout-btn {
@@ -294,6 +295,10 @@ const executeLogout = async () => {
   border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Separador sutil */
   margin-bottom: 1rem; /* Espacio debajo del bloque de usuario */
   color: #333; /* Color de texto general */
+  max-height: 100px; /* Un valor lo suficientemente grande para cuando está visible */
+  opacity: 1; /* Completamente visible */
+  pointer-events: auto; /* Permite interacciones */
+  transition: max-height 0.4s ease-in-out, opacity 0.4s ease-in-out, padding 0.4s ease-in-out, margin-bottom 0.4s ease-in-out;
 }
 
 /* Estilos para el contenedor del ícono */

@@ -20,26 +20,26 @@
       </div>
     </div>
   </template>
-  
+
   <script setup>
   import { ref } from 'vue';
   import { useAuthStore } from '@/stores/auth';
-  
-  const props = defineProps({
-    isVisible: {
-      type: Boolean,
-      required: true,
-    },
-  });
-  
+
+  //const props = defineProps({
+    //isVisible: {
+      //type: Boolean,
+      //required: true,
+    //},
+  //});
+
   const emit = defineEmits(['close']);
-  
+
   const email = ref('');
   const loading = ref(false);
   const error = ref(null);
-  
+
   const authStore = useAuthStore();
-  
+
   const recoverPassword = async () => {
     loading.value = true;
     error.value = null;
@@ -64,14 +64,14 @@
       loading.value = false;
     }
   };
-  
+
   const closeModal = () => {
     error.value = null; // Limpia el mensaje de error al cerrar el modal
     email.value = ''; //  Limpia el campo de correo electrónico
     emit('close');
   };
   </script>
-  
+
   <style scoped>
   /* Estilo para el fondo del modal */
   .modal-overlay {
@@ -85,7 +85,7 @@
     justify-content: center;
     align-items: center;
   }
-  
+
   /* Estilo del contenedor del modal */
   .modal {
     background: white;
@@ -95,7 +95,7 @@
     max-width: 400px;
     text-align: center;
   }
-  
+
   .modal-actions {
     margin-top: 1rem;
     display: flex;
@@ -155,7 +155,7 @@
     background-color: #e2e6ea;
   }
 
-  
+
   /* Estilo para los mensajes de error */
   .error-message {
     color: red;

@@ -3,7 +3,7 @@
     <SidebarMenu ref="sidebarRef" />
     <main :class="['main-content', { 'sidebar-open': isSidebarOpen }]">
 
-      <router-view /> 
+      <router-view />
     </main>
   </div>
 </template>

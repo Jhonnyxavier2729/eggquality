@@ -9,26 +9,22 @@
       </div>
     </div>
   </template>
-
-  <!-- rops = defineProps({
-    isLoading: Boolean, // Define la prop isLoading
-  })-->
   <style scoped>
 .auth-layout {
-  display: flex;
-  min-height: 100vh;
-  background: linear-gradient(to right, #f9faf9 , #f9f9f9); /* Degradado de blanco a morado */
-}
+    display: flex;
+    min-height: 100vh;
+    background-color: #ffffff;
+  }
 
 .logo-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem;
-  background: transparent; /* Ya no necesita color sólido */
-}
+    flex: 1;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+  }
 
 .logo {
   max-width: 500px;
@@ -43,13 +39,13 @@ h1 {
 }
 
 .auth-container {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem;
-  background-color: transparent; /* Fondo transparente para que se vea el gradiente */
-}
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    background-color: #e67b49;
+ }
 
 @media (max-width: 768px) {
   .auth-layout {
