@@ -10,7 +10,7 @@
           <font-awesome-icon icon="search" class="search-icon" />
           <input
             type="text"
-            placeholder="Buscar panal por ID, huevo Galpon o Estado"
+            placeholder="Buscar panal por ID, Huevo, Galpon o Estado"
             v-model="searchQuery"
             class="search-input"
           />
