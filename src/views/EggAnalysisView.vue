@@ -1,470 +1,184 @@
 <template>
-  <div :class="['analysis-view', { 'shifted-left': !isSidebarOpen }]">
-    <!-- Contenedor principal -->
-    <div class="content-container">
-      <h2 class="titulo-centrado">Análisis de Huevos</h2>
-
-      <div class="action-bar">
-        <button class="primary-btn" @click="startNewAnalysis">
-          <span>➕</span> Nuevo Análisis
-        </button>
-      </div>
-
-      <!-- Contenedor para el formulario y las tarjetas -->
-      <div class="analysis-form" v-if="showForm">
-        <!-- Formulario de análisis -->
-        <div class="form-group">
-          <label>Tipo de Análisis</label>
-          <select v-model="analysisType">
-            <option value="interno">Interno</option>
-            <option value="externo">Externo</option>
-          </select>
-        </div>
-
-        <button class="submit-btn" @click="submitAnalysis">Enviar</button>
-      </div>
-
-      <div class="stats-cards">
-        <div class="stat-card">
-          <h4>Análisis Hoy</h4>
-          <div class="value">8</div>
-        </div>
-        <div class="stat-card">
-          <h4>Calidad Promedio</h4>
-          <div class="value">AA</div>
-        </div>
-      </div>
+  <div class="dashboard-view">
+    <div class="dashboard-header">
+      <h1>PRECIOS</h1>
+      <p>
+        El propósito de este sistema de información es analizar el comportamiento de los precios de pollo y huevo en el canal mayorista – consumidor en las principales plazas de mercado a nivel nacional.
+        <br>
+        Fuente: Departamento Administrativo Nacional de Estadística –DANE-. Información pública. 
+      </p>
     </div>
+
+    <GraficaPreciosHuevos />
+
+    <div class="info-section form-container">
+      <h2>Clasificación y Normativa de Huevos</h2>
+      <p class="section-description">
+        En Colombia, la clasificación de los huevos se realiza principalmente por su peso, lo que define las categorías de tamaño. Esta estandarización es crucial para el comercio y la garantía de calidad al consumidor.
+      </p>
+      <GraficaTamanoHuevos />
+    </div>
+
   </div>
 </template>
 
 <script setup>
-import { ref, inject } from 'vue'
-
-// Inyecta el estado del sidebar proporcionado por SidebarMenu.vue
-const isSidebarOpen = inject('isSidebarOpen', ref(true)) // Valor predeterminado: true
-
-
-const showForm = ref(false)
-const analysisType = ref('interno')
-
-const startNewAnalysis = () => {
-  showForm.value = true
-}
-
-const submitAnalysis = () => {
-  // Lógica para enviar análisis
-  showForm.value = false
-}
+import GraficaPreciosHuevos from '@/components/graficos/GraficaHuevos.vue';
+import GraficaTamanoHuevos from '@/components/graficos/GraficaTamanoHuevos.vue';
 </script>
 
 <style scoped>
-/* --- ESTILOS BASE (para móviles pequeños hasta ~768px) --- */
-/* Estos estilos se aplican por defecto y sirven como base para pantallas pequeñas */
-
-.analysis-view {
-  max-width: 100%; /* Ocupa el 100% del padre en móviles */
-  margin: 0 auto; /* Centra el contenido */
-  padding: 1rem; /* Padding base para móviles */
-  transition: margin-left 0.3s ease-in-out; /* Transición suave para el sidebar si aplica */
+/* Estilos aplicados directamente desde tu ejemplo CSS */
+.dashboard-view {
+  width: 100%;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centra el contenido principal horizontalmente */
+  gap: 2rem;
 }
 
-.content-container {
-  position: relative;
+/* Nuevos estilos para .form-container */
+.form-container {
+  padding: 2rem; /* Aumentado el padding para el contenido interno */
+  width: 98%; /* Asegura que ocupe casi todo el ancho de su padre */
+  max-width: 1600px; /* Limita el ancho máximo igual que el grid */
   background-color: white;
-  padding: 1.5rem; /* Padding base un poco reducido para móviles */
-  border-radius: 8px; /* Bordes un poco menos redondeados */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Sombra más suave */
-  border: 1px solid #dc6565; /* Borde más delgado */
-  max-width: 100%; /* Ocupa el 100% del padre en móviles */
-  margin: 0 auto;
-  z-index: 1;
-  overflow: hidden;
+  border-radius: 12px; /* Un poco más de radio para que coincida con las cards */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra para que destaque un poco */
+  border: 1px solid #eee9e7;
+  position: relative; /* Necesario para z-index si lo usaras para superposición */
+  /* z-index: -1; */ /* Solo si necesitas que este contenedor esté *realmente* detrás de otros elementos superpuestos */
+  display: flex; /* Añadido para que el contenido dentro de él se alinee */
+  flex-direction: column; /* Apila el header y las cards verticalmente */
+  gap: 2rem; /* Espacio entre el header y el grid de cards */
 }
 
-h2 {
-  color: #2c3e50;
-  margin-bottom: 1rem; /* Reduce el margen inferior */
-  font-size: 1.5rem; /* Tamaño de fuente base para h2 */
-}
-
-.action-bar {
-  margin-bottom: 1.5rem; /* Reduce el margen inferior */
-  margin-left: 0; /* **Importante:** Elimina el margen fijo izquierdo en móviles */
-  text-align: center; /* Centra el botón o contenido si es necesario */
-}
-
-.primary-btn {
-  padding: 0.75rem 1.5rem;
-  background-color: #ff753a;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  display: inline-flex; /* Usa inline-flex para que no ocupe todo el ancho si el padre es más ancho */
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1rem; /* Tamaño de fuente base del botón */
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.primary-btn:hover {
-  transform: translateY(-2px); /* AÑADIR EFECTO DE SUBIDA */
-}
-
-.analysis-form {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem; /* Reduce el margen inferior */
-  box-shadow: 0 1px 6px rgba(0,0,0,0.05); /* Sombra más suave */
-}
-
-.form-group {
+.dashboard-header {
+  width: 98%;
+  max-width: 1600px;
+  text-align: center; /* Centra el texto del título */
   margin-bottom: 1rem;
 }
 
-.form-group label {
-  display: block;
+.dashboard-header h1 {
+  font-size: 2.2rem; /* Ajusta el tamaño de la fuente si es necesario */
+  color: #2c3e50; /* Ajusta el color del título si es necesario */
   margin-bottom: 0.5rem;
-  color: #2c3e50;
-  font-size: 1rem; /* Tamaño de fuente base para labels */
 }
 
-.form-group select {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem; /* Tamaño de fuente base para selects */
+.dashboard-header p {
+  font-size: 1.1rem;
+  color: #666;
+  line-height: 1.6;
 }
 
-.submit-btn {
-  padding: 0.75rem 1.5rem;
-  background-color: #ff753a;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-top: 1rem;
-  font-size: 1rem; /* Tamaño de fuente base del botón */
+/* Sección de Información de Huevos */
+.info-section {
+  text-align: center;
 }
 
-.stats-cards {
+.info-section h2 {
+  color: #34495e;
+  margin-bottom: 1rem;
+}
+
+.section-description {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+}
+
+/* Los siguientes estilos de tu ejemplo no son directamente usados por este setup,
+   pero los mantengo para que veas dónde encajarían si tuvieras "cards" o una
+   estructura de "grid" en esta vista. Los componentes de gráfica ya tienen sus
+   propios estilos internos que usan algunas de estas ideas.
+*/
+.dashboard-cards-grid {
+  width: 98%;
+  max-width: 1600px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Mínimo más pequeño para móviles si es necesario */
-  gap: 1rem; /* Espacio más pequeño entre tarjetas en móviles */
-  margin: 1.5rem auto; /* Margen base para móviles */
-  max-width: 100%; /* Ocupa todo el ancho disponible del padre */
-  padding: 0; /* Elimina padding horizontal en móviles */
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  padding: 0.5rem;
+  justify-content: center;
+  align-items: start;
 }
 
-.stat-card {
-  background: white;
-  border-radius: 8px;
-  padding: 1rem; /* Padding interno más pequeño */
-  box-shadow: 0 1px 6px rgba(109, 26, 26, 0.05);
-  /* max-width: 100%; */ /* No es necesario con grid y width: 100% */
-  border: 1px solid #eeeeee; /* Borde sutil */
+.dashboard-cards-grid .card:nth-child(4) {
+  grid-column: 1 / span 3;
+  justify-self: center;
+  width: 50%;
+  max-width: 400px;
+  margin-top: 1rem;
 }
 
-.stat-card:hover {
-  transform: translateY(-3px); /* Menor desplazamiento al pasar el mouse */
-  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+.card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  border: 1px solid #eee;
+  text-align: center;
 }
 
-.stat-card h4 {
-  margin-top: 0;
-  color: #7f8c8d;
-  font-size: 0.9rem; /* Tamaño de fuente más pequeño */
+.card.clickable {
+  cursor: pointer;
 }
 
-.stat-card .value {
-  font-size: 1.4rem; /* Tamaño de fuente más pequeño */
-  font-weight: bold;
+.card.clickable:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.card-icon {
+  font-size: 2.8rem;
   color: #ff753a;
-  margin: 0.3rem 0; /* Reduce margen vertical */
+  margin-right: 0;
+  margin-bottom: 0.5rem;
 }
 
-.titulo-centrado {
-  text-align:center;
-  margin: 0 auto 1.5rem auto; /* Ajusta margen inferior */
-  max-width: 90%; /* Permite que ocupe más ancho si es necesario */
-  color: #050505;
-  font-size: 1.1rem; /* Tamaño de fuente más pequeño */
+.card-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }
 
-/* --- Media Query para Tablets y Escritorios pequeños ( >= 768px ) --- */
-@media (min-width: 768px) {
-  .analysis-view {
-      padding: 2rem; /* Más padding en pantallas más grandes */
-  }
-
-   /* Si el sidebar es visible a partir de 768px, aplica el shift */
-  .analysis-view.shifted-left {
-     margin-left: -250px; /* Ajusta según el ancho de tu sidebar */
-  }
-
-
-  .content-container {
-    padding: 2rem; /* Aumenta el padding interno */
-    border-radius: 12px; /* Bordes más redondeados */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra más pronunciada */
-    border: 2px solid #eaeaea; /* Borde más pronunciado */
-    max-width: 800px; /* Un max-width típico para tablets/escritorios pequeños */
-  }
-
-  h2 {
-    margin-bottom: 1.5rem;
-    font-size: 1.5rem; /* Aumenta el tamaño de fuente del h2 */
-  }
-
-  .action-bar {
-    margin-bottom: 2rem;
-    /* Si el action-bar está afectado por el sidebar, ajusta el margen izquierdo aquí
-       dependiendo de si está shift-left o no. Esto puede requerir lógica Vue/JS.
-       Como alternativa, puedes eliminar el margin-left fijo y usar flexbox/grid
-       en el contenedor padre si necesitas alinear el action-bar con otros elementos.
-    */
-     margin-left: 0; /* Mantener sin margen fijo a menos que sea necesario por el layout */
-     text-align: left; /* Alinear a la izquierda de nuevo */
-  }
-
-  .primary-btn {
-    font-size: 1rem; /* Mantener o ajustar tamaño de fuente */
-    display: inline-flex;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-  }
-
-  .analysis-form {
-    padding: 2rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-  }
-
-   .form-group label {
-      font-size: 1rem;
-   }
-
-   .form-group select {
-     font-size: 1rem;
-   }
-
-   .submit-btn {
-      font-size: 1rem;
-   }
-
-
-  .stats-cards {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Ajusta minmax para tablets/escritorios pequeños */
-    gap: 1.5rem; /* Espacio base entre tarjetas */
-    margin: 2rem auto;
-    max-width: 700px; /* Un max-width adecuado para el grid de tarjetas */
-    padding: 0 1rem;
-  }
-
-  .stat-card {
-    padding: 1.5rem; /* Padding interno base */
-    box-shadow: 0 2px 10px rgba(109, 26, 26, 0.05);
-    border: 1px solid #eeeeee;
-  }
-
-  .stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-  }
-
-  .stat-card h4 {
-    font-size: 1rem;
-  }
-
-  .stat-card .value {
-    font-size: 1.6rem; /* Aumenta un poco el tamaño del valor */
-  }
-
-  .titulo-centrado {
-    margin: 0 auto 2rem auto;
-    max-width: 500px; /* Ajusta el max-width del título */
-    font-size: 1.2rem;
-  }
+.card-content-wrapper h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+  text-align: center;
 }
 
-/* --- Media Query para Escritorios ( >= 1024px o 1200px ) --- */
-@media (min-width: 1024px) { /* Usamos 1024px como ejemplo, ajusta si prefieres 1200px */
-   .analysis-view {
-      /* Puedes ajustar el padding si es necesario */
-      padding: 2rem;
-      max-width: 100%; /* Permitir que ocupe el 100% del padre, el content-container manejará su ancho */
-   }
-
-    .analysis-view.shifted-left {
-       margin-left: -250px; /* Mantener el shift si el sidebar sigue visible */
-    }
-
-  .content-container {
-    padding: 2.5rem; /* Más padding interno */
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border: 2px solid #eaeaea;
-    max-width: 1400px; /* Aumenta el max-width para escritorios */
-  }
-
-  h2 {
-    margin-bottom: 2rem;
-    font-size: 1.5rem; /* Tamaño de fuente más grande para h2 */
-  }
-
-  .action-bar {
-     margin-bottom: 2.5rem;
-     margin-left: 0; /* Asegurar que no haya margen fijo */
-     text-align: left;
-  }
-
-   .primary-btn {
-    padding: 0.9rem 1.8rem; /* Botón más grande */
-    font-size: 1.1rem;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-   }
-
-  .analysis-form {
-    padding: 2.5rem;
-    margin-bottom: 2.5rem;
-  }
-
-   .form-group label {
-      font-size: 1.1rem;
-   }
-
-   .form-group select {
-     padding: 0.9rem;
-     font-size: 1.1rem;
-   }
-
-    .submit-btn {
-     padding: 0.9rem 1.8rem;
-     font-size: 1.1rem;
-   }
-
-  .stats-cards {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Tarjetas más anchas */
-    gap: 2rem; /* Más espacio entre tarjetas */
-    margin: 2.5rem auto;
-    max-width: 850px; /* Aumenta el max-width del grid de tarjetas */
-    padding: 0 2rem; /* Más padding horizontal */
-  }
-
-  .stat-card {
-    padding: 2rem; /* Más padding interno */
-  }
-
-  .stat-card h4 {
-    font-size: 1.1rem; /* Tamaño de fuente un poco más grande */
-  }
-
-  .stat-card .value {
-    font-size: 1.8rem; /* Tamaño de fuente más grande */
-  }
-
-  .titulo-centrado {
-    margin: 0 auto 2.5rem auto;
-    max-width: 600px; /* Aumenta el max-width del título */
-    font-size: 1.5rem; /* Tamaño de fuente más grande */
-  }
+.card-content-wrapper .count {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  margin-top: 0.5rem;
+  text-align: center;
 }
 
-
-/* --- Media Query para Pantallas Ultra Grandes ( >= 2500px ) --- */
-@media (min-width: 2500px) {
-   .analysis-view {
-      padding: 3rem; /* Aún más padding */
-      /* max-width: 100%; ya está */
-   }
-
-    .analysis-view.shifted-left {
-       margin-left: -250px; /* Mantener el shift si el sidebar sigue visible */
-    }
-
-
-  .content-container {
-    padding: 3rem; /* Mucho más padding interno */
-    border-radius: 16px; /* Bordes más redondeados */
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); /* Sombra más pronunciada */
-    border: 3px solid #dcdcdc; /* Borde más grueso */
-    max-width: 90%;
-  }
-
-  h2 {
-    margin-bottom: 3rem;
-    font-size: 1.5rem; /* Tamaño de fuente mucho más grande para h2 */
-  }
-
-  .action-bar {
-     margin-bottom: 3rem;
-     margin-left: 0; /* Asegurar que no haya margen fijo */
-     text-align: left;
-  }
-
-   .primary-btn {
-    padding: 1rem 2rem; /* Botón aún más grande */
-    font-size: 1.2rem;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-   }
-
-
-  .analysis-form {
+/* Media queries para .contenedor-tablas (asumo que se refiere a contenedores de gráficas o tablas) */
+@media (min-width: 2000px) {
+  .contenedor-tablas { /* Si applies a .form-container o .chart-container */
+    max-width: 80%;
     padding: 3rem;
-    margin-bottom: 3rem;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
-  }
-
-   .form-group {
-       margin-bottom: 1.5rem;
-   }
-
-   .form-group label {
-      font-size: 1.2rem;
-   }
-
-   .form-group select {
-     padding: 1rem;
-     font-size: 1.2rem;
-   }
-
-    .submit-btn {
-     padding: 1rem 2rem;
-     font-size: 1.2rem;
-   }
-
-
-  .stats-cards {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Tarjetas mucho más anchas */
-    gap: 3rem; /* Mucho más espacio entre tarjetas */
-    margin: 3rem auto;
-    max-width: 1200px; /* Aumenta considerablemente el max-width del grid */
-    /* Opcional: Que ocupe el 100% del padre si el padre tiene un max-width generoso */
-    /* max-width: 100%; */
-    padding: 0 3rem; /* Mucho más padding horizontal */
-  }
-
-  .stat-card {
-    padding: 2.5rem; /* Mucho más padding interno */
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    border: 2px solid #dddddd; /* Borde un poco más pronunciado */
-  }
-
-   .stat-card h4 {
-    font-size: 1.2rem; /* Tamaño de fuente más grande */
-  }
-
-  .stat-card .value {
-    font-size: 2.2rem; /* Tamaño de fuente mucho más grande */
-  }
-
-  .titulo-centrado {
-    margin: 0 auto 3rem auto;
-    max-width: 800px; /* Aumenta considerablemente el max-width del título */
-    font-size: 1.8rem; /* Tamaño de fuente mucho más grande */
+    gap: 3rem;
   }
 }
-
+@media (min-width: 2500px) {
+  .contenedor-tablas { /* Si applies a .form-container o .chart-container */
+    max-width: 75%;
+    padding: 4rem;
+    gap: 4rem;
+  }
+}
 </style>

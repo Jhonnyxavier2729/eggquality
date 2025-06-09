@@ -84,7 +84,7 @@ const showLogoutConfirm = ref(false);
 
 const menuItems = [
   { text: 'Inicio', name: 'inicio', route: { name: 'inicio' }, icon: 'fa-house', completed: false },
-  { text: 'Análisis de Huevos', name: 'egg-analysis', route: { name: 'egg-analysis' }, icon: 'fa-egg', completed: false },
+  { text: 'Estadisticas', name: 'egg-analysis', route: { name: 'egg-analysis' }, icon: 'fa-chart-simple', completed: false },
   { text: 'Panales', name: 'honeycomb', route: { name: 'honeycomb' }, icon: 'fa-cube', completed: true },
   { text: 'Lista de Panales', name: 'honeycomb-list', route: { name: 'honeycomb-list' }, icon: 'fa-list', completed: false },
   { text: 'Reportes', name: 'reports', route: { name: 'reports' }, icon: 'fa-file-alt', completed: false }, // O 'fa-chart-bar', 'fa-file-pdf', etc. (elige un ícono relevante)
