@@ -33,7 +33,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { Bar } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -61,7 +61,7 @@ const setChartType = (type) => {
 };
 
 const eggSizeData = ref({
-  titulo: 'Clasificación de Huevos por Tamaño (Colombia)',
+  titulo: 'Clasificación de Huevos por Tamaño',
   textoNormativa: 'Según la normativa colombiana Icontec NTC 1240:2011, los huevos se clasifican por su peso en gramos, lo que determina su tamaño. Esto asegura un estándar de calidad y presentación en el mercado. Las categorías comunes incluyen Jumbo, AAA, AA, A, B y C.',
   normativaFuente: 'Normativa vigente Icontec NTC 1240:2011',
   datosGrafica: []
@@ -195,9 +195,9 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Tus estilos CSS se mantienen igual */
+/* Tus estilos CSS existentes para .egg-size-container y sus hijos */
 .egg-size-container {
-  width: 100%;
+  width: 100%; /* Ocupa el ancho completo de su padre (graficas-contenedor) */
   padding: 2rem;
   background-color: white;
   border-radius: 12px;
@@ -206,21 +206,33 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  align-items: center;
-  text-align: center;
+  align-items: center; /* Centra el contenido horizontalmente dentro de la tarjeta */
+  text-align: center; /* Centra el texto por defecto en la tarjeta */
 }
 
+/* Título de la gráfica (h2) */
 h2 {
-  color: #333;
+  /* No display: inline-block; si quieres que ocupe el ancho y se centre */
+  width: 95%; /* Asegura que se extienda y se centre bien */
+  text-align: center;
+  background-color: #ff753a10;
+  border-left: 6px solid #ff753a;
+  border-right: 6px solid #ff753a;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 2rem; /* Tamaño base para pantallas grandes */
+  color: #050303;
   margin-bottom: 1rem;
+  box-sizing: border-box; /* Asegura que padding y border se incluyan en el 95% del ancho */
 }
 
 .text-info {
   font-size: 1rem;
   color: #555;
   line-height: 1.6;
-  max-width: 800px;
+  max-width: 800px; /* Limita el ancho del texto en pantallas grandes */
   margin-bottom: 1rem;
+  text-align: center; /* Asegura que el texto dentro del párrafo se centre */
 }
 
 .text-source {
@@ -230,10 +242,13 @@ h2 {
   margin-bottom: 1.5rem;
 }
 
+/* Selector de tipo de gráfico */
 .chart-type-selector {
   margin-bottom: 1.5rem;
-  display: flex;
+  display: flex; /* Muestra los botones en fila por defecto */
   gap: 10px;
+  flex-wrap: wrap; /* Permite que los botones salten de línea */
+  justify-content: center; /* Centra los botones */
 }
 
 .chart-type-button {
@@ -245,6 +260,7 @@ h2 {
   font-weight: bold;
   color: #555;
   transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+  flex-shrink: 0; /* Evita que los botones se encojan demasiado */
 }
 
 .chart-type-button:hover {
@@ -257,11 +273,13 @@ h2 {
   border-color: #007bff;
 }
 
+/* Contenedor del gráfico */
 .chart-wrapper {
-  width: 100%;
-  max-width: 600px; /* Limita el ancho de esta gráfica */
+  width: 100%; /* Ocupa todo el ancho disponible en la tarjeta */
+  max-width: 600px; /* Limita el ancho máximo para la gráfica */
   height: 350px; /* Altura fija para la gráfica de tamaños */
   margin-top: 1rem;
+  /* Asegúrate de que Chart.js pueda redimensionar el canvas dentro de este div */
 }
 
 .no-data-message {
@@ -272,4 +290,82 @@ h2 {
   width: 100%;
   text-align: center;
 }
+
+/* --- Media Queries para este componente específico --- */
+
+/* Pantallas muy pequeñas (ej. móviles en vertical, hasta 767px) */
+@media (max-width: 767px) {
+  .egg-size-container {
+    padding: 1rem; /* Reduce el padding de la tarjeta */
+    gap: 0.75rem; /* Reduce el espacio entre elementos */
+  }
+
+  h2 {
+    font-size: 1rem; /* Título más pequeño para móviles */
+    padding: 0.8rem 1rem; /* Reduce el padding del título */
+    width: 98%; /* Puede ocupar más ancho en móviles */
+    border-left-width: 4px; /* Bordes más finos */
+    border-right-width: 4px;
+  }
+
+  .text-info {
+    font-size: 0.9rem; /* Texto más pequeño */
+    max-width: 100%; /* Permite que ocupe todo el ancho disponible */
+  }
+
+  .text-source {
+    font-size: 0.8rem; /* Fuente de la fuente más pequeña */
+  }
+
+  .chart-type-selector {
+    flex-direction: column; /* Apila los botones verticalmente */
+    gap: 0.75rem; /* Espacio entre botones apilados */
+  }
+
+  .chart-type-button {
+    width: 100%; /* Los botones ocupan todo el ancho */
+    padding: 8px 15px; /* Reduce el padding de los botones */
+    font-size: 0.9rem;
+  }
+
+  .chart-wrapper {
+    height: 300px; /* Altura ligeramente menor para gráficas en móviles */
+    max-width: 100%; /* La gráfica puede ocupar todo el ancho disponible */
+  }
+}
+
+/* Pantallas medianas (tabletas, 768px a 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .egg-size-container {
+    padding: 1.5rem;
+    gap: 1rem;
+  }
+
+  h2 {
+    font-size: 1.8rem;
+    padding: 0.9rem 1.5rem;
+  }
+
+  .text-info {
+    font-size: 0.95rem;
+    max-width: 700px; /* Permite un ancho intermedio */
+  }
+
+  .chart-type-selector {
+    flex-direction: row; /* Vuelve a poner los botones en fila */
+    gap: 10px;
+  }
+
+  .chart-type-button {
+    width: auto; /* Ancho automático para los botones en fila */
+  }
+
+  .chart-wrapper {
+    height: 320px;
+    max-width: 500px; /* Un poco menos ancha que en escritorio */
+  }
+}
+
+/* Pantallas grandes (escritorio, > 1024px) - Mantienen tus estilos base */
+/* No es necesario un media query específico si los estilos base ya son para escritorio */
 </style>

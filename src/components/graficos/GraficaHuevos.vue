@@ -1,6 +1,13 @@
 <template>
   <div class="chart-container form-container">
     <h2>Precios de Huevos por Ciudad y Tipo</h2>
+    <div class="dashboard-header">
+      <p>
+       Analizamos el comportamiento de los precios del huevo en el canal mayorista-consumidor a nivel nacional.
+      <br>
+      <span class="text-fuente-dane">Fuente: DANE.</span>
+      </p>
+    </div>
 
     <div class="filters-panel">
       <div class="form-group">
@@ -259,9 +266,9 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Tu estilo CSS se mantiene igual */
+/* Estilos generales (que ya tienes y se aplican por defecto) */
 .chart-container {
-  width: 100%;
+  width: 100%; /* Ocupa el ancho completo de su padre (.graficas-contenedor) */
   padding: 2rem;
   background-color: white;
   border-radius: 12px;
@@ -270,58 +277,87 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  align-items: center;
+  align-items: center; /* Centra el contenido horizontalmente dentro de la tarjeta */
 }
 
-h2 {
-  color: #333;
+/* Título principal de la gráfica (h2) */
+.chart-container h2 { /* Selector más específico para evitar conflictos */
+  width: 95%;
   text-align: center;
+  background-color: #ff753a10;
+  border-left: 6px solid #ff753a;
+  border-right: 6px solid #ff753a;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 2rem; /* Tamaño base para pantallas grandes */
+  color: #050303;
+  margin-bottom: 3rem;
+  box-sizing: border-box; /* Asegura que padding y border se incluyan en el 95% del ancho */
+}
+
+/* Header descriptivo (dashboard-header) */
+.dashboard-header {
+  width: 98%;
+  max-width: 1600px;
+  text-align: left;
   margin-bottom: 1rem;
 }
 
+.dashboard-header p {
+  font-size: 1.1rem;
+  color: #666;
+  line-height: 1.6;
+}
+
+.text-fuente-dane {
+  color: #777;
+  font-style: italic;
+}
+
+/* Panel de filtros */
 .filters-panel {
-    width: 100%;
-    margin-bottom: 1.5rem;
-    padding: 1rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.8rem;
+  width: 100%; /* Ocupa todo el ancho del chart-container */
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column; /* Por defecto apila los elementos (para móviles) */
+  align-items: flex-start;
+  gap: 0.8rem;
 }
 
 .form-group {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  width: 100%; /* Ocupa todo el ancho dentro del filters-panel */
 }
 
 .form-group label {
-    margin-bottom: 0.5rem;
-    font-weight: bold;
-    color: #555;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: #555;
 }
 
 .form-input {
-    width: 100%;
-    padding: 0.8rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 1rem;
-    background-color: #fff;
-    cursor: pointer;
-    /* max-height: 200px; */ /* Eliminado si no es múltiple */
-    /* overflow-y: auto; */ /* Eliminado si no es múltiple */
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  background-color: #fff;
+  cursor: pointer;
+  box-sizing: border-box; /* Importante para que el padding no desborde el 100% de width */
 }
 
 .form-input:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-    outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  outline: none;
 }
 
+/* Mensajes de estado */
 .loading-message, .error-message, .no-data-message {
   padding: 1rem;
   border-radius: 8px;
@@ -344,9 +380,93 @@ h2 {
   color: #fbc02d;
 }
 
+/* Contenedor del gráfico Line */
 .chart-wrapper {
-  width: 100%;
-  height: 450px;
+  width: 100%; /* Ocupa todo el ancho disponible en el .chart-container */
+  height: 450px; /* Altura base para pantallas grandes */
   margin-top: 1.5rem;
+  /* La gráfica de Chart.js dentro se adaptará automáticamente a este tamaño */
 }
+
+/* Pantallas muy pequeñas (ej. móviles en vertical, hasta 767px) */
+@media (max-width: 767px) {
+  .chart-container {
+    padding: 1rem; /* Reduce el padding de la tarjeta */
+    gap: 1rem; /* Reduce el espacio entre elementos */
+  }
+
+  .chart-container h2 {
+    font-size: 1rem; /* Título más pequeño para móviles */
+    padding: 0.8rem 1rem;
+    width: 98%; /* Puede ocupar más ancho en móviles */
+    border-left-width: 4px;
+    border-right-width: 4px;
+    margin-bottom: 1.5rem; /* Reduce el margen inferior */
+  }
+
+  .dashboard-header p {
+    font-size: 0.95rem; /* Texto más pequeño */
+  }
+
+  .filters-panel {
+    padding: 0.8rem; /* Reduce el padding del panel de filtros */
+    gap: 0.6rem;
+  }
+
+  .form-group label {
+    font-size: 0.9rem; /* Etiquetas más pequeñas */
+  }
+
+  .form-input {
+    padding: 0.6rem; /* Reduce el padding del input/select */
+    font-size: 0.9rem;
+  }
+
+  .chart-wrapper {
+    height: 300px; /* Altura de la gráfica reducida para móviles */
+    margin-top: 1rem;
+  }
+}
+
+/* Pantallas medianas (tabletas, 768px a 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .chart-container {
+    padding: 1.5rem;
+    gap: 1.2rem;
+  }
+
+  .chart-container h2 {
+    font-size: 1.8rem;
+    padding: 0.9rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .dashboard-header p {
+    font-size: 1rem;
+  }
+
+  .filters-panel {
+    flex-direction: row; /* En tabletas, los filtros pueden ir en fila */
+    justify-content: space-around; /* Distribuye el espacio entre ellos */
+    align-items: center;
+    padding: 1rem 1.5rem;
+  }
+
+  .form-group {
+    width: auto; /* Permite que los grupos de formulario ajusten su ancho */
+    flex-grow: 1; /* Permite que crezcan para ocupar el espacio */
+  }
+
+  .form-input {
+    min-width: 150px; /* Asegura un ancho mínimo para el select */
+  }
+
+  .chart-wrapper {
+    height: 380px; /* Altura intermedia para tabletas */
+    margin-top: 1.2rem;
+  }
+}
+
+/* Pantallas grandes (escritorio, > 1024px) - Mantienen tus estilos base */
+/* No es necesario un media query específico si los estilos base ya son para escritorio */
 </style>
