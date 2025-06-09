@@ -256,10 +256,20 @@ const textoBotonGuardarContrasena = computed(() =>
 }
 
 h2 {
-    text-align: center;
-    margin-bottom: 1.5rem; /* Reduce margen inferior */
-    color: #0b0b0b;
-    font-size: 1.5rem; /* Tamaño de fuente base */
+  background-color: #ff753a10;
+  border-left: 6px solid #ff753a;
+  border-right: 6px solid #ff753a;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #050303;
+  margin-bottom: 3rem;
+  display: block; /* Asegura que sea un elemento de bloque para aplicar márgenes automáticos */
+  width: 80%; /* Mantén tu ancho deseado para el bloque del título */
+  text-align: center; /* Centra el texto dentro del h2 */
+  margin-left: auto; /* Centra el h2 horizontalmente */
+  margin-right: auto; /* Centra el h2 horizontalmente */
+  max-width: 600px;
 }
 
 h3 {
@@ -443,8 +453,20 @@ form input[type='text'] {
     }
 
     h2 {
+        background-color: #ff753a10;
+        border-left: 6px solid #ff753a;
+        border-right: 6px solid #ff753a;
+        padding: 1rem 2rem;
+        border-radius: 8px;
         font-size: 1.5rem;
-        margin-bottom: 2rem;
+        color: #050303;
+        margin-bottom: 3rem;
+        display: block; /* Asegura que sea un elemento de bloque para aplicar márgenes automáticos */
+        width: 50%; /* Mantén tu ancho deseado para el bloque del título */
+        text-align: center; /* Centra el texto dentro del h2 */
+        margin-left: auto; /* Centra el h2 horizontalmente */
+        margin-right: auto; /* Centra el h2 horizontalmente */
+        max-width: 600px;
     }
 
      h3 {
@@ -533,8 +555,20 @@ form input[type='text'] {
     }
 
     h2 {
-        font-size: 1.5rem;
-        margin-bottom: 2.5rem;
+        background-color: #ff753a10;
+        border-left: 6px solid #ff753a;
+        border-right: 6px solid #ff753a;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        font-size: 1.8rem;
+        color: #050303;
+        margin-bottom: 3rem;
+        display: block; /* Asegura que sea un elemento de bloque para aplicar márgenes automáticos */
+        width: 60%; /* Mantén tu ancho deseado para el bloque del título */
+        text-align: center; /* Centra el texto dentro del h2 */
+        margin-left: auto; /* Centra el h2 horizontalmente */
+        margin-right: auto; /* Centra el h2 horizontalmente */
+        max-width: 600px;
     }
 
      h3 {
@@ -638,8 +672,20 @@ form input[type='text'] {
     }
 
     h2 {
-        font-size: 1.5rem;
-        margin-bottom: 25px;
+        background-color: #ff753a10;
+        border-left: 6px solid #ff753a;
+        border-right: 6px solid #ff753a;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        font-size: 2rem;
+        color: #050303;
+        margin-bottom: 3rem;
+        display: block; /* Asegura que sea un elemento de bloque para aplicar márgenes automáticos */
+        width: 50%; /* Mantén tu ancho deseado para el bloque del título */
+        text-align: center; /* Centra el texto dentro del h2 */
+        margin-left: auto; /* Centra el h2 horizontalmente */
+        margin-right: auto; /* Centra el h2 horizontalmente */
+        max-width: 600px;
     }
 
     h3 {

@@ -384,7 +384,8 @@ watch(() => route.params.id, (newId, oldId) => {
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border: 1px solid #eee9e7;
-    position: relative;}
+    position: relative;
+  }
 
 .mensaje-recomendacion {
     height: 1.2em;
@@ -425,11 +426,19 @@ watch(() => route.params.id, (newId, oldId) => {
     margin-top: 4px;
 }
 h2 {
-    text-align: center;
-    color: rgb(12, 3, 3);
-    font-size: 1.5rem;
-    padding: 0.8rem;
-    letter-spacing: 0.5px;
+  text-align: center; /* Centra el texto */
+  background-color: #ff753a10;
+  border-left: 6px solid #ff753a;
+  border-right: 6px solid #ff753a;
+  padding: 1rem 1rem;
+  border-radius: 8px;
+  font-size: 1.5rem;
+  color: #050303;
+  margin-bottom: 3rem;
+  display:block; /* Asegura que el h2 sea un elemento de bloque para poder aplicar margen automático */
+  margin-left: auto; /* Centra el h2 horizontalmente */
+  margin-right: auto; /* Centra el h2 horizontalmente */
+  max-width: 600px;
 }
 
 .registro-form {
@@ -699,8 +708,19 @@ label {
         max-width: 1100px; /* Ancho deseado cuando el sidebar está OCULTO */
     }
     h2 {
-        font-size: 1.5rem;
-        margin-bottom: 2rem;
+       text-align: center; /* Centra el texto */
+        background-color: #ff753a10;
+        border-left: 6px solid #ff753a;
+        border-right: 6px solid #ff753a;
+        padding: 1rem 1rem;
+        border-radius: 8px;
+        font-size: 2rem;
+        color: #050303;
+        margin-bottom: 3rem;
+        display:block; /* Asegura que el h2 sea un elemento de bloque para poder aplicar margen automático */
+        margin-left: auto; /* Centra el h2 horizontalmente */
+        margin-right: auto; /* Centra el h2 horizontalmente */
+        max-width: 600px;
     }
 
     .registro-form {

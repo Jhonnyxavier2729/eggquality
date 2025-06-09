@@ -7,7 +7,7 @@
         <label for="filterEstado">Estado:</label>
         <select id="filterEstado" v-model="selectedEstado">
           <option value="Todos">Todos los Estados</option>
-          <option value="Activo">Activo</option> 
+          <option value="Activo">Activo</option>
           <option value="Vencido">Vencido</option>
           <option value="Vendido">Vendido</option>
         </select>
@@ -162,11 +162,20 @@ const downloadReport = () => {
 }
 
 .report-container h2 {
-  text-align: center;
-  margin-bottom: 2rem;
-  font-size: 1.5rem;
-  color: rgb(5, 0, 0);
-  font-weight: bold;
+  background-color: #ff753a10;
+  border-left: 6px solid #ff753a;
+  border-right: 6px solid #ff753a;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 2rem;
+  color: #050303;
+  margin-bottom: 3rem;
+  display: block; /* Asegura que sea un elemento de bloque para aplicar márgenes automáticos */
+  width: 50%; /* Mantén tu ancho deseado para el bloque del título */
+  text-align: center; /* Centra el texto dentro del h2 */
+  margin-left: auto; /* Centra el h2 horizontalmente */
+  margin-right: auto; /* Centra el h2 horizontalmente */
+  max-width: 600px;
 }
 
 .report-container h3 {
@@ -326,6 +335,24 @@ table td::before {
     transform: rotate(360deg);
   }
 }
+@media(max-width: 600px) {
+  .report-container h2 {
+  background-color: #ff753a10;
+  border-left: 6px solid #ff753a;
+  border-right: 6px solid #ff753a;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #050303;
+  margin-bottom: 3rem;
+  display: block; /* Asegura que sea un elemento de bloque para aplicar márgenes automáticos */
+  width: 90%; /* Mantén tu ancho deseado para el bloque del título */
+  text-align: center; /* Centra el texto dentro del h2 */
+  margin-left: auto; /* Centra el h2 horizontalmente */
+  margin-right: auto; /* Centra el h2 horizontalmente */
+  max-width: 600px;
+}
+}
 
 /* --- Media Query para Tablets (>= 768px) --- */
 @media (min-width: 768px) {
@@ -333,6 +360,22 @@ table td::before {
     padding: 1.5rem;
   }
 
+  .report-container h2 {
+  background-color: #ff753a10;
+  border-left: 6px solid #ff753a;
+  border-right: 6px solid #ff753a;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 2rem;
+  color: #050303;
+  margin-bottom: 3rem;
+  display: block; /* Asegura que sea un elemento de bloque para aplicar márgenes automáticos */
+  width: 50%; /* Mantén tu ancho deseado para el bloque del título */
+  text-align: center; /* Centra el texto dentro del h2 */
+  margin-left: auto; /* Centra el h2 horizontalmente */
+  margin-right: auto; /* Centra el h2 horizontalmente */
+  max-width: 600px;
+}
   /* Devolvemos los filtros a una fila */
   .filter-controls {
     flex-direction: row;

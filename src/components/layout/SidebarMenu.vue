@@ -54,8 +54,7 @@
       />
 
       <!-- Contenido principal con desplazamiento condicional -->
-      <!---->>
-      <div :class="['main-content', { 'content-shifted': !props.isSidebarOpen }]">
+      <div :class="['main-content', { 'content-shifted': props.isSidebarOpen }]">
 
         <slot />
       </div>
@@ -74,9 +73,6 @@ import ConfirmModal from '@/components/auth/ConfirmModal.vue';
 const props = defineProps({
   isSidebarOpen: Boolean,
 })
-
-const emit = defineEmits(['toggle'])
-
 
 const router = useRouter();
 const route = useRoute();
@@ -97,11 +93,9 @@ const menuItems = [
 
 const isActive = (itemName) => route.name === itemName
 
+// CÓDIGO CORREGIDO ✅
 const navigate = (itemRoute) => {
   router.push(itemRoute)
-  if (window.innerWidth <= 1024) {
-    emit('toggle') // Oculta el sidebar en móvil
-  }
 }
 
 // --- Lógica para el modal de Cerrar Sesión ---
@@ -277,13 +271,13 @@ const executeLogout = async () => {
 
 /* --- Contenido Principal --- */
 .main-content {
-  margin-left: -45px;
+  margin-left: 8px; /* Espacio para el sidebar */
   padding: 1.5rem;
   transition: margin-left 0.3s ease-in-out;
 }
 
 .main-content.content-shifted {
-  margin-left: 2px;
+  margin-left: -35px;
 }
 
 /* --- Nuevo Estilo para la Información del Usuario --- */
@@ -371,7 +365,7 @@ const executeLogout = async () => {
   }
 
   .main-content.content-shifted {
-    margin-left: 70px;
+    margin-left: 200px;
   }
 }
 
@@ -408,7 +402,7 @@ const executeLogout = async () => {
   }
 
   .main-content.content-shifted {
-    margin-left: 60px;
+    margin-left: 200px;
   }
 }
 

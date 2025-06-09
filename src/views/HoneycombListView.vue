@@ -10,7 +10,7 @@
           <font-awesome-icon icon="search" class="search-icon" />
           <input
             type="text"
-            placeholder="Buscar panal por ID, huevo Galpon o Estado"
+            placeholder="Buscar panal por ID,Galpon o Estado"
             v-model="searchQuery"
             class="search-input"
           />
@@ -74,22 +74,21 @@
           @close="showDetailsModal = false"
         />
 
-          <ConfirmModal
-            v-if="showDeleteConfirm"
-            title="Eliminar"
-            :message="`¿Estás seguro de que quieres eliminar el panal?`"
-            confirmButtonText="Sí, Eliminar"
-            cancelButtonText="Cancelar"
-            @confirm="executeDelete"
-            @cancel="cancelDelete"
-          />
+        <ConfirmModal
+          v-if="showDeleteConfirm"
+          title="Eliminar"
+          :message="`¿Estás seguro de que quieres eliminar el panal?`"
+          confirmButtonText="Sí, Eliminar"
+          cancelButtonText="Cancelar"
+          @confirm="executeDelete"
+          @cancel="cancelDelete"
+        />
       </Teleport>
     </div>
   </div>
 </template>
 
 <script setup>
-
 import { ref, computed, onMounted } from 'vue'
 import { usePanalesStore } from '@/stores/panalesStore'
 // Importa el nuevo componente Modal
@@ -133,7 +132,7 @@ const filteredPanales = computed(() => {
       panal.idPanal?.toLowerCase().includes(query) ||
       panal.galponLote?.toLowerCase().includes(query) ||
       panal.estado?.toLowerCase().includes(query) ||
-      panal.tipoHuevo?.toLowerCase().includes(query) 
+      panal.tipoHuevo?.toLowerCase().includes(query),
     // Añade otros campos si quieres que se puedan buscar
     // (panal.tipoHuevo?.toLowerCase().includes(query))
   )
@@ -202,42 +201,49 @@ const executeDelete = async () => {
 <style scoped>
 /* --- ESTILOS BASE (para móvils pequeños, por defecto < 600px) --- */
 .honeycomb-list-view {
-    max-width: 100%; /* Ocupa el 100% del padre en móviles */
-    margin: 0 auto; /* Centra el contenido si el padre es más ancho */
-    padding: 1rem; /* Padding base general de la vista */
+  max-width: 100%; /* Ocupa el 100% del padre en móviles */
+  margin: 0 auto; /* Centra el contenido si el padre es más ancho */
+  padding: 1rem; /* Padding base general de la vista */
 }
 
 .content-container {
-    position: relative;
-    background-color: white;
-    padding: 1rem; /* Padding interno base */
-    border-radius: 8px; /* Bordes menos redondeados */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Sombra más suave */
-    border: 1px solid #eaeaea; /* Borde más delgado */
-    max-width: 100%; /* Ocupa el 100% del padre en móviles */
-    margin: 0 auto;
-    z-index: 1;
-    overflow: hidden;
+  position: relative;
+  background-color: white;
+  padding: 1rem; /* Padding interno base */
+  border-radius: 8px; /* Bordes menos redondeados */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Sombra más suave */
+  border: 1px solid #eaeaea; /* Borde más delgado */
+  max-width: 100%; /* Ocupa el 100% del padre en móviles */
+  margin: 0 auto;
+  z-index: 1;
+  overflow: hidden;
+  text-align: center;
 }
 
 h2 {
-    color: #2c3e50;
-    margin-bottom: 1rem; /* Reduce margen inferior */
-    text-align: center;
-    font-size: 1.5rem; /* Tamaño de fuente base */
+  display: inline-block; /* Ocupa todo el ancho disponible */
+  width: 50%; /* Asegura que se extienda */
+  text-align: center; /* Centra el texto */
+  background-color: #ff753a10;
+  border-left: 6px solid #ff753a;
+  border-right: 6px solid #ff753a;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #050303;
+  margin-bottom: 1rem;
 }
 
 .controls {
-    display: flex;
-    flex-direction: column; /* Apilados por defecto en móviles */
-    align-items: stretch; /* Estira elementos al ancho completo */
-    gap: 1rem; /* Espacio entre elementos apilados */
-    margin-bottom: 1rem; /* Reduce margen inferior */
-    ;
+  display: flex;
+  flex-direction: column; /* Apilados por defecto en móviles */
+  align-items: stretch; /* Estira elementos al ancho completo */
+  gap: 1rem; /* Espacio entre elementos apilados */
+  margin-bottom: 1rem; /* Reduce margen inferior */
 }
 .controls :focus {
-    outline: none;
-    box-shadow: 0 0 0 1px rgb(232, 139, 69);
+  outline: none;
+  box-shadow: 0 0 0 1px rgb(232, 139, 69);
 }
 
 .search-box {
@@ -248,393 +254,417 @@ h2 {
 }
 
 .search-input {
-    width: 100%; /* Ocupa todo el ancho del search-box */
-    padding: 0.5rem 0.75rem 0.5rem 2rem; /* espacio para ícono a la izquierda */
-    border: 1.8px solid #ccc;
-    border-radius: 6px;
-    font-size: 1rem;
-    box-sizing: border-box; /* Incluir padding y borde en el ancho */
-    border-color: #ff753a;
+  width: 100%; /* Ocupa todo el ancho del search-box */
+  padding: 0.5rem 0.75rem 0.5rem 2rem; /* espacio para ícono a la izquierda */
+  border: 1.8px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  box-sizing: border-box; /* Incluir padding y borde en el ancho */
+  border-color: #ff753a;
 }
 
 .search-icon {
-    position: absolute;
-    top: 50%;
-    left: 10px;
-    transform: translateY(-50%);
-    color: #888;
-    font-size: 1rem;
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  color: #888;
+  font-size: 1rem;
 }
 
 .filter-btn {
-    padding: 0.75rem 1.5rem;
-    background-color: #ff753a;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    display: flex; /* Mantener flex para ícono y texto */
-    justify-content: center; /* Centra contenido del botón */
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1rem;
-    transition: background-color 0.3s ease;
-    width: 100%; /* Ocupa todo el ancho disponible en móviles */
+  padding: 0.75rem 1.5rem;
+  background-color: #ff753a;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex; /* Mantener flex para ícono y texto */
+  justify-content: center; /* Centra contenido del botón */
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+  width: 100%; /* Ocupa todo el ancho disponible en móviles */
 }
 .filter-btn:hover {
-    background-color: #ff5c1a;
+  background-color: #ff5c1a;
 }
 
 .panales-list-container {
-    overflow-x: auto; /* Permite scroll horizontal para la tabla */
-    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.05); /* Sombra más suave */
-    border-radius: 8px;
+  overflow-x: auto; /* Permite scroll horizontal para la tabla */
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.05); /* Sombra más suave */
+  border-radius: 8px;
 }
 
 .honeycomb-table {
-    width: 100%;
-    min-width: 400px; /* Ancho mínimo para evitar que se vea apretada */
-    border-collapse: collapse;
-    background: white;
-    border-radius: 8px;
-    overflow: hidden;
+  width: 100%;
+  min-width: 400px; /* Ancho mínimo para evitar que se vea apretada */
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .honeycomb-table th,
 .honeycomb-table td {
-    padding: 0.8rem; /* Padding base en celdas */
-    text-align: left;
-    border-bottom: 1px solid #e0e0e0;
-    font-size: 0.9rem; /* Tamaño de fuente base para celdas */
+  padding: 0.8rem; /* Padding base en celdas */
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 0.9rem; /* Tamaño de fuente base para celdas */
 }
 
 .honeycomb-table th {
-    background-color: #f5f7fa;
-    color: #2c3e50;
-    font-weight: 600;
-    font-size: 0.8rem; /* Tamaño de fuente base para encabezados */
-    text-transform: uppercase;
+  background-color: #f5f7fa;
+  color: #2c3e50;
+  font-weight: 600;
+  font-size: 0.8rem; /* Tamaño de fuente base para encabezados */
+  text-transform: uppercase;
 }
 
 .honeycomb-table tbody tr:last-child td {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 /* Estilos para el estado en la tabla */
-.status-activo { color: #4caf50; font-weight: bold; }
-.status-vencido { color: #f44336; font-weight: bold; }
-.status-vendido { color: #ff9800; font-weight: bold; }
+.status-activo {
+  color: #4caf50;
+  font-weight: bold;
+}
+.status-vencido {
+  color: #f44336;
+  font-weight: bold;
+}
+.status-vendido {
+  color: #ff9800;
+  font-weight: bold;
+}
 
 /* Estilos para los botones/íconos de Acción */
 .action-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1rem; /* Tamaño de los íconos base */
-    padding: 0.2rem; /* Espaciado alrededor del ícono clickeable */
-    margin: 0 1px; /* Pequeño margen */
-    transition: color 0.3s ease;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem; /* Tamaño de los íconos base */
+  padding: 0.2rem; /* Espaciado alrededor del ícono clickeable */
+  margin: 0 1px; /* Pequeño margen */
+  transition: color 0.3s ease;
 }
 
-.action-btn:hover { color: #ff753a; }
-.edit-btn { color: #615f5e; }
-.delete-btn { color: #e57373; }
+.action-btn:hover {
+  color: #ff753a;
+}
+.edit-btn {
+  color: #615f5e;
+}
+.delete-btn {
+  color: #e57373;
+}
 
 /* Estilo para mensajes de estado */
-.status-message,.error-message {
-    text-align: center;
-    margin-top: 1.5rem; /* Reduce margen superior */
-    font-size: 1rem; /* Tamaño de fuente base */
+.status-message,
+.error-message {
+  text-align: center;
+  margin-top: 1.5rem; /* Reduce margen superior */
+  font-size: 1rem; /* Tamaño de fuente base */
 }
-.error-message { color: red; font-weight: bold; }
-
+.error-message {
+  color: red;
+  font-weight: bold;
+}
 
 /* --- Media Query para Móviles Grandes y Tablets pequeñas ( >= 600px ) --- */
 @media (min-width: 600px) {
-    .honeycomb-list-view {
-        padding: 1.5rem; /* Aumenta padding general */
-    }
+  .honeycomb-list-view {
+    padding: 1.5rem; /* Aumenta padding general */
+  }
 
-    .content-container {
-        padding: 1.5rem; /* Aumenta padding interno */
-        border-radius: 10px;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-        border: 1px solid #eaeaea;
-    }
+  .content-container {
+    padding: 1.5rem; /* Aumenta padding interno */
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid #eaeaea;
+  }
 
-    h2 {
-        font-size: 1.5rem; /* Aumenta tamaño de fuente h2 */
-        margin-bottom: 1.2rem;
-    }
+  h2 {
+    font-size: 1.3rem; /* Aumenta tamaño de fuente h2 */
+    margin-bottom: 1.2rem;
+  }
 
-    .controls {
-        flex-direction: row; /* Controles en fila */
-        justify-content: flex-start; /* Alinear a la izquierda */
-        align-items: center;
-        gap: 1rem; /* Espacio entre elementos en fila */
-        margin-bottom: 1.2rem;
-    }
+  .controls {
+    flex-direction: row; /* Controles en fila */
+    justify-content: flex-start; /* Alinear a la izquierda */
+    align-items: center;
+    gap: 1rem; /* Espacio entre elementos en fila */
+    margin-bottom: 1.2rem;
+  }
 
-    .search-box {
-        width: 250px; /* Ancho fijo o ajusta según prefieras */
-    }
+  .search-box {
+    width: 250px; /* Ancho fijo o ajusta según prefieras */
+  }
 
-     .search-input {
-         font-size: 1rem;
-     }
+  .search-input {
+    font-size: 1rem;
+  }
 
+  .filter-btn {
+    width: auto; /* Ancho automático */
+    font-size: 1rem;
+  }
 
-    .filter-btn {
-        width: auto; /* Ancho automático */
-        font-size: 1rem;
-    }
+  .honeycomb-table {
+    min-width: 550px; /* Aumenta mínimo de tabla */
+  }
 
-    .honeycomb-table {
-       min-width: 550px; /* Aumenta mínimo de tabla */
-    }
+  .honeycomb-table th,
+  .honeycomb-table td {
+    padding: 0.9rem;
+    font-size: 0.9rem;
+  }
 
-    .honeycomb-table th,
-    .honeycomb-table td {
-        padding: 0.9rem;
-        font-size: 0.9rem;
-    }
+  .honeycomb-table th {
+    font-size: 0.8rem;
+  }
 
-    .honeycomb-table th {
-        font-size: 0.8rem;
-    }
+  .action-btn {
+    font-size: 1rem;
+    padding: 0.2rem;
+  }
 
-    .action-btn {
-        font-size: 1rem;
-        padding: 0.2rem;
-    }
-
-     .status-message, .error-message {
-         margin-top: 1.8rem;
-         font-size: 1rem;
-     }
+  .status-message,
+  .error-message {
+    margin-top: 1.8rem;
+    font-size: 1rem;
+  }
 }
-
 
 /* --- Media Query para Tablets Grandes y Escritorios ( >= 768px ) --- */
 @media (min-width: 768px) {
-     .honeycomb-list-view {
-        padding: 2rem; /* Aumenta padding general */
-    }
+  .honeycomb-list-view {
+    padding: 2rem; /* Aumenta padding general */
+  }
 
-    .content-container {
-        padding: 2rem; /* Aumenta padding interno */
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        border: 2px solid #eaeaea; /* Borde más grueso */
-        max-width: 1000px; /* Max-width típico para tablet/escritorio pequeño */
-    }
+  .content-container {
+    padding: 2rem; /* Aumenta padding interno */
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 2px solid #eaeaea; /* Borde más grueso */
+    max-width: 1000px; /* Max-width típico para tablet/escritorio pequeño */
+  }
 
-    h2 {
-        font-size: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
+  h2 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
 
-    .controls {
-        gap: 1.5rem; /* Más espacio entre controles */
-        margin-bottom: 1.5rem;
-    }
+  .controls {
+    gap: 1.5rem; /* Más espacio entre controles */
+    margin-bottom: 1.5rem;
+  }
 
-    .search-box {
-        width: 250px; /* Ancho estándar para búsqueda */
-    }
+  .search-box {
+    width: 250px; /* Ancho estándar para búsqueda */
+  }
 
-    .search-input {
-         font-size: 1rem;
-     }
+  .search-input {
+    font-size: 1rem;
+  }
 
-    .filter-btn {
-        font-size: 1rem;
-    }
+  .filter-btn {
+    font-size: 1rem;
+  }
 
-    .honeycomb-table {
-       min-width: 600px; /* Aumenta mínimo de tabla */
-    }
+  .honeycomb-table {
+    min-width: 600px; /* Aumenta mínimo de tabla */
+  }
 
-    .honeycomb-table th,
-    .honeycomb-table td {
-        padding: 1rem; /* Padding estándar en celdas */
-        font-size: 1rem;
-    }
+  .honeycomb-table th,
+  .honeycomb-table td {
+    padding: 1rem; /* Padding estándar en celdas */
+    font-size: 1rem;
+  }
 
-     .honeycomb-table th {
-        font-size: 0.9rem;
-    }
+  .honeycomb-table th {
+    font-size: 0.9rem;
+  }
 
-    .action-btn {
-        font-size: 1.1rem; /* Tamaño de los íconos estándar */
-        padding: 0.3rem;
-        margin: 0 2px;
-    }
+  .action-btn {
+    font-size: 1.1rem; /* Tamaño de los íconos estándar */
+    padding: 0.3rem;
+    margin: 0 2px;
+  }
 
-    .status-message, .error-message {
-         margin-top: 2rem;
-         font-size: 1.1rem;
-     }
+  .status-message,
+  .error-message {
+    margin-top: 2rem;
+    font-size: 1.1rem;
+  }
 }
 
 /* --- Media Query para Escritorios Grandes ( >= 1024px ) --- */
 @media (min-width: 1024px) {
-     .honeycomb-list-view {
-        padding: 2rem; /* Aumenta padding general */
-        max-width: 100%; /* Permite que el content-container controle el ancho */
-    }
+  .honeycomb-list-view {
+    padding: 2rem; /* Aumenta padding general */
+    max-width: 100%; /* Permite que el content-container controle el ancho */
+  }
 
-    .content-container {
-        padding: 2.5rem; /* Aumenta padding interno */
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        border: 2px solid #eaeaea;
-        max-width: 1400px; /* Max-width típico para escritorio */
-    }
+  .content-container {
+    padding: 2.5rem; /* Aumenta padding interno */
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 2px solid #eaeaea;
+    max-width: 1400px; /* Max-width típico para escritorio */
+  }
 
-    h2 {
-        font-size: 1.5rem;
-        margin-bottom: 2rem;
-    }
+  h2 {
+  display: inline-block; /* Ocupa todo el ancho disponible */
+  width: 50%; /* Asegura que se extienda */
+  text-align: center; /* Centra el texto */
+  background-color: #ff753a10;
+  border-left: 6px solid #ff753a;
+  border-right: 6px solid #ff753a;
+  padding: 1rem 1rem;
+  border-radius: 8px;
+  font-size: 2rem;
+  color: #050303;
+  margin-bottom: 3rem;
+  }
 
-    .controls {
-        gap: 2rem; /* Más espacio entre controles */
-        margin-bottom: 2rem;
-         /* Puedes justificar de forma diferente si es necesario, ej: space-between */
-         /* justify-content: space-between; */
-    }
+  .controls {
+    gap: 2rem; /* Más espacio entre controles */
+    margin-bottom: 2rem;
+    /* Puedes justificar de forma diferente si es necesario, ej: space-between */
+    /* justify-content: space-between; */
+  }
 
-     .search-box {
-         width: 355px; /* Ancho un poco mayor para búsqueda */
-     }
+  .search-box {
+    width: 355px; /* Ancho un poco mayor para búsqueda */
+  }
 
-     .search-input {
-         font-size: 1.1rem;
-         padding: 0.75rem 1rem 0.75rem 2.5rem; /* Ajusta padding para ícono */
-     }
+  .search-input {
+    font-size: 1.1rem;
+    padding: 0.75rem 1rem 0.75rem 2.5rem; /* Ajusta padding para ícono */
+  }
 
-    .search-icon {
-        left: 12px; /* Ajusta posición de ícono */
-        font-size: 1.1rem;
-    }
+  .search-icon {
+    left: 12px; /* Ajusta posición de ícono */
+    font-size: 1.1rem;
+  }
 
+  .filter-btn {
+    font-size: 1.1rem;
+    padding: 0.9rem 1.8rem;
+  }
 
-    .filter-btn {
-        font-size: 1.1rem;
-        padding: 0.9rem 1.8rem;
-    }
+  .honeycomb-table {
+    min-width: 700px; /* Aumenta mínimo de tabla */
+  }
 
-    .honeycomb-table {
-       min-width: 700px; /* Aumenta mínimo de tabla */
-    }
+  .honeycomb-table th,
+  .honeycomb-table td {
+    padding: 1.2rem; /* Más padding en celdas */
+    font-size: 1rem;
+  }
 
-    .honeycomb-table th,
-    .honeycomb-table td {
-        padding: 1.2rem; /* Más padding en celdas */
-        font-size: 1rem;
-    }
+  .honeycomb-table th {
+    font-size: 0.9rem;
+  }
 
-     .honeycomb-table th {
-        font-size: 0.9rem;
-    }
+  .action-btn {
+    font-size: 1.2rem;
+    padding: 0.4rem;
+    margin: 0 3px;
+  }
 
-    .action-btn {
-        font-size: 1.2rem;
-        padding: 0.4rem;
-        margin: 0 3px;
-    }
-
-    .status-message, .error-message {
-         margin-top: 2.5rem;
-         font-size: 1.2rem;
-     }
+  .status-message,
+  .error-message {
+    margin-top: 2.5rem;
+    font-size: 1.2rem;
+  }
 }
-
 
 /* --- Media Query para Pantallas Ultra Grandes ( >= 2500px ) --- */
 @media (min-width: 2500px) {
-     .honeycomb-list-view {
-        padding: 3rem; /* Mucho más padding general */
-    }
+  .honeycomb-list-view {
+    padding: 3rem; /* Mucho más padding general */
+  }
 
-    .content-container {
-        padding: 3rem; /* Mucho más padding interno */
-        border-radius: 16px; /* Bordes más redondeados */
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
-        border: 3px solid #dcdcdc; /* Borde más grueso */
-        max-width: 80%;
-    }
+  .content-container {
+    padding: 3rem; /* Mucho más padding interno */
+    border-radius: 16px; /* Bordes más redondeados */
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
+    border: 3px solid #dcdcdc; /* Borde más grueso */
+    max-width: 80%;
+  }
 
-    h2 {
-        font-size: 1.5rem; /* Tamaño de fuente mucho más grande h2 */
-        margin-bottom: 2.5rem;
-    }
+  h2 {
+    font-size: 1.5rem; /* Tamaño de fuente mucho más grande h2 */
+    margin-bottom: 2.5rem;
+  }
 
-    .controls {
-        gap: 2.5rem; /* Mucho más espacio entre controles */
-        margin-bottom: 2.5rem;
-        /* justify-content: flex-start; */ /* o ajusta según prefieras */
-    }
+  .controls {
+    gap: 2.5rem; /* Mucho más espacio entre controles */
+    margin-bottom: 2.5rem;
+    /* justify-content: flex-start; */ /* o ajusta según prefieras */
+  }
 
-    .search-box {
-         width: 350px; /* Ancho considerable para búsqueda */
-     }
+  .search-box {
+    width: 350px; /* Ancho considerable para búsqueda */
+  }
 
-    .search-input {
-         font-size: 1.2rem;
-         padding: 1rem 1.5rem 1rem 3rem; /* Aumenta padding para ícono grande */
-         border-width: 2px;
-    }
+  .search-input {
+    font-size: 1.2rem;
+    padding: 1rem 1.5rem 1rem 3rem; /* Aumenta padding para ícono grande */
+    border-width: 2px;
+  }
 
-    .search-icon {
-        left: 15px; /* Ajusta posición de ícono */
-        font-size: 1.2rem;
-    }
+  .search-icon {
+    left: 15px; /* Ajusta posición de ícono */
+    font-size: 1.2rem;
+  }
 
-    .filter-btn {
-        font-size: 1.2rem;
-        padding: 1.2rem 2rem;
-        border-radius: 8px;
-    }
+  .filter-btn {
+    font-size: 1.2rem;
+    padding: 1.2rem 2rem;
+    border-radius: 8px;
+  }
 
+  .panales-list-container {
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
 
-    .panales-list-container {
-         box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
-         border-radius: 12px;
+    /* La tabla misma tiene width: 100%, así que si el contenedor es más estrecho, la tabla lo seguirá */
+    /* Si quieres centrar la tabla dentro de un contenedor más amplio, puedes ponerle max-width y margin: auto a la tabla */
+  }
 
-         /* La tabla misma tiene width: 100%, así que si el contenedor es más estrecho, la tabla lo seguirá */
-         /* Si quieres centrar la tabla dentro de un contenedor más amplio, puedes ponerle max-width y margin: auto a la tabla */
-    }
+  .honeycomb-table {
+    min-width: 00px; /* Ancho mínimo considerable para tabla */
+    /* Opcional: Limita el ancho máximo de la tabla si no quieres que ocupe el 70% del viewport */
+    max-width: 1600px; /* Ejemplo: La tabla no será más ancha de 1600px */
+    margin: 0 auto; /* Centra la tabla si tiene un max-width */
+  }
 
+  .honeycomb-table th,
+  .honeycomb-table td {
+    padding: 1.5rem 2rem; /* Mucho más padding en celdas */
+    font-size: 1.1rem; /* Tamaño de fuente para celdas */
+  }
 
-    .honeycomb-table {
-       min-width: 00px; /* Ancho mínimo considerable para tabla */
-        /* Opcional: Limita el ancho máximo de la tabla si no quieres que ocupe el 70% del viewport */
-        max-width: 1600px; /* Ejemplo: La tabla no será más ancha de 1600px */
-        margin: 0 auto; /* Centra la tabla si tiene un max-width */
-    }
+  .honeycomb-table th {
+    font-size: 1rem; /* Tamaño de fuente para encabezados */
+    padding: 1.2rem 2rem;
+  }
 
-    .honeycomb-table th,
-    .honeycomb-table td {
-        padding: 1.5rem 2rem; /* Mucho más padding en celdas */
-        font-size: 1.1rem; /* Tamaño de fuente para celdas */
-    }
+  .action-btn {
+    font-size: 1.4rem; /* Tamaño de los íconos grande */
+    padding: 0.5rem;
+    margin: 0 4px;
+  }
 
-     .honeycomb-table th {
-        font-size: 1rem; /* Tamaño de fuente para encabezados */
-        padding: 1.2rem 2rem;
-    }
-
-
-    .action-btn {
-        font-size: 1.4rem; /* Tamaño de los íconos grande */
-        padding: 0.5rem;
-        margin: 0 4px;
-    }
-
-     .status-message, .error-message {
-         margin-top: 3rem;
-         font-size: 1.4rem;
-     }
+  .status-message,
+  .error-message {
+    margin-top: 3rem;
+    font-size: 1.4rem;
+  }
 }
 </style>
