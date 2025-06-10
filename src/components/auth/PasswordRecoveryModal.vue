@@ -22,10 +22,11 @@
 </template>
 
 <script setup>
-import { ref} from 'vue'; 
+import { ref } from 'vue';
 import { useAuthStore } from '@/stores/auth';
+// Importa useToast si lo usas para mostrar errores desde el componente, aunque el store ya lo hace
+// import { useToast } from 'vue-toast-notification'; 
 
-// DESCOMENTA Y USA ESTO:
 const props = defineProps({
   isVisible: {
     type: Boolean,
@@ -40,15 +41,21 @@ const loading = ref(false);
 const error = ref(null);
 
 const authStore = useAuthStore();
+// Si usas useToast aquí, asegúrate de que esté configurado globalmente en main.js
+// const $toast = useToast(); 
 
 const recoverPassword = async () => {
   loading.value = true;
   error.value = null;
   try {
     await authStore.recoverPassword(email.value);
-    alert('Se ha enviado un enlace de recuperación a tu correo.');
+    // ¡¡¡ ESTA LÍNEA ES LA QUE DEBES ELIMINAR !!!
+    // alert('Se ha enviado un enlace de recuperación a tu correo.'); 
     closeModal();
   } catch (err) {
+    // El 'authStore.recoverPassword' ya maneja la notificación toast de error.
+    // Solo necesitas manejar la asignación del mensaje de error local si quieres que se muestre
+    // también en el <p v-if="error"> del modal.
     switch (err.code) {
       case 'auth/invalid-email':
         error.value = 'El correo ingresado no es válido.';
@@ -58,6 +65,8 @@ const recoverPassword = async () => {
         break;
       default:
         error.value = 'Ocurrió un error al intentar recuperar la contraseña. Inténtalo de nuevo.';
+        // También puedes usar err.message si Firebase proporciona un mensaje más específico
+        // error.value = err.message || 'Ocurrió un error al intentar recuperar la contraseña. Inténtalo de nuevo.';
     }
   } finally {
     loading.value = false;
@@ -72,36 +81,34 @@ const closeModal = () => {
 </script>
 
 <style scoped>
-/* Estilo para el fondo del modal */
+/* Tus estilos CSS existentes */
 .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-  /* Estilo del contenedor del modal */
-  .modal {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 400px;
-    text-align: center;
-  }
+.modal {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
 
-  .modal-actions {
-    margin-top: 1rem;
-    display: flex;
-    justify-content: space-between;
-  }
+.modal-actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+}
 
-  /* Estilo para los inputs */
 .input-field {
   width: 100%;
   padding: 0.8rem;
@@ -118,48 +125,45 @@ const closeModal = () => {
   box-shadow: 0 0 4px rgba(255, 117, 58, 0.5);
 }
 
-    /* Estilo para los botones */
-  .btn-primary {
-    background-color: #ff753a; /* Naranja */
-    color: white;
-    border: none;
-    padding: 0.8rem 1.5rem;
-    border-radius: 4px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
+.btn-primary {
+  background-color: #ff753a; /* Naranja */
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
 
-  .btn-primary:hover {
-    background-color: #e56732; /* Naranja más oscuro */
-  }
+.btn-primary:hover {
+  background-color: #e56732; /* Naranja más oscuro */
+}
 
-  .btn-primary:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-  }
+.btn-primary:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
 
-  .btn-secondary {
-    background-color: #f8f9fa;
-    color: #333;
-    border: 1px solid #ccc;
-    padding: 0.8rem 1.5rem;
-    border-radius: 4px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
+.btn-secondary {
+  background-color: #f8f9fa;
+  color: #333;
+  border: 1px solid #ccc;
+  padding: 0.8rem 1.5rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
 
-  .btn-secondary:hover {
-    background-color: #e2e6ea;
-  }
+.btn-secondary:hover {
+  background-color: #e2e6ea;
+}
 
-
-  /* Estilo para los mensajes de error */
-  .error-message {
-    color: red;
-    margin-top: 1rem;
-    font-size: 0.9rem;
-    text-align: center;
-  }
+.error-message {
+  color: red;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  text-align: center;
+}
 </style>
