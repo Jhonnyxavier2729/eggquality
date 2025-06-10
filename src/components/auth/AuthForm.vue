@@ -244,9 +244,7 @@ input:focus {
   cursor: pointer;
 }
 
-.forgot-password a:hover {
-  color: #e56732;
-}
+
 
 /* ======================================= */
 /* MEDIA QUERIES PARA RESPONSIVIDAD */

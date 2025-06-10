@@ -29,7 +29,7 @@
   </template>
 
   <script setup>
-  import { defineProps, defineEmits } from 'vue';
+  
 
   // Definir las props que espera el componente
   const props = defineProps({

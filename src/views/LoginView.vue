@@ -36,8 +36,8 @@ const login = async (formData) => {
 
     // Si la acción del store es exitosa (no lanza error), muestra el toast de éxito y redirige
     toast.success('Inicio de sesión exitoso.');
-    console.log('Inicio de sesión exitoso. Redirigiendo al dashboard.');
-    router.push('/dashboard'); // Redirige al dashboard solo si el inicio de sesión es exitoso
+    console.log('Inicio de sesión exitoso. Redirigiendo al inicio.');
+    router.push('/inicio'); // Redirige al dashboard solo si el inicio de sesión es exitoso
 
   } catch (error) {
     // ===> Este catch recibe el error relanzado por la acción del store <===

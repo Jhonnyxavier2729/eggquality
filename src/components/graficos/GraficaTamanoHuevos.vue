@@ -62,7 +62,7 @@ const setChartType = (type) => {
 
 const eggSizeData = ref({
   titulo: 'Clasificación de Huevos por Tamaño',
-  textoNormativa: 'Según la normativa colombiana Icontec NTC 1240:2011, los huevos se clasifican por su peso en gramos, lo que determina su tamaño. Esto asegura un estándar de calidad y presentación en el mercado. Las categorías comunes incluyen Jumbo, AAA, AA, A, B y C.',
+  textoNormativa:'Según la normativa colombiana Icontec NTC 1240:2011, los huevos se clasifican por su peso en gramos, lo que determina su tamaño. Esto asegura un estándar de calidad y presentación en el mercado. Las categorías comunes incluyen Jumbo, AAA, AA, A, B y C.',
   normativaFuente: 'Normativa vigente Icontec NTC 1240:2011',
   datosGrafica: []
 })

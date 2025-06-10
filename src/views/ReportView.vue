@@ -104,6 +104,15 @@ import { ref, onMounted } from 'vue'
 import { usePanalesStore } from '@/stores/panalesStore'
 import html2pdf from 'html2pdf.js'
 
+
+//1. Define las props que el componente espera recibir
+const props = defineProps({
+  isSidebarOpen: {
+    type: Boolean,
+    default: true // O el valor por defecto que consideres adecuado (abierta por defecto)
+  }
+})
+
 const panalesStore = usePanalesStore()
 const reportPanales = ref([])
 const reportLoading = ref(false)
@@ -445,15 +454,16 @@ table td::before {
 @media (min-width: 1024px) {
   .report-container {
     padding: 2rem;
-    max-width: 1300px; /* Un ancho máximo generoso para pantallas grandes */
-    margin: 2rem 2rem 1rem 280px;
+    max-width: 1300px;
+    margin: 2rem 2rem 1rem 2rem ; /* ← centrado automático */
     transition: margin-left 0.35s ease-in-out;
   }
-  .report-container.sidebar-hidden {
 
-    /* El contenedor se ensancha hacia la izquierda al reducir su margen. */
-    margin-left: 2rem;
+  .report-container.sidebar-hidden {
+    margin-left: auto;
   }
+
+
   .filter-controls {
     gap: 1.5rem;
   }

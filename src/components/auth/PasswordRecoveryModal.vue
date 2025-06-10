@@ -1,80 +1,79 @@
 <template>
-    <div class="modal-overlay" v-if="isVisible">
-      <div class="modal">
-        <h2>Recuperar Contraseña</h2>
-        <p>Ingresa tu correo electrónico para recibir un enlace de recuperación.</p>
-        <input
-          type="email"
-          v-model="email"
-          placeholder="tu@email.com"
-          required
-          class="input-field"
-        />
-        <div class="modal-actions">
-          <button @click="recoverPassword" :disabled="loading" class="btn-primary">
-            {{ loading ? 'Enviando...' : 'Enviar' }}
-          </button>
-          <button @click="closeModal" class="btn-secondary">Cancelar</button>
-        </div>
-        <p v-if="error" class="error-message">{{ error }}</p>
+  <div class="modal-overlay" v-if="isVisible">
+    <div class="modal">
+      <h2>Recuperar Contraseña</h2>
+      <p>Ingresa tu correo electrónico para recibir un enlace de recuperación.</p>
+      <input
+        type="email"
+        v-model="email"
+        placeholder="tu@email.com"
+        required
+        class="input-field"
+      />
+      <div class="modal-actions">
+        <button @click="recoverPassword" :disabled="loading" class="btn-primary">
+          {{ loading ? 'Enviando...' : 'Enviar' }}
+        </button>
+        <button @click="closeModal" class="btn-secondary">Cancelar</button>
       </div>
+      <p v-if="error" class="error-message">{{ error }}</p>
     </div>
-  </template>
+  </div>
+</template>
 
-  <script setup>
-  import { ref } from 'vue';
-  import { useAuthStore } from '@/stores/auth';
+<script setup>
+import { ref} from 'vue'; 
+import { useAuthStore } from '@/stores/auth';
 
-  //const props = defineProps({
-    //isVisible: {
-      //type: Boolean,
-      //required: true,
-    //},
-  //});
+// DESCOMENTA Y USA ESTO:
+const props = defineProps({
+  isVisible: {
+    type: Boolean,
+    required: true,
+  },
+});
 
-  const emit = defineEmits(['close']);
+const emit = defineEmits(['close']);
 
-  const email = ref('');
-  const loading = ref(false);
-  const error = ref(null);
+const email = ref('');
+const loading = ref(false);
+const error = ref(null);
 
-  const authStore = useAuthStore();
+const authStore = useAuthStore();
 
-  const recoverPassword = async () => {
-    loading.value = true;
-    error.value = null;
-    try {
-      // Llama al método del store para enviar el correo de recuperación
-      await authStore.recoverPassword(email.value);
-      alert('Se ha enviado un enlace de recuperación a tu correo.');
-      closeModal();
-    } catch (err) {
-      // Manejo de errores de Firebase
-      switch (err.code) {
-        case 'auth/invalid-email':
-          error.value = 'El correo ingresado no es válido.';
-          break;
-        case 'auth/user-not-found':
-          error.value = 'No existe un usuario registrado con este correo.';
-          break;
-        default:
-          error.value = 'Ocurrió un error al intentar recuperar la contraseña. Inténtalo de nuevo.';
-      }
-    } finally {
-      loading.value = false;
+const recoverPassword = async () => {
+  loading.value = true;
+  error.value = null;
+  try {
+    await authStore.recoverPassword(email.value);
+    alert('Se ha enviado un enlace de recuperación a tu correo.');
+    closeModal();
+  } catch (err) {
+    switch (err.code) {
+      case 'auth/invalid-email':
+        error.value = 'El correo ingresado no es válido.';
+        break;
+      case 'auth/user-not-found':
+        error.value = 'No existe un usuario registrado con este correo.';
+        break;
+      default:
+        error.value = 'Ocurrió un error al intentar recuperar la contraseña. Inténtalo de nuevo.';
     }
-  };
+  } finally {
+    loading.value = false;
+  }
+};
 
-  const closeModal = () => {
-    error.value = null; // Limpia el mensaje de error al cerrar el modal
-    email.value = ''; //  Limpia el campo de correo electrónico
-    emit('close');
-  };
-  </script>
+const closeModal = () => {
+  error.value = null;
+  email.value = '';
+  emit('close');
+};
+</script>
 
-  <style scoped>
-  /* Estilo para el fondo del modal */
-  .modal-overlay {
+<style scoped>
+/* Estilo para el fondo del modal */
+.modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -163,4 +162,4 @@
     font-size: 0.9rem;
     text-align: center;
   }
-  </style>
+</style>

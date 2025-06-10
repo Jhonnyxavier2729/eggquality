@@ -31,7 +31,7 @@
   </template>
   
   <script setup>
-  import { defineProps, defineEmits } from 'vue';
+
   import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 
   const iconType = faQuestionCircle;

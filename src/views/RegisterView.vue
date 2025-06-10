@@ -29,8 +29,8 @@ const register = async (formData) => {
     await authStore.register(formData.email, formData.password, formData.username);
 
     toast.success('Registro exitoso.');
-    console.log('Registro exitoso. Redirigiendo al dashboard.');
-    router.push('/dashboard');
+    console.log('Registro exitoso. Redirigiendo al inicio.');
+    router.push('/inicio');
   } catch (error) {
     console.error('Vista de Registro: Error capturado al registrarse:', error);
 
