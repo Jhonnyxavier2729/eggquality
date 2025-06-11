@@ -1,10 +1,10 @@
-# 🥚 EggQualitë: Sistema Web de Gestión y Análisis de Huevos
+# 🥚 EggQualite: Sistema Web de Gestión y Análisis de Huevos
 
-## ¡Bienvenido a EggQualitë! 🚀
+## ¡Bienvenido a EggQualite! 🚀
 
 EggQualitë es una aplicación web diseñada para revolucionar la gestión integral de panales de huevos y el análisis del comportamiento de precios del huevo en el mercado mayorista-consumidor a nivel nacional en Colombia. Nuestro objetivo es proporcionar a pequeños y medianos avicultores una herramienta robusta e intuitiva para digitalizar sus procesos de control de inventario y optimizar la toma de decisiones, reemplazando métodos manuales por una plataforma eficiente e intuitiva.
 
-### ¿Para quién es EggQualitë?
+### ¿Para quién es EggQualite?
 Este sistema está pensado para pequeños y medianos avicultores en Colombia, incluyendo propietarios de granjas, gerentes de producción y personal administrativo encargado del inventario y la comercialización. Se espera que los usuarios tengan un nivel básico a intermedio de alfabetización digital y estén familiarizados con el uso de navegadores web y aplicaciones en línea.
 
 ## Características Principales 📋
