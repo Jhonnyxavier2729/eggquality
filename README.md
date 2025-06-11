@@ -129,13 +129,11 @@ Una vez que la aplicación esté corriendo, podrás:
 4.  Sube tus cambios (`git push origin feature/nueva-funcionalidad`).
 5.  Abre un Pull Request.
 
-## Licencia 📄
-
-Este proyecto está bajo la Licencia [Especifícala aquí, ej. MIT, Apache 2.0]. Consulta el archivo `LICENSE` para más detalles.
 
 ## Autores 🧑‍💻👩‍💻
 
-* **Jhonny Ramirez** 
-* **Adriana Guazaquillo** 
+* **Jhonny Ramirez** @jhonnyxavier2729
+* **Adriana Guazaquillo** @Adrianag99
+
 
 ---
