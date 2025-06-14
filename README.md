@@ -40,7 +40,7 @@ EggQualitë está construido sobre una arquitectura moderna y robusta:
 Si eres un avicultor y deseas utilizar EggQualitë para gestionar tus panales, ¡es muy sencillo!
 
 1.  **Accede a la Aplicación:** Abre tu navegador web favorito (Chrome, Firefox, Edge, Safari) y visita la siguiente URL:
-    Visita mi [sitio web personal](huevoscansena.web.app).
+    Visita mi [eggquailty](huevoscansena.web.app).
 
 2.  **Regístrate:** Una vez en la página, haz clic en "Registrarse" o "Crear cuenta" y sigue las instrucciones para crear tu usuario. Solo necesitarás un correo electrónico y una contraseña.
 
