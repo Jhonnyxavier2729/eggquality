@@ -33,9 +33,28 @@ EggQualitë está construido sobre una arquitectura moderna y robusta:
     * **Firestore:** Base de datos NoSQL para el almacenamiento de datos en la nube.
     * **Cloud Functions:** Entorno de ejecución sin servidor para la lógica de negocio del backend y procesos automatizados (ej. notificaciones de vencimiento).
 
-## Instalación y Configuración (Para Desarrolladores) ⚙️
+---
 
-Para poner EggQualitë en funcionamiento en tu entorno local, sigue estos pasos:
+## 🚀 Para Usuarios Finales: ¡Empieza a Usar EggQualitë Ahora!
+
+Si eres un avicultor y deseas utilizar EggQualitë para gestionar tus panales, ¡es muy sencillo!
+
+1.  **Accede a la Aplicación:** Abre tu navegador web favorito (Chrome, Firefox, Edge, Safari) y visita la siguiente URL:
+    Visita mi [huevoscansena.web.app](https://huevoscansena.web.app/).
+
+2.  **Regístrate:** Una vez en la página, haz clic en "Registrarse" o "Crear cuenta" y sigue las instrucciones para crear tu usuario. Solo necesitarás un correo electrónico y una contraseña.
+
+3.  **Explora y Gestiona:** Una vez registrado e iniciado sesión, podrás empezar a registrar tus panales, consultar precios, generar reportes y mucho más.
+
+**Video de Primeros Pasos:**
+Para una guía visual detallada sobre cómo registrarte y empezar a usar EggQualitë, mira nuestro video tutorial:
+**[]**
+
+---
+
+## ⚙️ Para Desarrolladores: Instalación y Configuración Local
+
+Si eres un desarrollador y deseas clonar este repositorio, contribuir al código o desplegar tu propia instancia de EggQualitë, sigue estas instrucciones:
 
 ### Prerrequisitos
 
@@ -60,35 +79,41 @@ Asegúrate de tener instalado lo siguiente:
 
 2.  **Configura tu Proyecto Firebase:**
     * Ve a la [Consola de Firebase](https://console.firebase.google.com/) y crea un nuevo proyecto.
-    * Habilita **Firebase Authentication** (Métodos de inicio de sesión: Email/Contraseña).
-    * Habilita **Firestore Database** (Modo de producción o de prueba, según prefieras, y establece las reglas de seguridad).
-    * Habilita **Cloud Functions** y **Cloud Scheduler** (para las funciones programadas de notificaciones y actualización de estado).
+    * Habilita los siguientes servicios en tu proyecto de Firebase:
+        * **Firebase Authentication** (Métodos de inicio de sesión: Email/Contraseña).
+        * **Firestore Database** (Comienza en modo de producción o de prueba, y establece las reglas de seguridad adecuadas).
+        * **Cloud Functions** y **Cloud Scheduler** (para las funciones programadas de notificaciones y actualización de estado).
 
-3.  **Configura SendGrid (para Notificaciones por Correo Electrónico):**
+3.  **Descarga la Clave de Cuenta de Servicio para el Admin SDK (¡Solo para desarrollo local/scripts!):**
+    * Ve a la [Consola de Firebase](https://console.firebase.google.com/).
+    * Navega a **Configuración del proyecto** ⚙️ > **Cuentas de servicio**.
+    * Haz clic en "Generar nueva clave privada". Esto descargará un archivo JSON (ej. `your-project-name-firebase-adminsdk-xxxxx-xxxxxx.json`).
+    * **Renómbralo** a `serviceAccountKey.json` y colócalo en la carpeta `backend/`.
+    * **¡MUY IMPORTANTE:** Asegúrate de que `backend/serviceAccountKey.json` esté en tu `.gitignore` para NO subirlo al repositorio público!
+
+4.  **Importa los Datos Iniciales de `eggPrices`:**
+    * Este proyecto incluye un conjunto de datos iniciales para la colección `eggPrices` (datos históricos de precios) en el archivo `data/eggPrices.json`.
+    * Para cargar estos datos en tu base de datos Firestore, ejecuta el siguiente script desde la raíz del proyecto:
+        ```bash
+        node backend/seed_data.js # Asegúrate que la ruta al script sea correcta
+        ```
+        * **Nota:** Este script asume que tienes el archivo `serviceAccountKey.json` configurado como se indica en el paso anterior.
+
+5.  **Configura SendGrid (para Notificaciones por Correo Electrónico):**
     EggQualitë utiliza SendGrid para enviar notificaciones de vencimiento de panales. Deberás configurar tu cuenta de SendGrid y sus credenciales en Firebase Secret Manager para que las Cloud Functions puedan utilizarlas de forma segura.
 
-    a.  **Crea una cuenta en SendGrid:**
-        Si aún no tienes una, regístrate en [SendGrid](https://sendgrid.com/).
-
+    a.  **Crea una cuenta en SendGrid:** Regístrate en [SendGrid](https://sendgrid.com/).
     b.  **Crea una API Key en SendGrid:**
         * En tu panel de SendGrid, navega a **Settings** > **API Keys**.
-        * Haz clic en "Create API Key".
-        * Asígnale un nombre descriptivo (ej. `EggQualite_API_Key`).
-        * Dale los permisos adecuados para el envío de correo (mínimo: **Mail Send** con "Full Access" o "Restricted Access" solo a "Mail Send").
-        * **Copia la API Key generada.** Solo se mostrará una vez.
-
+        * Crea una nueva API Key con permisos para el envío de correo (mínimo: **Mail Send**).
+        * **Copia la API Key generada de inmediato**, ya que solo se mostrará una vez.
     c.  **Configura el Sender Identity en SendGrid:**
         * Ve a **Settings** > **Sender Authentication**.
-        * Configura un "Single Sender Verification" o "Domain Authentication" para verificar la dirección de correo electrónico que usarás como remitente de las notificaciones (ej. `notificaciones@tudominio.com`).
-        * **Copia la dirección de correo electrónico verificada.**
-
+        * Verifica la dirección de correo electrónico que usarás como remitente de las notificaciones (ej. `notificaciones@tudominio.com`). **Copia esta dirección verificada.**
     d.  **Crea una Plantilla Dinámica en SendGrid (opcional pero recomendado):**
-        Si tu función `sendExpirationAlerts` utiliza una plantilla dinámica (como `sendgridTemplateId`), deberás crearla en SendGrid.
-        * Ve a **Email API** > **Dynamic Templates**.
-        * Haz clic en "Create a Dynamic Template".
-        * Diseña tu plantilla. Asegúrate de usar las variables de sustitución adecuadas que tu función está pasando (ej. `{{nombreUsuario}}`, `{{diasRestantes}}`, `{{panales}}`). Para `panales`, necesitarás usar un bloque de iteración en la plantilla (ej. `{{#each panales}}...{{/each}}`).
+        * Si tu función `sendExpirationAlerts` utiliza una plantilla dinámica, créala en **Email API** > **Dynamic Templates**.
+        * Diseña tu plantilla usando las variables de sustitución esperadas por tu función (ej. `{{nombreUsuario}}`, `{{diasRestantes}}`, `{{panales}}`).
         * **Copia el Template ID** (ej. `d-XXXXXXXXXXXXXX`).
-
     e.  **Guarda las credenciales de SendGrid en Firebase Secret Manager:**
         Desde la terminal, dentro de la carpeta `backend` (o donde estén tus Cloud Functions), ejecuta los siguientes comandos. Reemplaza los valores con tu API Key, el correo remitente y el ID de tu plantilla.
 
@@ -109,7 +134,7 @@ Asegúrate de tener instalado lo siguiente:
         firebase functions:secrets:access SENDGRID_EXPIRATION_TEMPLATE_ID --json
         ```
 
-4.  **Configura el Frontend:**
+6.  **Configura el Frontend:**
     ```bash
     cd frontend # O el nombre de tu carpeta frontend
     npm install
@@ -126,7 +151,7 @@ Asegúrate de tener instalado lo siguiente:
         ```
     * Además, recuerda añadir `/.env.local` y `.env` a tu `.gitignore` en la raíz de la carpeta `frontend` para evitar subirlos al repositorio.
 
-5.  **Configura el Backend (Cloud Functions):**
+7.  **Configura el Backend (Cloud Functions):**
     ```bash
     cd backend # O el nombre de tu carpeta de funciones
     npm install
@@ -135,7 +160,7 @@ Asegúrate de tener instalado lo siguiente:
     ```
     * Asegúrate de que tu `index.js` en las funciones está configurado para usar `defineSecret` como lo tienes en tu código para acceder a los secretos de SendGrid.
 
-6.  **Despliega las Cloud Functions (¡con los secretos!):**
+8.  **Despliega las Cloud Functions (¡con los secretos!):**
     Para que las funciones puedan acceder a los secretos de SendGrid y las variables de entorno, deberás desplegarlas.
 
     ```bash
@@ -143,7 +168,7 @@ Asegúrate de tener instalado lo siguiente:
     ```
     Cuando despliegas funciones que usan `defineSecret`, Firebase automáticamente asegura que los secretos estén disponibles para esas funciones.
 
-7.  **Ejecuta el Frontend Localmente:**
+9.  **Ejecuta el Frontend Localmente (para desarrollo):**
     ```bash
     cd ../frontend # Si estabas en la carpeta backend
     npm install # Asegúrate de que todas las dependencias del frontend estén instaladas
@@ -151,9 +176,18 @@ Asegúrate de tener instalado lo siguiente:
     ```
     Esto debería abrir la aplicación en tu navegador en `http://localhost:5173` (si usas Vite) o `http://localhost:8080` (si usas Vue CLI).
 
+10. **Despliega la Aplicación a Firebase Hosting (para producción/acceso público):**
+    Una vez que la aplicación esté lista para ser pública, puedes desplegar tu frontend a Firebase Hosting.
+    ```bash
+    cd frontend # Si estabas en la carpeta backend
+    npm run build # Genera los archivos estáticos de tu aplicación Vue.js
+    firebase deploy --only hosting
+    ```
+    Firebase te proporcionará una URL pública donde tu aplicación estará disponible.
+
 ## Uso de la Aplicación 🚀
 
-Una vez que la aplicación esté corriendo, podrás:
+Una vez que la aplicación esté corriendo (localmente o desplegada), podrás:
 
 1.  **Registrarte** como nuevo usuario.
 2.  **Iniciar sesión** con tus credenciales.
@@ -178,6 +212,5 @@ Una vez que la aplicación esté corriendo, podrás:
 * **Jhonny Ramirez** [@jhonnyxavier2729](https://github.com/jhonnyxavier2729)
 * **Adriana Guazaquillo** [@Adrianag99](https://github.com/Adrianag99)
 
-## soporte o dudas 🧑‍💻👩‍💻
-Para consultas, contáctanos en: [eggquality3@gmail.com](eggquality3@gmail.com)
-
+## Soporte o Dudas 🧑‍💻👩‍💻
+Para consultas, contáctanos en: [eggquality3@gmail.com](mailto:eggquality3@gmail.com)
