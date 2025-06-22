@@ -30,7 +30,7 @@ const register = async (formData) => {
 
     toast.success('Registro exitoso.');
     console.log('Registro exitoso. Redirigiendo al inicio.');
-    router.push('/inicio');
+    router.push({ name: 'inicio' });
   } catch (error) {
     console.error('Vista de Registro: Error capturado al registrarse:', error);
 

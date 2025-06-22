@@ -87,7 +87,6 @@ const availableEggTypes = ref([
 const CITIES_TO_DISPLAY = [
   "Armenia, Mercar",
   "Bogotá, D.C., Corabastos",
-  "Bogotá, D.C., Paloquemao",
   "Cali, Siloé",
   "Medellín, Central Mayorista de Antioquia",
 ];
