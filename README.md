@@ -46,9 +46,7 @@ Si eres un avicultor y deseas utilizar EggQualitë para gestionar tus panales, �
 
 3.  **Explora y Gestiona:** Una vez registrado e iniciado sesión, podrás empezar a registrar tus panales, consultar precios, generar reportes y mucho más.
 
-**Video de Primeros Pasos:**
-Para una guía visual detallada sobre cómo registrarte y empezar a usar EggQualitë, mira nuestro video tutorial:
-**[]**
+4.  **Si deseas obtener el acceso completo de la web escribanos al correo electronico para gestionar consultas, contáctanos en: eggquality3@gmail.com
 
 ---
 
